@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+dist-seed/
+.next/
+out/
+*.tsbuildinfo
+
+# generated
+apps/api/src/generated/
+coverage/
+
+# env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# logs / os
+*.log
+.DS_Store
+
+# editor
+.vscode/
+.idea/

@@ -1,0 +1,30 @@
+{
+  "name": "school-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "School management platform for Kenyan primary, JSS and secondary schools",
+  "packageManager": "pnpm@12.21.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "postinstall": "pnpm --filter @school-system/shared build",
+    "dev": "pnpm --parallel --filter @school-system/api --filter @school-system/web dev",
+    "dev:api": "pnpm --filter @school-system/api dev",
+    "dev:web": "pnpm --filter @school-system/web dev",
+    "build": "pnpm --filter @school-system/shared build && pnpm --filter @school-system/api build && pnpm --filter @school-system/web build",
+    "test": "pnpm --filter @school-system/api test",
+    "seed": "pnpm --filter @school-system/api seed",
+    "migrate": "pnpm --filter @school-system/api migrate",
+    "prisma": "pnpm --filter @school-system/api exec prisma",
+    "orval": "pnpm --filter @school-system/web orval",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2"
+  }
+}
