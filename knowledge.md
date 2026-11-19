@@ -1,71 +1,63 @@
 # Project knowledge
 
-High-signal context for this repo: what it is, how it is laid out, and the
-conventions an agent should follow when working in it.
+`README.md` is the canonical documentation. `AGENTS.md` is the session brief.
+Keep both in sync when the project changes; this file is only a quick pointer.
 
 ## What this project is
 
-This is a **Freebuff / Codebuff custom agent workspace** — the scaffold in which
-custom agents are authored, not an application. As of this writing the repo has
-no runtime code: only `AGENTS.md` (the project knowledge file) and the vendored
-Codebuff agent type definitions. There is no `package.json`, no lockfile, no
-build tool, and no git repository initialized.
+`school-system` — a school management platform for Kenyan primary, JSS and
+secondary schools, built as a pnpm monorepo:
 
-If application code is added later, record the install/dev/test commands and
-update the sections below.
+- `apps/api` — NestJS 11, Prisma 7 + PostgreSQL 16, JWT auth, Swagger
+- `apps/web` — Next.js 15 App Router, React 19, Tailwind 4, shadcn/ui, Orval
+- `packages/shared` — roles, Kenyan constants, 8-4-4/CBC grade bands, Zod schemas
 
-## Layout
+Grading supports CBC performance levels and 8-4-4 numeric bands per school.
+Money is KES (`Decimal`), phones are E.164 (`+254...`), dates use
+`Africa/Nairobi`.
 
-- `AGENTS.md` — project knowledge consumed by Freebuff at session start. Keep
-  the same `Quickstart` / `Architecture` / `Conventions` structure if editing.
-- `.agents/` — the Codebuff agent directory.
-  - `.agents/types/agent-definition.ts` — the `AgentDefinition` interface, the
-    `ModelName` union of recommended OpenRouter models, and `handleSteps` /
-    `AgentState` / `AgentStepContext` types.
-  - `.agents/types/tools.ts` — `ToolName` union, `ToolParamsMap`, and one
-    `*Params` interface per tool.
-  - `.agents/types/util-types.ts` — message parts, `MCPConfig`, `JsonSchema`,
-    and the `Logger` interface.
-- Agent definitions themselves go at `.agents/<agent-id>.ts` and export the
-  `AgentDefinition` object as `default`.
+## Where we are
+
+Phase 1 (Foundation) is complete: monorepo, full Prisma schema, migration, seed,
+auth with refresh rotation and lockout, role guards, Swagger, signed session
+cookie, role dashboards, Orval client, 8 unit tests.
+
+**Phase 2 (People & structure) is next and has not started.** Wait for explicit
+approval before writing it. See `AGENTS.md` for the Phase 2 checklist and
+`README.md` for the roadmap.
 
 ## Commands
 
-None are defined in this repo — there is no package manifest or task runner. Do
-not invent `npm test` / `npm run build` style commands. Run `ls` and look for a
-manifest before assuming tooling exists.
+```bash
+docker compose up -d db      # Postgres on :5435
+pnpm install                 # builds shared + generates Prisma client
+pnpm prisma migrate dev      # or: pnpm prisma migrate deploy
+pnpm seed
+pnpm dev:api                 # :3001
+pnpm dev:web                 # :3000
+pnpm test                    # API unit tests
+pnpm typecheck
+pnpm build
+pnpm --filter api openapi && pnpm orval   # after API contract changes
+```
 
-## Conventions
+Dev logins: `admin@mwangaza.ac.ke / Admin@1234`, `teacher@mwangaza.ac.ke /
+Teacher@1234`, `student@mwangaza.ac.ke / Student@1234`,
+`parent@mwangaza.ac.ke / Parent@1234`.
 
-- Write agent files in TypeScript and import types from the relative path:
-  `import { AgentDefinition, ToolName, ModelName } from './types/agent-definition'`.
-- `id` must be lowercase letters, numbers, and hyphens only (e.g. `code-reviewer`).
-- Choose `model` from the `ModelName` union (`agent-definition.ts`); the union
-  ends in `(string & {})`, so any OpenRouter model id type-checks, but validate
-  the id against https://openrouter.ai/models rather than guessing.
-- Shape behavior primarily through `instructionsPrompt` (re-inserted after each
-  user input). `systemPrompt` is background context and `stepPrompt` runs every
-  step — reach for them only when the semantics actually require it.
-- If an agent sets `reasoningOptions`, include exactly one of `max_tokens` or
-  `effort`; `exclude: true` strips reasoning tokens from the response.
-- `spawnableAgents` entries must be fully qualified store ids
-  (`publisher/agent@version`) for published agents, or a bare local agent id for
-  files in `.agents/`.
-- When writing a `handleSteps` generator, remember it is serialized with
-  `toString()`: it cannot close over outer variables. Read request-time values
-  (`model`, `contextPruning`, `params`) from the `AgentStepContext` argument, and
-  treat them as optional so direct invocation degrades instead of throwing.
-- Use the `$VAR_NAME` form in an MCP server's `env` to pull secrets from the
-  environment; never hardcode tokens in an agent definition.
-- Prefer `outputMode: 'structured_output'` with an `outputSchema` when a parent
-  agent consumes the result programmatically.
+## Hard rules
 
-### Things to avoid
+- Only repositories touch Prisma.
+- DTO + validation on every endpoint; backend enforces authorization.
+- Consistent response envelope and global exception filter.
+- Orval-generated types are the source of truth for the web client.
+- No secrets in git; `.env.example` is the variable list.
+- `Africa/Nairobi`, KES `Decimal`, E.164 phones.
 
-- Do not commit real credentials or `.env.local` contents; only `$VAR` references
-  belong in agent files.
-- Do not use `inheritParentSystemPrompt` together with `systemPrompt` — the two
-  are mutually exclusive.
-- Do not treat `.agents/types/` as application source or hand-edit the vendored
-  type definitions to fit an agent; conform the agent to them.
-- Do not assume git history, CI, or tests exist here unless you have verified it.
+## Layout notes
+
+- `.agents/types/` is vendored Codebuff tooling — not application code. Do not
+  edit it to fit the app.
+- Generated output that must never be hand-edited:
+  `apps/api/src/generated/prisma/`, `apps/web/src/lib/api/generated/`,
+  `apps/web/src/components/ui/` (shadcn CLI).
