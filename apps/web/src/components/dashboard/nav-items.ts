@@ -1,8 +1,11 @@
 import type { Role } from '@school-system/shared';
 import {
+  BookMarked,
   BookOpen,
   CalendarCheck,
+  CalendarDays,
   ClipboardList,
+  Contact,
   GraduationCap,
   LayoutDashboard,
   Receipt,
@@ -22,18 +25,21 @@ export interface NavItem {
 export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   ADMIN: [
     { title: 'Dashboard', href: '/admin', icon: LayoutDashboard, available: true },
-    { title: 'Students', href: '/admin/students', icon: Users, available: false },
-    { title: 'Staff', href: '/admin/staff', icon: GraduationCap, available: false },
-    { title: 'Classes', href: '/admin/classes', icon: BookOpen, available: false },
+    { title: 'Students', href: '/admin/students', icon: Users, available: true },
+    { title: 'Staff', href: '/admin/staff', icon: GraduationCap, available: true },
+    { title: 'Classes', href: '/admin/classes', icon: BookOpen, available: true },
+    { title: 'Subjects', href: '/admin/subjects', icon: BookMarked, available: true },
+    { title: 'Academic year', href: '/admin/academic-years', icon: CalendarDays, available: true },
+    { title: 'Guardians', href: '/admin/guardians', icon: Contact, available: true },
     { title: 'Fees', href: '/admin/fees', icon: Wallet, available: false },
     { title: 'Reports', href: '/admin/reports', icon: ClipboardList, available: false },
     { title: 'Settings', href: '/admin/settings', icon: Settings, available: false },
   ],
   TEACHER: [
     { title: 'Dashboard', href: '/teacher', icon: LayoutDashboard, available: true },
+    { title: 'My classes', href: '/teacher/classes', icon: BookOpen, available: true },
     { title: 'Attendance', href: '/teacher/attendance', icon: CalendarCheck, available: false },
     { title: 'Marks', href: '/teacher/marks', icon: ClipboardList, available: false },
-    { title: 'My classes', href: '/teacher/classes', icon: BookOpen, available: false },
   ],
   STUDENT: [
     { title: 'Dashboard', href: '/student', icon: LayoutDashboard, available: true },
@@ -43,7 +49,7 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   ],
   PARENT: [
     { title: 'Dashboard', href: '/parent', icon: LayoutDashboard, available: true },
-    { title: 'My children', href: '/parent/children', icon: Users, available: false },
+    { title: 'My children', href: '/parent/children', icon: Users, available: true },
     { title: 'Attendance', href: '/parent/attendance', icon: CalendarCheck, available: false },
     { title: 'Fees', href: '/parent/fees', icon: Wallet, available: false },
   ],

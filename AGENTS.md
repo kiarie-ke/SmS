@@ -6,7 +6,10 @@ detail. Keep both accurate when the project changes.
 ## Status
 
 - **Phase 1 (Foundation) is complete and committed** (`5d61469`).
-- **Phase 2 has NOT started.** Do not begin it until the user explicitly approves.
+- **Phase 2 (People & structure) is complete** — CRUD, scoping, CSV import,
+  photos, admin/teacher/parent screens, 15/15 tests, both apps build.
+- **Phase 3 (Attendance) has NOT started.** Do not begin it until the user
+  explicitly approves.
 - Work strictly one phase at a time. At the end of each phase: run its checks,
   write the hand-test checklist, then **stop and wait**.
 
@@ -31,7 +34,7 @@ pnpm prisma migrate dev          # dev migration (or migrate deploy)
 pnpm seed                        # idempotent seed
 pnpm dev:api                     # :3001  (pnpm --filter api start:dev also works)
 pnpm dev:web                     # :3000
-pnpm test                        # API unit tests (currently 8)
+pnpm test                        # API unit tests (currently 15)
 pnpm typecheck                   # all packages
 pnpm build                       # shared -> api -> web
 pnpm --filter api openapi        # export OpenAPI (needs DB)
@@ -50,11 +53,17 @@ Browser ──► Next :3000 (middleware + BFF /api/session/*) ──► API :30
 ```
 
 - `apps/api/src/auth` — controller, service, JWT/refresh, cookies, repository, tests
-- `apps/api/src/common` — envelope, exception filter, guards (`jwt`, `roles`, `csrf`), decorators
+- `apps/api/src/common` — envelope, pagination DTO/helper, exception filter, guards (`jwt`, `roles`, `csrf`), decorators
+- `apps/api/src/people` — students (CSV import, photos), guardians, teachers, users
+- `apps/api/src/structure` — classes, streams, subjects, academic years, terms
+- `apps/api/src/scoping` — `ScopingService`, the single source of access rules
 - `apps/api/src/prisma` — `PrismaService` (pg driver adapter)
 - `apps/web/src/middleware.ts` — verifies HMAC-signed `ss_session`, role routing
 - `apps/web/src/app/api/session/*` — BFF login / refresh / logout
 - `apps/web/src/lib/auth-context.tsx` — access token kept **in memory**
+- `apps/web/src/lib/api/auth-token.ts` — token holder the API client reads
+- `apps/web/src/components/data-table/*` — shared DataTable + RHF/Zod dialog
+- `apps/web/src/app/(dashboard)/admin/*` — admin CRUD screens (plus parent/teacher scoped tables)
 - `apps/web/src/lib/api/generated/*` — Orval output; never edit by hand
 
 ## Non-negotiable rules
@@ -74,40 +83,42 @@ Browser ──► Next :3000 (middleware + BFF /api/session/*) ──► API :30
 7. **All date logic uses `Africa/Nairobi`; currency is KES as `Decimal`.**
 8. Conventional commits; one logical change per commit.
 
-## Phase 2 — People & structure (next, on approval)
+## Phase 2 — People & structure (complete)
 
-Backend, in order:
+Delivered: shared pagination DTO + `paginate()` helper; repositories for
+students, guardians, teachers, users, classes, streams, subjects, academic
+years and terms; `ScopingService` called from services; CRUD + Swagger for all
+nine resources; `POST /students/:id/guardians`,
+`POST /teachers/:id/class-subjects`; CSV import (per-row report, 500-row cap);
+photo upload (2 MB, JPEG/PNG/WebP, EXIF stripped with `sharp`, signed
+Cloudinary upload via `fetch`); admin DataTable screens, import wizard, student
+detail tabs, parent/teacher scoped tables; 7 scoping tests.
 
-1. Pagination/search/sort query DTO + shared `PaginatedResult` helper. The
-   envelope interceptor already passes through `{ data, meta }`.
-2. Repositories for students, guardians, teachers, classes, streams, subjects,
-   academic years, terms.
-3. `ScopingService` (teacher → classes with a `ClassSubject`; parent → students
-   via `StudentGuardian`) and call it from services.
-4. Modules with `GET /` (paginated + search + filter + sort), `GET /:id`,
-   `POST /`, `PATCH /:id`, `DELETE /:id`. Soft delete only for Student/Teacher.
-5. `POST /students/:id/guardians`, `POST /teachers/:id/class-subjects`.
-6. `POST /students/import` — papaparse, per-row success/error report, one bad
-   row must not fail the batch.
-7. `POST /students/:id/photo` — multer, 2 MB, jpeg/png/webp, server-side EXIF
-   strip, signed Cloudinary upload.
-8. Tests: teacher out-of-scope read denied; parent reading another child denied.
+Dependencies added: `papaparse`, `multer`, `sharp`, `@tanstack/react-table`
+(plus `@types/papaparse`, `@types/multer`).
 
-Frontend: shadcn DataTable pages per entity (loading / empty / error states),
-create/edit dialogs (RHF + shared Zod), student detail tabs, CSV import wizard,
-photo upload with preview. Regenerate Orval after contract changes.
+## Phase 3 — Attendance (next, on approval)
 
-Dependencies to add when needed: `papaparse` + `@types/papaparse`, `multer` +
-`@types/multer`, `cloudinary`, `@tanstack/react-table`.
+1. `AttendanceRepository` — upsert on `(studentId, date)`, queries by class/day
+   and student/date-range.
+2. `AttendanceService` using `ScopingService` (teacher: assigned classes only).
+3. `POST /attendance/register`, `GET /attendance`, `GET /attendance/student/:id`,
+   plus class/student summaries.
+4. ABSENT creates an in-app notification for linked guardians.
+5. Tests: teacher marking another class denied; parent reading another child denied.
 
-**Done when:** all CRUD endpoints documented in Swagger; scoping tests pass; CSV
-handles 50 rows with 3 bad rows; Orval regenerated; web compiles.
+Frontend: teacher register (class + date, PRESENT/ABSENT/LATE/EXCUSED), parent
+and student history, class summary. Regenerate Orval after contract changes.
+
+**Done when:** register is idempotent per student/day; scoping tests pass; Orval
+regenerated; web compiles; hand-test checklist written.
 
 ## Verification baseline
 
-`pnpm test` → 8/8 pass. API and web typecheck clean. `nest build` and
-`next build` succeed. Migration + seed verified in Postgres. Smoke tests cover
-all 4 logins, RBAC, CSRF, refresh rotation, logout, Swagger and cookie flags.
+`pnpm test` → 15/15 pass. API and web typecheck clean. `nest build` and
+`next build` (18 routes) succeed. Seeded DB: 10 students, 3 teachers,
+4 classes, 5 subjects. Live smoke covers CRUD, teacher/parent scoping 403s,
+CSV import 50 rows → 47 imported / 3 failed, photo validation, and Swagger.
 
 ## Gotchas (learned the hard way)
 
@@ -125,6 +136,10 @@ all 4 logins, RBAC, CSRF, refresh rotation, logout, Swagger and cookie flags.
 - `NEXT_PUBLIC_API_URL` has **no** `/api` suffix; OpenAPI paths already include it.
 - Refresh/session cookies use path `/` so the web BFF can read them.
 - `next/font/google` fails in this environment; keep the system font stack.
+- Prisma keeps camelCase column names; quote them in `psql`
+  (`"admissionNumber"`, not `admission_number`).
+- Photo upload returns **503** until `CLOUDINARY_*` is set — by design.
+- `pnpm --filter api openapi` needs the DB up and boots the API once.
 
 ## Session start checklist
 
@@ -135,7 +150,7 @@ all 4 logins, RBAC, CSRF, refresh rotation, logout, Swagger and cookie flags.
 4. If the DB is empty: `pnpm prisma migrate deploy && pnpm seed`.
 5. `pnpm test` for a green baseline.
 6. Confirm no stray process on 3001, then start API, then web.
-7. Ask for/confirm phase approval before writing Phase 2 code.
+7. Ask for/confirm phase approval before writing Phase 3 code.
 
 ## Do not
 

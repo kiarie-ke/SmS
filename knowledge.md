@@ -18,13 +18,20 @@ Money is KES (`Decimal`), phones are E.164 (`+254...`), dates use
 
 ## Where we are
 
-Phase 1 (Foundation) is complete: monorepo, full Prisma schema, migration, seed,
-auth with refresh rotation and lockout, role guards, Swagger, signed session
-cookie, role dashboards, Orval client, 8 unit tests.
+Phases 1 and 2 are complete:
 
-**Phase 2 (People & structure) is next and has not started.** Wait for explicit
-approval before writing it. See `AGENTS.md` for the Phase 2 checklist and
-`README.md` for the roadmap.
+- **Phase 1** — monorepo, full Prisma schema, migration, seed, auth with refresh
+  rotation and lockout, role guards, Swagger, signed session cookie,
+  role dashboards, Orval client.
+- **Phase 2** — CRUD + pagination for students, guardians, teachers, classes,
+  streams, subjects, academic years and terms; `ScopingService` (teacher classes,
+  parent children, student self); CSV import with per-row report; photo upload
+  with EXIF stripping and signed Cloudinary upload; admin DataTables, import
+  wizard, student detail tabs; 15 unit tests (8 auth + 7 scoping).
+
+**Phase 3 (Attendance) is next and has not started.** Wait for explicit approval.
+See `AGENTS.md` for the Phase 3 outline and `README.md` for the roadmap and the
+hand-test checklist.
 
 ## Commands
 
@@ -35,7 +42,7 @@ pnpm prisma migrate dev      # or: pnpm prisma migrate deploy
 pnpm seed
 pnpm dev:api                 # :3001
 pnpm dev:web                 # :3000
-pnpm test                    # API unit tests
+pnpm test                    # API unit tests (15)
 pnpm typecheck
 pnpm build
 pnpm --filter api openapi && pnpm orval   # after API contract changes
@@ -49,6 +56,8 @@ Teacher@1234`, `student@mwangaza.ac.ke / Student@1234`,
 
 - Only repositories touch Prisma.
 - DTO + validation on every endpoint; backend enforces authorization.
+- Scoping lives in `ScopingService` and is called from services, never only
+  from controllers.
 - Consistent response envelope and global exception filter.
 - Orval-generated types are the source of truth for the web client.
 - No secrets in git; `.env.example` is the variable list.

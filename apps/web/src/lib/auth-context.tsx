@@ -9,6 +9,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { setAccessToken as storeAccessToken } from '@/lib/api/auth-token';
 
 export interface SessionUser {
   id: string;
@@ -58,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           user: SessionUser;
         };
         if (!cancelled) {
+          storeAccessToken(body.accessToken);
           setAccessToken(body.accessToken);
           setUser(body.user);
         }
@@ -86,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         typeof body.message === 'string' ? body.message : 'Unable to sign in',
       );
     }
+    storeAccessToken(body.accessToken as string);
     setAccessToken(body.accessToken as string);
     setUser(body.user as SessionUser);
     return body.user as SessionUser;
@@ -95,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await fetch('/api/session', { method: 'DELETE' });
     } finally {
+      storeAccessToken(null);
       setAccessToken(null);
       setUser(null);
     }

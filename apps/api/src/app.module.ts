@@ -4,6 +4,15 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { AuthModule } from './auth/auth.module';
+import { GuardiansModule } from './people/guardians/guardians.module';
+import { StudentsModule } from './people/students/students.module';
+import { TeachersModule } from './people/teachers/teachers.module';
+import { UsersModule } from './people/users/users.module';
+import { AcademicYearsModule } from './structure/academic-years/academic-year.module';
+import { ClassesModule } from './structure/classes/class.module';
+import { StreamsModule } from './structure/streams/stream.module';
+import { SubjectsModule } from './structure/subjects/subject.module';
+import { TermsModule } from './structure/terms/term.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { CsrfGuard } from './common/guards/csrf.guard';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -38,6 +47,15 @@ import { PrismaModule } from './prisma/prisma.module';
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 20 }]),
     PrismaModule,
     AuthModule,
+    StudentsModule,
+    GuardiansModule,
+    TeachersModule,
+    UsersModule,
+    AcademicYearsModule,
+    TermsModule,
+    ClassesModule,
+    StreamsModule,
+    SubjectsModule,
   ],
   controllers: [HealthController],
   providers: [

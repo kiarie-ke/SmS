@@ -129,3 +129,1319 @@ export const AuthControllerCsrfResponse = zod.object({
   "cookieName": zod.string(),
   "headerName": zod.string()
 })
+
+
+/**
+ * @summary List students (admin: all; teacher: assigned classes; parent: linked children; student: self)
+ */
+export const studentsControllerListQueryPageDefault = 1;
+
+export const studentsControllerListQueryLimitDefault = 20;
+export const studentsControllerListQueryLimitMax = 100;
+
+export const studentsControllerListQuerySearchMax = 100;
+
+export const studentsControllerListQuerySortOrderDefault = `asc`;
+export const studentsControllerListQuerySortByDefault = `lastName`;
+
+export const StudentsControllerListQueryParams = zod.object({
+  "page": zod.number().min(1).default(studentsControllerListQueryPageDefault),
+  "limit": zod.number().min(1).max(studentsControllerListQueryLimitMax).default(studentsControllerListQueryLimitDefault),
+  "search": zod.string().max(studentsControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(studentsControllerListQuerySortOrderDefault),
+  "sortBy": zod.enum(['admissionNumber', 'firstName', 'lastName', 'createdAt']).default(studentsControllerListQuerySortByDefault),
+  "classId": zod.uuid().optional().describe('Filter by class'),
+  "streamId": zod.uuid().optional().describe('Filter by stream'),
+  "gender": zod.enum(['MALE', 'FEMALE']).optional()
+})
+
+export const StudentsControllerListResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.string(),
+  "admissionNumber": zod.string(),
+  "upi": zod.string(),
+  "firstName": zod.string(),
+  "middleName": zod.string().nullable(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "gender": zod.enum(['MALE', 'FEMALE']),
+  "dateOfBirth": zod.string(),
+  "county": zod.string(),
+  "subCounty": zod.string(),
+  "photoUrl": zod.string().nullable(),
+  "religion": zod.string().nullable(),
+  "boardingStatus": zod.string(),
+  "specialNeeds": zod.boolean(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "classLevel": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "streamId": zod.string().nullable(),
+  "streamName": zod.string().nullable(),
+  "guardianCount": zod.number().describe('Number of linked guardians'),
+  "createdAt": zod.string()
+})),
+  "meta": zod.object({
+  "page": zod.number(),
+  "limit": zod.number(),
+  "total": zod.number(),
+  "totalPages": zod.number()
+})
+})
+
+
+/**
+ * @summary Create a student
+ */
+export const studentsControllerCreateBodySpecialNeedsDefault = false;
+export const studentsControllerCreateBodyBoardingStatusDefault = `DAY`;
+
+export const StudentsControllerCreateBody = zod.object({
+  "admissionNumber": zod.string(),
+  "upi": zod.string().describe('NEMIS unique personal identifier'),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "middleName": zod.string().optional(),
+  "gender": zod.enum(['MALE', 'FEMALE']),
+  "dateOfBirth": zod.string().describe('Calendar date (YYYY-MM-DD)'),
+  "birthCertificateNumber": zod.string().optional(),
+  "knecIndexNumber": zod.string().optional(),
+  "county": zod.string(),
+  "subCounty": zod.string(),
+  "religion": zod.string().optional(),
+  "specialNeeds": zod.boolean().default(studentsControllerCreateBodySpecialNeedsDefault),
+  "boardingStatus": zod.enum(['DAY', 'BOARDER']).default(studentsControllerCreateBodyBoardingStatusDefault),
+  "classId": zod.uuid(),
+  "streamId": zod.uuid().optional(),
+  "photoUrl": zod.string().optional().describe('Set by the photo upload endpoint')
+})
+
+export const StudentsControllerCreateResponse = zod.object({
+  "id": zod.string(),
+  "admissionNumber": zod.string(),
+  "upi": zod.string(),
+  "firstName": zod.string(),
+  "middleName": zod.string().nullable(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "gender": zod.enum(['MALE', 'FEMALE']),
+  "dateOfBirth": zod.string(),
+  "county": zod.string(),
+  "subCounty": zod.string(),
+  "photoUrl": zod.string().nullable(),
+  "religion": zod.string().nullable(),
+  "boardingStatus": zod.string(),
+  "specialNeeds": zod.boolean(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "classLevel": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "streamId": zod.string().nullable(),
+  "streamName": zod.string().nullable(),
+  "guardianCount": zod.number().describe('Number of linked guardians'),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Import students from CSV; every row is reported individually
+ */
+export const StudentsControllerImportCsvBody = zod.object({
+  "file": zod.instanceof(Blob).optional()
+})
+
+export const StudentsControllerImportCsvResponse = zod.object({
+  "total": zod.number(),
+  "imported": zod.number(),
+  "failed": zod.number(),
+  "rows": zod.array(zod.object({
+  "row": zod.number().describe('Spreadsheet row number (header is row 1)'),
+  "admissionNumber": zod.string().nullable(),
+  "success": zod.boolean(),
+  "error": zod.string().nullable().describe('Why the row failed')
+}))
+})
+
+
+/**
+ * @summary Get a student with linked guardians (scoped)
+ */
+export const StudentsControllerGetParams = zod.object({
+  "id": zod.string()
+})
+
+export const StudentsControllerGetResponse = zod.object({
+  "id": zod.string(),
+  "admissionNumber": zod.string(),
+  "upi": zod.string(),
+  "firstName": zod.string(),
+  "middleName": zod.string().nullable(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "gender": zod.enum(['MALE', 'FEMALE']),
+  "dateOfBirth": zod.string(),
+  "county": zod.string(),
+  "subCounty": zod.string(),
+  "photoUrl": zod.string().nullable(),
+  "religion": zod.string().nullable(),
+  "boardingStatus": zod.string(),
+  "specialNeeds": zod.boolean(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "classLevel": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "streamId": zod.string().nullable(),
+  "streamName": zod.string().nullable(),
+  "guardianCount": zod.number().describe('Number of linked guardians'),
+  "createdAt": zod.string(),
+  "birthCertificateNumber": zod.string().nullable(),
+  "knecIndexNumber": zod.string().nullable(),
+  "userId": zod.string().nullable(),
+  "guardians": zod.array(zod.object({
+  "guardianId": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "phone": zod.string(),
+  "relationship": zod.enum(['MOTHER', 'FATHER', 'AUNT', 'UNCLE', 'GRANDPARENT', 'SPONSOR', 'OTHER']),
+  "isPrimary": zod.boolean()
+}))
+})
+
+
+/**
+ * @summary Update a student
+ */
+export const StudentsControllerUpdateParams = zod.object({
+  "id": zod.string()
+})
+
+export const StudentsControllerUpdateBody = zod.object({
+  "admissionNumber": zod.string().optional(),
+  "upi": zod.string().optional(),
+  "firstName": zod.string().optional(),
+  "lastName": zod.string().optional(),
+  "middleName": zod.string().nullish(),
+  "gender": zod.enum(['MALE', 'FEMALE']).optional(),
+  "dateOfBirth": zod.string().optional(),
+  "birthCertificateNumber": zod.string().nullish(),
+  "knecIndexNumber": zod.string().nullish(),
+  "county": zod.string().optional(),
+  "subCounty": zod.string().optional(),
+  "religion": zod.string().nullish(),
+  "specialNeeds": zod.boolean().optional(),
+  "boardingStatus": zod.enum(['DAY', 'BOARDER']).optional(),
+  "classId": zod.uuid().optional(),
+  "streamId": zod.uuid().nullish(),
+  "photoUrl": zod.string().nullish()
+})
+
+export const StudentsControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "admissionNumber": zod.string(),
+  "upi": zod.string(),
+  "firstName": zod.string(),
+  "middleName": zod.string().nullable(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "gender": zod.enum(['MALE', 'FEMALE']),
+  "dateOfBirth": zod.string(),
+  "county": zod.string(),
+  "subCounty": zod.string(),
+  "photoUrl": zod.string().nullable(),
+  "religion": zod.string().nullable(),
+  "boardingStatus": zod.string(),
+  "specialNeeds": zod.boolean(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "classLevel": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "streamId": zod.string().nullable(),
+  "streamName": zod.string().nullable(),
+  "guardianCount": zod.number().describe('Number of linked guardians'),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Archive a student (soft delete)
+ */
+export const StudentsControllerRemoveParams = zod.object({
+  "id": zod.string()
+})
+
+export const StudentsControllerRemoveResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Link a guardian to a student
+ */
+export const StudentsControllerLinkGuardianParams = zod.object({
+  "id": zod.string()
+})
+
+export const studentsControllerLinkGuardianBodyIsPrimaryDefault = false;
+
+export const StudentsControllerLinkGuardianBody = zod.object({
+  "guardianId": zod.uuid(),
+  "isPrimary": zod.boolean().default(studentsControllerLinkGuardianBodyIsPrimaryDefault)
+})
+
+export const StudentsControllerLinkGuardianResponse = zod.object({
+  "id": zod.string(),
+  "admissionNumber": zod.string(),
+  "upi": zod.string(),
+  "firstName": zod.string(),
+  "middleName": zod.string().nullable(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "gender": zod.enum(['MALE', 'FEMALE']),
+  "dateOfBirth": zod.string(),
+  "county": zod.string(),
+  "subCounty": zod.string(),
+  "photoUrl": zod.string().nullable(),
+  "religion": zod.string().nullable(),
+  "boardingStatus": zod.string(),
+  "specialNeeds": zod.boolean(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "classLevel": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "streamId": zod.string().nullable(),
+  "streamName": zod.string().nullable(),
+  "guardianCount": zod.number().describe('Number of linked guardians'),
+  "createdAt": zod.string(),
+  "birthCertificateNumber": zod.string().nullable(),
+  "knecIndexNumber": zod.string().nullable(),
+  "userId": zod.string().nullable(),
+  "guardians": zod.array(zod.object({
+  "guardianId": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "phone": zod.string(),
+  "relationship": zod.enum(['MOTHER', 'FATHER', 'AUNT', 'UNCLE', 'GRANDPARENT', 'SPONSOR', 'OTHER']),
+  "isPrimary": zod.boolean()
+}))
+})
+
+
+/**
+ * @summary Upload a student photo (2 MB max; EXIF stripped server-side)
+ */
+export const StudentsControllerUploadPhotoParams = zod.object({
+  "id": zod.string()
+})
+
+export const StudentsControllerUploadPhotoBody = zod.object({
+  "file": zod.instanceof(Blob).optional()
+})
+
+export const StudentsControllerUploadPhotoResponse = zod.object({
+  "photoUrl": zod.string()
+})
+
+
+/**
+ * @summary List guardians (admin only)
+ */
+export const guardiansControllerListQueryPageDefault = 1;
+
+export const guardiansControllerListQueryLimitDefault = 20;
+export const guardiansControllerListQueryLimitMax = 100;
+
+export const guardiansControllerListQuerySearchMax = 100;
+
+export const guardiansControllerListQuerySortOrderDefault = `asc`;
+export const guardiansControllerListQuerySortByDefault = `lastName`;
+
+export const GuardiansControllerListQueryParams = zod.object({
+  "page": zod.number().min(1).default(guardiansControllerListQueryPageDefault),
+  "limit": zod.number().min(1).max(guardiansControllerListQueryLimitMax).default(guardiansControllerListQueryLimitDefault),
+  "search": zod.string().max(guardiansControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(guardiansControllerListQuerySortOrderDefault),
+  "sortBy": zod.enum(['firstName', 'lastName', 'createdAt']).default(guardiansControllerListQuerySortByDefault),
+  "relationship": zod.enum(['MOTHER', 'FATHER', 'AUNT', 'UNCLE', 'GRANDPARENT', 'SPONSOR', 'OTHER']).optional()
+})
+
+export const GuardiansControllerListResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string().nullable(),
+  "nationalId": zod.string().nullable(),
+  "relationship": zod.enum(['MOTHER', 'FATHER', 'AUNT', 'UNCLE', 'GRANDPARENT', 'SPONSOR', 'OTHER']),
+  "occupation": zod.string().nullable(),
+  "address": zod.string().nullable(),
+  "userId": zod.string().nullable(),
+  "studentCount": zod.number(),
+  "createdAt": zod.string()
+})),
+  "meta": zod.object({
+  "page": zod.number(),
+  "limit": zod.number(),
+  "total": zod.number(),
+  "totalPages": zod.number()
+})
+})
+
+
+/**
+ * @summary Create a guardian
+ */
+export const GuardiansControllerCreateBody = zod.object({
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string().optional(),
+  "nationalId": zod.string().optional(),
+  "relationship": zod.enum(['MOTHER', 'FATHER', 'AUNT', 'UNCLE', 'GRANDPARENT', 'SPONSOR', 'OTHER']),
+  "occupation": zod.string().optional(),
+  "address": zod.string().optional(),
+  "userId": zod.uuid().optional().describe('Optional parent login account')
+})
+
+export const GuardiansControllerCreateResponse = zod.object({
+  "id": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string().nullable(),
+  "nationalId": zod.string().nullable(),
+  "relationship": zod.enum(['MOTHER', 'FATHER', 'AUNT', 'UNCLE', 'GRANDPARENT', 'SPONSOR', 'OTHER']),
+  "occupation": zod.string().nullable(),
+  "address": zod.string().nullable(),
+  "userId": zod.string().nullable(),
+  "studentCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Get a guardian
+ */
+export const GuardiansControllerGetParams = zod.object({
+  "id": zod.string()
+})
+
+export const GuardiansControllerGetResponse = zod.object({
+  "id": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string().nullable(),
+  "nationalId": zod.string().nullable(),
+  "relationship": zod.enum(['MOTHER', 'FATHER', 'AUNT', 'UNCLE', 'GRANDPARENT', 'SPONSOR', 'OTHER']),
+  "occupation": zod.string().nullable(),
+  "address": zod.string().nullable(),
+  "userId": zod.string().nullable(),
+  "studentCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Update a guardian
+ */
+export const GuardiansControllerUpdateParams = zod.object({
+  "id": zod.string()
+})
+
+export const GuardiansControllerUpdateBody = zod.object({
+  "firstName": zod.string().optional(),
+  "lastName": zod.string().optional(),
+  "phone": zod.string().optional(),
+  "email": zod.string().nullish(),
+  "nationalId": zod.string().nullish(),
+  "relationship": zod.enum(['MOTHER', 'FATHER', 'AUNT', 'UNCLE', 'GRANDPARENT', 'SPONSOR', 'OTHER']).optional(),
+  "occupation": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "userId": zod.uuid().nullish()
+})
+
+export const GuardiansControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string().nullable(),
+  "nationalId": zod.string().nullable(),
+  "relationship": zod.enum(['MOTHER', 'FATHER', 'AUNT', 'UNCLE', 'GRANDPARENT', 'SPONSOR', 'OTHER']),
+  "occupation": zod.string().nullable(),
+  "address": zod.string().nullable(),
+  "userId": zod.string().nullable(),
+  "studentCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a guardian and their student links
+ */
+export const GuardiansControllerRemoveParams = zod.object({
+  "id": zod.string()
+})
+
+export const GuardiansControllerRemoveResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List teachers (admin only)
+ */
+export const teachersControllerListQueryPageDefault = 1;
+
+export const teachersControllerListQueryLimitDefault = 20;
+export const teachersControllerListQueryLimitMax = 100;
+
+export const teachersControllerListQuerySearchMax = 100;
+
+export const teachersControllerListQuerySortOrderDefault = `asc`;
+export const teachersControllerListQuerySortByDefault = `lastName`;
+
+export const TeachersControllerListQueryParams = zod.object({
+  "page": zod.number().min(1).default(teachersControllerListQueryPageDefault),
+  "limit": zod.number().min(1).max(teachersControllerListQueryLimitMax).default(teachersControllerListQueryLimitDefault),
+  "search": zod.string().max(teachersControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(teachersControllerListQuerySortOrderDefault),
+  "sortBy": zod.enum(['firstName', 'lastName', 'tscNumber', 'createdAt']).default(teachersControllerListQuerySortByDefault),
+  "employmentType": zod.enum(['TSC', 'BOM', 'INTERN']).optional()
+})
+
+export const TeachersControllerListResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.string(),
+  "userId": zod.string(),
+  "tscNumber": zod.string(),
+  "nationalId": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "employmentType": zod.enum(['TSC', 'BOM', 'INTERN']),
+  "loginEmail": zod.string(),
+  "assignmentCount": zod.number(),
+  "createdAt": zod.string()
+})),
+  "meta": zod.object({
+  "page": zod.number(),
+  "limit": zod.number(),
+  "total": zod.number(),
+  "totalPages": zod.number()
+})
+})
+
+
+/**
+ * @summary Create a teacher linked to a TEACHER user account
+ */
+export const TeachersControllerCreateBody = zod.object({
+  "userId": zod.uuid().describe('Existing TEACHER login account'),
+  "tscNumber": zod.string(),
+  "nationalId": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "employmentType": zod.enum(['TSC', 'BOM', 'INTERN'])
+})
+
+export const TeachersControllerCreateResponse = zod.object({
+  "id": zod.string(),
+  "userId": zod.string(),
+  "tscNumber": zod.string(),
+  "nationalId": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "employmentType": zod.enum(['TSC', 'BOM', 'INTERN']),
+  "loginEmail": zod.string(),
+  "assignmentCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Get a teacher with class-subject assignments
+ */
+export const TeachersControllerGetParams = zod.object({
+  "id": zod.string()
+})
+
+export const TeachersControllerGetResponse = zod.object({
+  "id": zod.string(),
+  "userId": zod.string(),
+  "tscNumber": zod.string(),
+  "nationalId": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "employmentType": zod.enum(['TSC', 'BOM', 'INTERN']),
+  "loginEmail": zod.string(),
+  "assignmentCount": zod.number(),
+  "createdAt": zod.string(),
+  "assignments": zod.array(zod.object({
+  "classId": zod.string(),
+  "className": zod.string(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string(),
+  "subjectCode": zod.string()
+}))
+})
+
+
+/**
+ * @summary Update a teacher
+ */
+export const TeachersControllerUpdateParams = zod.object({
+  "id": zod.string()
+})
+
+export const TeachersControllerUpdateBody = zod.object({
+  "userId": zod.uuid().optional(),
+  "tscNumber": zod.string().optional(),
+  "nationalId": zod.string().optional(),
+  "firstName": zod.string().optional(),
+  "lastName": zod.string().optional(),
+  "phone": zod.string().optional(),
+  "email": zod.string().optional(),
+  "employmentType": zod.enum(['TSC', 'BOM', 'INTERN']).optional()
+})
+
+export const TeachersControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "userId": zod.string(),
+  "tscNumber": zod.string(),
+  "nationalId": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "employmentType": zod.enum(['TSC', 'BOM', 'INTERN']),
+  "loginEmail": zod.string(),
+  "assignmentCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Archive a teacher (soft delete)
+ */
+export const TeachersControllerRemoveParams = zod.object({
+  "id": zod.string()
+})
+
+export const TeachersControllerRemoveResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Assign a teacher to a class subject
+ */
+export const TeachersControllerAssignClassSubjectParams = zod.object({
+  "id": zod.string()
+})
+
+export const TeachersControllerAssignClassSubjectBody = zod.object({
+  "classId": zod.uuid(),
+  "subjectId": zod.uuid()
+})
+
+export const TeachersControllerAssignClassSubjectResponse = zod.object({
+  "id": zod.string(),
+  "userId": zod.string(),
+  "tscNumber": zod.string(),
+  "nationalId": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "fullName": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "employmentType": zod.enum(['TSC', 'BOM', 'INTERN']),
+  "loginEmail": zod.string(),
+  "assignmentCount": zod.number(),
+  "createdAt": zod.string(),
+  "assignments": zod.array(zod.object({
+  "classId": zod.string(),
+  "className": zod.string(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string(),
+  "subjectCode": zod.string()
+}))
+})
+
+
+/**
+ * @summary List login accounts (admin only; used to link teacher records)
+ */
+export const usersControllerListQueryPageDefault = 1;
+
+export const usersControllerListQueryLimitDefault = 20;
+export const usersControllerListQueryLimitMax = 100;
+
+export const usersControllerListQuerySearchMax = 100;
+
+export const usersControllerListQuerySortOrderDefault = `asc`;
+
+export const UsersControllerListQueryParams = zod.object({
+  "page": zod.number().min(1).default(usersControllerListQueryPageDefault),
+  "limit": zod.number().min(1).max(usersControllerListQueryLimitMax).default(usersControllerListQueryLimitDefault),
+  "search": zod.string().max(usersControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(usersControllerListQuerySortOrderDefault),
+  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT']).optional()
+})
+
+export const UsersControllerListResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string(),
+  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT']),
+  "isActive": zod.boolean(),
+  "lastLoginAt": zod.string().nullable(),
+  "createdAt": zod.string()
+})),
+  "meta": zod.object({
+  "page": zod.number(),
+  "limit": zod.number(),
+  "total": zod.number(),
+  "totalPages": zod.number()
+})
+})
+
+
+/**
+ * @summary List academic years
+ */
+export const academicYearsControllerListQueryPageDefault = 1;
+
+export const academicYearsControllerListQueryLimitDefault = 20;
+export const academicYearsControllerListQueryLimitMax = 100;
+
+export const academicYearsControllerListQuerySearchMax = 100;
+
+export const academicYearsControllerListQuerySortOrderDefault = `asc`;
+export const academicYearsControllerListQuerySortByDefault = `startDate`;
+
+export const AcademicYearsControllerListQueryParams = zod.object({
+  "page": zod.number().min(1).default(academicYearsControllerListQueryPageDefault),
+  "limit": zod.number().min(1).max(academicYearsControllerListQueryLimitMax).default(academicYearsControllerListQueryLimitDefault),
+  "search": zod.string().max(academicYearsControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(academicYearsControllerListQuerySortOrderDefault),
+  "sortBy": zod.enum(['name', 'startDate', 'createdAt']).default(academicYearsControllerListQuerySortByDefault),
+  "isCurrent": zod.boolean().optional().describe('Filter by the current academic year')
+})
+
+export const AcademicYearsControllerListResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "isCurrent": zod.boolean(),
+  "termCount": zod.number(),
+  "classCount": zod.number()
+})),
+  "meta": zod.object({
+  "page": zod.number(),
+  "limit": zod.number(),
+  "total": zod.number(),
+  "totalPages": zod.number()
+})
+})
+
+
+/**
+ * @summary Create an academic year (only one may be current)
+ */
+export const academicYearsControllerCreateBodyIsCurrentDefault = false;
+
+export const AcademicYearsControllerCreateBody = zod.object({
+  "name": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "isCurrent": zod.boolean().default(academicYearsControllerCreateBodyIsCurrentDefault)
+})
+
+export const AcademicYearsControllerCreateResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "isCurrent": zod.boolean(),
+  "termCount": zod.number(),
+  "classCount": zod.number()
+})
+
+
+/**
+ * @summary Get an academic year
+ */
+export const AcademicYearsControllerGetParams = zod.object({
+  "id": zod.string()
+})
+
+export const AcademicYearsControllerGetResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "isCurrent": zod.boolean(),
+  "termCount": zod.number(),
+  "classCount": zod.number()
+})
+
+
+/**
+ * @summary Update an academic year
+ */
+export const AcademicYearsControllerUpdateParams = zod.object({
+  "id": zod.string()
+})
+
+export const AcademicYearsControllerUpdateBody = zod.object({
+  "name": zod.string().optional(),
+  "startDate": zod.string().optional(),
+  "endDate": zod.string().optional(),
+  "isCurrent": zod.boolean().optional()
+})
+
+export const AcademicYearsControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "isCurrent": zod.boolean(),
+  "termCount": zod.number(),
+  "classCount": zod.number()
+})
+
+
+/**
+ * @summary Delete an academic year
+ */
+export const AcademicYearsControllerRemoveParams = zod.object({
+  "id": zod.string()
+})
+
+export const AcademicYearsControllerRemoveResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List terms
+ */
+export const termsControllerListQueryPageDefault = 1;
+
+export const termsControllerListQueryLimitDefault = 20;
+export const termsControllerListQueryLimitMax = 100;
+
+export const termsControllerListQuerySearchMax = 100;
+
+export const termsControllerListQuerySortOrderDefault = `asc`;
+export const termsControllerListQuerySortByDefault = `termNumber`;
+
+export const TermsControllerListQueryParams = zod.object({
+  "page": zod.number().min(1).default(termsControllerListQueryPageDefault),
+  "limit": zod.number().min(1).max(termsControllerListQueryLimitMax).default(termsControllerListQueryLimitDefault),
+  "search": zod.string().max(termsControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(termsControllerListQuerySortOrderDefault),
+  "sortBy": zod.enum(['termNumber', 'name', 'startDate']).default(termsControllerListQuerySortByDefault),
+  "academicYearId": zod.uuid().optional(),
+  "isCurrent": zod.boolean().optional()
+})
+
+export const TermsControllerListResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "termNumber": zod.number(),
+  "name": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "isCurrent": zod.boolean()
+})),
+  "meta": zod.object({
+  "page": zod.number(),
+  "limit": zod.number(),
+  "total": zod.number(),
+  "totalPages": zod.number()
+})
+})
+
+
+/**
+ * @summary Create a term (only one may be current)
+ */
+export const termsControllerCreateBodyIsCurrentDefault = false;
+
+export const TermsControllerCreateBody = zod.object({
+  "academicYearId": zod.uuid(),
+  "termNumber": zod.union([zod.literal(1),zod.literal(2),zod.literal(3)]),
+  "name": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "isCurrent": zod.boolean().default(termsControllerCreateBodyIsCurrentDefault)
+})
+
+export const TermsControllerCreateResponse = zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "termNumber": zod.number(),
+  "name": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "isCurrent": zod.boolean()
+})
+
+
+/**
+ * @summary Get the current term
+ */
+export const TermsControllerCurrentResponse = zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "termNumber": zod.number(),
+  "name": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "isCurrent": zod.boolean()
+})
+
+
+/**
+ * @summary Get a term
+ */
+export const TermsControllerGetParams = zod.object({
+  "id": zod.string()
+})
+
+export const TermsControllerGetResponse = zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "termNumber": zod.number(),
+  "name": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "isCurrent": zod.boolean()
+})
+
+
+/**
+ * @summary Update a term
+ */
+export const TermsControllerUpdateParams = zod.object({
+  "id": zod.string()
+})
+
+export const TermsControllerUpdateBody = zod.object({
+  "academicYearId": zod.uuid().optional(),
+  "termNumber": zod.union([zod.literal(1),zod.literal(2),zod.literal(3)]).optional(),
+  "name": zod.string().optional(),
+  "startDate": zod.string().optional(),
+  "endDate": zod.string().optional(),
+  "isCurrent": zod.boolean().optional()
+})
+
+export const TermsControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "termNumber": zod.number(),
+  "name": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string(),
+  "isCurrent": zod.boolean()
+})
+
+
+/**
+ * @summary Delete a term
+ */
+export const TermsControllerRemoveParams = zod.object({
+  "id": zod.string()
+})
+
+export const TermsControllerRemoveResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List classes (admin: all; teacher: assigned or class-teacher classes)
+ */
+export const classesControllerListQueryPageDefault = 1;
+
+export const classesControllerListQueryLimitDefault = 20;
+export const classesControllerListQueryLimitMax = 100;
+
+export const classesControllerListQuerySearchMax = 100;
+
+export const classesControllerListQuerySortOrderDefault = `asc`;
+export const classesControllerListQuerySortByDefault = `name`;
+
+export const ClassesControllerListQueryParams = zod.object({
+  "page": zod.number().min(1).default(classesControllerListQueryPageDefault),
+  "limit": zod.number().min(1).max(classesControllerListQueryLimitMax).default(classesControllerListQueryLimitDefault),
+  "search": zod.string().max(classesControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(classesControllerListQuerySortOrderDefault),
+  "sortBy": zod.enum(['name', 'level', 'createdAt']).default(classesControllerListQuerySortByDefault),
+  "academicYearId": zod.uuid().optional(),
+  "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']).optional()
+})
+
+export const ClassesControllerListResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.string(),
+  "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "name": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "classTeacherId": zod.string().nullable(),
+  "classTeacherName": zod.string().nullable(),
+  "studentCount": zod.number(),
+  "streamCount": zod.number(),
+  "subjectCount": zod.number(),
+  "createdAt": zod.string()
+})),
+  "meta": zod.object({
+  "page": zod.number(),
+  "limit": zod.number(),
+  "total": zod.number(),
+  "totalPages": zod.number()
+})
+})
+
+
+/**
+ * @summary Create a class
+ */
+export const ClassesControllerCreateBody = zod.object({
+  "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "name": zod.string(),
+  "academicYearId": zod.uuid(),
+  "classTeacherId": zod.uuid().nullish()
+})
+
+export const ClassesControllerCreateResponse = zod.object({
+  "id": zod.string(),
+  "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "name": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "classTeacherId": zod.string().nullable(),
+  "classTeacherName": zod.string().nullable(),
+  "studentCount": zod.number(),
+  "streamCount": zod.number(),
+  "subjectCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Get a class (scoped)
+ */
+export const ClassesControllerGetParams = zod.object({
+  "id": zod.string()
+})
+
+export const ClassesControllerGetResponse = zod.object({
+  "id": zod.string(),
+  "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "name": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "classTeacherId": zod.string().nullable(),
+  "classTeacherName": zod.string().nullable(),
+  "studentCount": zod.number(),
+  "streamCount": zod.number(),
+  "subjectCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Update a class
+ */
+export const ClassesControllerUpdateParams = zod.object({
+  "id": zod.string()
+})
+
+export const ClassesControllerUpdateBody = zod.object({
+  "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']).optional(),
+  "name": zod.string().optional(),
+  "academicYearId": zod.uuid().optional(),
+  "classTeacherId": zod.uuid().nullish()
+})
+
+export const ClassesControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "name": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "classTeacherId": zod.string().nullable(),
+  "classTeacherName": zod.string().nullable(),
+  "studentCount": zod.number(),
+  "streamCount": zod.number(),
+  "subjectCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a class
+ */
+export const ClassesControllerRemoveParams = zod.object({
+  "id": zod.string()
+})
+
+export const ClassesControllerRemoveResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List streams (admin: all; teacher: assigned classes)
+ */
+export const streamsControllerListQueryPageDefault = 1;
+
+export const streamsControllerListQueryLimitDefault = 20;
+export const streamsControllerListQueryLimitMax = 100;
+
+export const streamsControllerListQuerySearchMax = 100;
+
+export const streamsControllerListQuerySortOrderDefault = `asc`;
+export const streamsControllerListQuerySortByDefault = `name`;
+
+export const StreamsControllerListQueryParams = zod.object({
+  "page": zod.number().min(1).default(streamsControllerListQueryPageDefault),
+  "limit": zod.number().min(1).max(streamsControllerListQueryLimitMax).default(streamsControllerListQueryLimitDefault),
+  "search": zod.string().max(streamsControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(streamsControllerListQuerySortOrderDefault),
+  "sortBy": zod.enum(['name', 'createdAt']).default(streamsControllerListQuerySortByDefault),
+  "classId": zod.uuid().optional()
+})
+
+export const StreamsControllerListResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.string(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "classLevel": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "name": zod.string(),
+  "studentCount": zod.number(),
+  "createdAt": zod.string()
+})),
+  "meta": zod.object({
+  "page": zod.number(),
+  "limit": zod.number(),
+  "total": zod.number(),
+  "totalPages": zod.number()
+})
+})
+
+
+/**
+ * @summary Create a stream
+ */
+export const StreamsControllerCreateBody = zod.object({
+  "classId": zod.uuid(),
+  "name": zod.string()
+})
+
+export const StreamsControllerCreateResponse = zod.object({
+  "id": zod.string(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "classLevel": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "name": zod.string(),
+  "studentCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Get a stream (scoped)
+ */
+export const StreamsControllerGetParams = zod.object({
+  "id": zod.string()
+})
+
+export const StreamsControllerGetResponse = zod.object({
+  "id": zod.string(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "classLevel": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "name": zod.string(),
+  "studentCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Update a stream
+ */
+export const StreamsControllerUpdateParams = zod.object({
+  "id": zod.string()
+})
+
+export const StreamsControllerUpdateBody = zod.object({
+  "classId": zod.uuid().optional(),
+  "name": zod.string().optional()
+})
+
+export const StreamsControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "classLevel": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
+  "name": zod.string(),
+  "studentCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a stream
+ */
+export const StreamsControllerRemoveParams = zod.object({
+  "id": zod.string()
+})
+
+export const StreamsControllerRemoveResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List subjects
+ */
+export const subjectsControllerListQueryPageDefault = 1;
+
+export const subjectsControllerListQueryLimitDefault = 20;
+export const subjectsControllerListQueryLimitMax = 100;
+
+export const subjectsControllerListQuerySearchMax = 100;
+
+export const subjectsControllerListQuerySortOrderDefault = `asc`;
+export const subjectsControllerListQuerySortByDefault = `name`;
+
+export const SubjectsControllerListQueryParams = zod.object({
+  "page": zod.number().min(1).default(subjectsControllerListQueryPageDefault),
+  "limit": zod.number().min(1).max(subjectsControllerListQueryLimitMax).default(subjectsControllerListQueryLimitDefault),
+  "search": zod.string().max(subjectsControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(subjectsControllerListQuerySortOrderDefault),
+  "sortBy": zod.enum(['name', 'code', 'createdAt']).default(subjectsControllerListQuerySortByDefault),
+  "level": zod.enum(['PRIMARY', 'JSS', 'SECONDARY']).optional()
+})
+
+export const SubjectsControllerListResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string(),
+  "level": zod.enum(['PRIMARY', 'JSS', 'SECONDARY']),
+  "isCbc": zod.boolean(),
+  "classSubjectCount": zod.number(),
+  "createdAt": zod.string()
+})),
+  "meta": zod.object({
+  "page": zod.number(),
+  "limit": zod.number(),
+  "total": zod.number(),
+  "totalPages": zod.number()
+})
+})
+
+
+/**
+ * @summary Create a subject
+ */
+export const subjectsControllerCreateBodyIsCbcDefault = false;
+
+export const SubjectsControllerCreateBody = zod.object({
+  "name": zod.string(),
+  "code": zod.string(),
+  "level": zod.enum(['PRIMARY', 'JSS', 'SECONDARY']),
+  "isCbc": zod.boolean().default(subjectsControllerCreateBodyIsCbcDefault)
+})
+
+export const SubjectsControllerCreateResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string(),
+  "level": zod.enum(['PRIMARY', 'JSS', 'SECONDARY']),
+  "isCbc": zod.boolean(),
+  "classSubjectCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Get a subject
+ */
+export const SubjectsControllerGetParams = zod.object({
+  "id": zod.string()
+})
+
+export const SubjectsControllerGetResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string(),
+  "level": zod.enum(['PRIMARY', 'JSS', 'SECONDARY']),
+  "isCbc": zod.boolean(),
+  "classSubjectCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Update a subject
+ */
+export const SubjectsControllerUpdateParams = zod.object({
+  "id": zod.string()
+})
+
+export const SubjectsControllerUpdateBody = zod.object({
+  "name": zod.string().optional(),
+  "code": zod.string().optional(),
+  "level": zod.enum(['PRIMARY', 'JSS', 'SECONDARY']).optional(),
+  "isCbc": zod.boolean().optional()
+})
+
+export const SubjectsControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string(),
+  "level": zod.enum(['PRIMARY', 'JSS', 'SECONDARY']),
+  "isCbc": zod.boolean(),
+  "classSubjectCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a subject
+ */
+export const SubjectsControllerRemoveParams = zod.object({
+  "id": zod.string()
+})
+
+export const SubjectsControllerRemoveResponse = zod.object({
+  "message": zod.string()
+})

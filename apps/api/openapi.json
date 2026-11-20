@@ -255,6 +255,2342 @@
           "auth"
         ]
       }
+    },
+    "/api/students": {
+      "get": {
+        "operationId": "StudentsController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "lastName",
+              "type": "string",
+              "enum": [
+                "admissionNumber",
+                "firstName",
+                "lastName",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "classId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by class",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "streamId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by stream",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "gender",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "MALE",
+                "FEMALE"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List students (admin: all; teacher: assigned classes; parent: linked children; student: self)",
+        "tags": [
+          "students"
+        ]
+      },
+      "post": {
+        "operationId": "StudentsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a student",
+        "tags": [
+          "students"
+        ]
+      }
+    },
+    "/api/students/import": {
+      "post": {
+        "operationId": "StudentsController_importCsv",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportStudentsResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Import students from CSV; every row is reported individually",
+        "tags": [
+          "students"
+        ]
+      }
+    },
+    "/api/students/{id}": {
+      "get": {
+        "operationId": "StudentsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a student with linked guardians (scoped)",
+        "tags": [
+          "students"
+        ]
+      },
+      "patch": {
+        "operationId": "StudentsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStudentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a student",
+        "tags": [
+          "students"
+        ]
+      },
+      "delete": {
+        "operationId": "StudentsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Archive a student (soft delete)",
+        "tags": [
+          "students"
+        ]
+      }
+    },
+    "/api/students/{id}/guardians": {
+      "post": {
+        "operationId": "StudentsController_linkGuardian",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkGuardianDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Link a guardian to a student",
+        "tags": [
+          "students"
+        ]
+      }
+    },
+    "/api/students/{id}/photo": {
+      "post": {
+        "operationId": "StudentsController_uploadPhoto",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhotoUploadResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload a student photo (2 MB max; EXIF stripped server-side)",
+        "tags": [
+          "students"
+        ]
+      }
+    },
+    "/api/guardians": {
+      "get": {
+        "operationId": "GuardiansController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "lastName",
+              "type": "string",
+              "enum": [
+                "firstName",
+                "lastName",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "relationship",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "MOTHER",
+                "FATHER",
+                "AUNT",
+                "UNCLE",
+                "GRANDPARENT",
+                "SPONSOR",
+                "OTHER"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardianListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List guardians (admin only)",
+        "tags": [
+          "guardians"
+        ]
+      },
+      "post": {
+        "operationId": "GuardiansController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGuardianDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardianDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a guardian",
+        "tags": [
+          "guardians"
+        ]
+      }
+    },
+    "/api/guardians/{id}": {
+      "get": {
+        "operationId": "GuardiansController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardianDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a guardian",
+        "tags": [
+          "guardians"
+        ]
+      },
+      "patch": {
+        "operationId": "GuardiansController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGuardianDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardianDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a guardian",
+        "tags": [
+          "guardians"
+        ]
+      },
+      "delete": {
+        "operationId": "GuardiansController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a guardian and their student links",
+        "tags": [
+          "guardians"
+        ]
+      }
+    },
+    "/api/teachers": {
+      "get": {
+        "operationId": "TeachersController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "lastName",
+              "type": "string",
+              "enum": [
+                "firstName",
+                "lastName",
+                "tscNumber",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "employmentType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "TSC",
+                "BOM",
+                "INTERN"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeacherListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List teachers (admin only)",
+        "tags": [
+          "teachers"
+        ]
+      },
+      "post": {
+        "operationId": "TeachersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTeacherDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeacherDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a teacher linked to a TEACHER user account",
+        "tags": [
+          "teachers"
+        ]
+      }
+    },
+    "/api/teachers/{id}": {
+      "get": {
+        "operationId": "TeachersController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeacherDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a teacher with class-subject assignments",
+        "tags": [
+          "teachers"
+        ]
+      },
+      "patch": {
+        "operationId": "TeachersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTeacherDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeacherDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a teacher",
+        "tags": [
+          "teachers"
+        ]
+      },
+      "delete": {
+        "operationId": "TeachersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Archive a teacher (soft delete)",
+        "tags": [
+          "teachers"
+        ]
+      }
+    },
+    "/api/teachers/{id}/class-subjects": {
+      "post": {
+        "operationId": "TeachersController_assignClassSubject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignClassSubjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeacherDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Assign a teacher to a class subject",
+        "tags": [
+          "teachers"
+        ]
+      }
+    },
+    "/api/users": {
+      "get": {
+        "operationId": "UsersController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ADMIN",
+                "TEACHER",
+                "STUDENT",
+                "PARENT"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAccountListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List login accounts (admin only; used to link teacher records)",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/academic-years": {
+      "get": {
+        "operationId": "AcademicYearsController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "startDate",
+              "type": "string",
+              "enum": [
+                "name",
+                "startDate",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "isCurrent",
+            "required": false,
+            "in": "query",
+            "description": "Filter by the current academic year",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcademicYearListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List academic years",
+        "tags": [
+          "academic-years"
+        ]
+      },
+      "post": {
+        "operationId": "AcademicYearsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAcademicYearDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcademicYearDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create an academic year (only one may be current)",
+        "tags": [
+          "academic-years"
+        ]
+      }
+    },
+    "/api/academic-years/{id}": {
+      "get": {
+        "operationId": "AcademicYearsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcademicYearDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get an academic year",
+        "tags": [
+          "academic-years"
+        ]
+      },
+      "patch": {
+        "operationId": "AcademicYearsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAcademicYearDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcademicYearDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update an academic year",
+        "tags": [
+          "academic-years"
+        ]
+      },
+      "delete": {
+        "operationId": "AcademicYearsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete an academic year",
+        "tags": [
+          "academic-years"
+        ]
+      }
+    },
+    "/api/terms": {
+      "get": {
+        "operationId": "TermsController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "termNumber",
+              "type": "string",
+              "enum": [
+                "termNumber",
+                "name",
+                "startDate"
+              ]
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "isCurrent",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TermListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List terms",
+        "tags": [
+          "terms"
+        ]
+      },
+      "post": {
+        "operationId": "TermsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTermDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TermDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a term (only one may be current)",
+        "tags": [
+          "terms"
+        ]
+      }
+    },
+    "/api/terms/current": {
+      "get": {
+        "operationId": "TermsController_current",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TermDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the current term",
+        "tags": [
+          "terms"
+        ]
+      }
+    },
+    "/api/terms/{id}": {
+      "get": {
+        "operationId": "TermsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TermDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a term",
+        "tags": [
+          "terms"
+        ]
+      },
+      "patch": {
+        "operationId": "TermsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTermDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TermDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a term",
+        "tags": [
+          "terms"
+        ]
+      },
+      "delete": {
+        "operationId": "TermsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a term",
+        "tags": [
+          "terms"
+        ]
+      }
+    },
+    "/api/classes": {
+      "get": {
+        "operationId": "ClassesController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "name",
+              "type": "string",
+              "enum": [
+                "name",
+                "level",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "level",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PP1",
+                "PP2",
+                "G1",
+                "G2",
+                "G3",
+                "G4",
+                "G5",
+                "G6",
+                "G7",
+                "G8",
+                "G9",
+                "G10",
+                "G11",
+                "G12",
+                "STD1",
+                "STD2",
+                "STD3",
+                "STD4",
+                "STD5",
+                "STD6",
+                "STD7",
+                "STD8",
+                "FORM1",
+                "FORM2",
+                "FORM3",
+                "FORM4"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List classes (admin: all; teacher: assigned or class-teacher classes)",
+        "tags": [
+          "classes"
+        ]
+      },
+      "post": {
+        "operationId": "ClassesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a class",
+        "tags": [
+          "classes"
+        ]
+      }
+    },
+    "/api/classes/{id}": {
+      "get": {
+        "operationId": "ClassesController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a class (scoped)",
+        "tags": [
+          "classes"
+        ]
+      },
+      "patch": {
+        "operationId": "ClassesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClassDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a class",
+        "tags": [
+          "classes"
+        ]
+      },
+      "delete": {
+        "operationId": "ClassesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a class",
+        "tags": [
+          "classes"
+        ]
+      }
+    },
+    "/api/streams": {
+      "get": {
+        "operationId": "StreamsController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "name",
+              "type": "string",
+              "enum": [
+                "name",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "classId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List streams (admin: all; teacher: assigned classes)",
+        "tags": [
+          "streams"
+        ]
+      },
+      "post": {
+        "operationId": "StreamsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStreamDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a stream",
+        "tags": [
+          "streams"
+        ]
+      }
+    },
+    "/api/streams/{id}": {
+      "get": {
+        "operationId": "StreamsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a stream (scoped)",
+        "tags": [
+          "streams"
+        ]
+      },
+      "patch": {
+        "operationId": "StreamsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStreamDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a stream",
+        "tags": [
+          "streams"
+        ]
+      },
+      "delete": {
+        "operationId": "StreamsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a stream",
+        "tags": [
+          "streams"
+        ]
+      }
+    },
+    "/api/subjects": {
+      "get": {
+        "operationId": "SubjectsController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "name",
+              "type": "string",
+              "enum": [
+                "name",
+                "code",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "level",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PRIMARY",
+                "JSS",
+                "SECONDARY"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubjectListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List subjects",
+        "tags": [
+          "subjects"
+        ]
+      },
+      "post": {
+        "operationId": "SubjectsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubjectDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a subject",
+        "tags": [
+          "subjects"
+        ]
+      }
+    },
+    "/api/subjects/{id}": {
+      "get": {
+        "operationId": "SubjectsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubjectDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a subject",
+        "tags": [
+          "subjects"
+        ]
+      },
+      "patch": {
+        "operationId": "SubjectsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSubjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubjectDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a subject",
+        "tags": [
+          "subjects"
+        ]
+      },
+      "delete": {
+        "operationId": "SubjectsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a subject",
+        "tags": [
+          "subjects"
+        ]
+      }
     }
   },
   "info": {
@@ -494,6 +2830,1817 @@
           "cookieName",
           "headerName"
         ]
+      },
+      "StudentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "upi": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ]
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "example": "2013-04-12"
+          },
+          "county": {
+            "type": "string"
+          },
+          "subCounty": {
+            "type": "string"
+          },
+          "photoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "religion": {
+            "type": "string",
+            "nullable": true
+          },
+          "boardingStatus": {
+            "type": "string"
+          },
+          "specialNeeds": {
+            "type": "boolean"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "classLevel": {
+            "type": "string",
+            "enum": [
+              "PP1",
+              "PP2",
+              "G1",
+              "G2",
+              "G3",
+              "G4",
+              "G5",
+              "G6",
+              "G7",
+              "G8",
+              "G9",
+              "G10",
+              "G11",
+              "G12",
+              "STD1",
+              "STD2",
+              "STD3",
+              "STD4",
+              "STD5",
+              "STD6",
+              "STD7",
+              "STD8",
+              "FORM1",
+              "FORM2",
+              "FORM3",
+              "FORM4"
+            ]
+          },
+          "streamId": {
+            "type": "string",
+            "nullable": true
+          },
+          "streamName": {
+            "type": "string",
+            "nullable": true
+          },
+          "guardianCount": {
+            "type": "number",
+            "description": "Number of linked guardians"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "admissionNumber",
+          "upi",
+          "firstName",
+          "middleName",
+          "lastName",
+          "fullName",
+          "gender",
+          "dateOfBirth",
+          "county",
+          "subCounty",
+          "photoUrl",
+          "religion",
+          "boardingStatus",
+          "specialNeeds",
+          "classId",
+          "className",
+          "classLevel",
+          "streamId",
+          "streamName",
+          "guardianCount",
+          "createdAt"
+        ]
+      },
+      "PaginationMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "example": 20
+          },
+          "total": {
+            "type": "number",
+            "example": 42
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 3
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages"
+        ]
+      },
+      "StudentListDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "ImportRowResultDto": {
+        "type": "object",
+        "properties": {
+          "row": {
+            "type": "number",
+            "description": "Spreadsheet row number (header is row 1)"
+          },
+          "admissionNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": "string",
+            "nullable": true,
+            "description": "Why the row failed"
+          }
+        },
+        "required": [
+          "row",
+          "admissionNumber",
+          "success",
+          "error"
+        ]
+      },
+      "ImportStudentsResultDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "imported": {
+            "type": "number"
+          },
+          "failed": {
+            "type": "number"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportRowResultDto"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "imported",
+          "failed",
+          "rows"
+        ]
+      },
+      "StudentGuardianDto": {
+        "type": "object",
+        "properties": {
+          "guardianId": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "MOTHER",
+              "FATHER",
+              "AUNT",
+              "UNCLE",
+              "GRANDPARENT",
+              "SPONSOR",
+              "OTHER"
+            ]
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "guardianId",
+          "firstName",
+          "lastName",
+          "phone",
+          "relationship",
+          "isPrimary"
+        ]
+      },
+      "StudentDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "upi": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ]
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "example": "2013-04-12"
+          },
+          "county": {
+            "type": "string"
+          },
+          "subCounty": {
+            "type": "string"
+          },
+          "photoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "religion": {
+            "type": "string",
+            "nullable": true
+          },
+          "boardingStatus": {
+            "type": "string"
+          },
+          "specialNeeds": {
+            "type": "boolean"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "classLevel": {
+            "type": "string",
+            "enum": [
+              "PP1",
+              "PP2",
+              "G1",
+              "G2",
+              "G3",
+              "G4",
+              "G5",
+              "G6",
+              "G7",
+              "G8",
+              "G9",
+              "G10",
+              "G11",
+              "G12",
+              "STD1",
+              "STD2",
+              "STD3",
+              "STD4",
+              "STD5",
+              "STD6",
+              "STD7",
+              "STD8",
+              "FORM1",
+              "FORM2",
+              "FORM3",
+              "FORM4"
+            ]
+          },
+          "streamId": {
+            "type": "string",
+            "nullable": true
+          },
+          "streamName": {
+            "type": "string",
+            "nullable": true
+          },
+          "guardianCount": {
+            "type": "number",
+            "description": "Number of linked guardians"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "birthCertificateNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "knecIndexNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "guardians": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentGuardianDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "admissionNumber",
+          "upi",
+          "firstName",
+          "middleName",
+          "lastName",
+          "fullName",
+          "gender",
+          "dateOfBirth",
+          "county",
+          "subCounty",
+          "photoUrl",
+          "religion",
+          "boardingStatus",
+          "specialNeeds",
+          "classId",
+          "className",
+          "classLevel",
+          "streamId",
+          "streamName",
+          "guardianCount",
+          "createdAt",
+          "birthCertificateNumber",
+          "knecIndexNumber",
+          "userId",
+          "guardians"
+        ]
+      },
+      "CreateStudentDto": {
+        "type": "object",
+        "properties": {
+          "admissionNumber": {
+            "type": "string",
+            "example": "ADM-2026-011"
+          },
+          "upi": {
+            "type": "string",
+            "example": "200100000011",
+            "description": "NEMIS unique personal identifier"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "Amina"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Wanjiru"
+          },
+          "middleName": {
+            "type": "string",
+            "example": "Njoki"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ]
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "example": "2013-04-12",
+            "description": "Calendar date (YYYY-MM-DD)"
+          },
+          "birthCertificateNumber": {
+            "type": "string"
+          },
+          "knecIndexNumber": {
+            "type": "string"
+          },
+          "county": {
+            "type": "string",
+            "example": "Nairobi"
+          },
+          "subCounty": {
+            "type": "string",
+            "example": "Westlands"
+          },
+          "religion": {
+            "type": "string"
+          },
+          "specialNeeds": {
+            "type": "boolean",
+            "default": false
+          },
+          "boardingStatus": {
+            "type": "string",
+            "enum": [
+              "DAY",
+              "BOARDER"
+            ],
+            "default": "DAY"
+          },
+          "classId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "streamId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "photoUrl": {
+            "type": "string",
+            "description": "Set by the photo upload endpoint"
+          }
+        },
+        "required": [
+          "admissionNumber",
+          "upi",
+          "firstName",
+          "lastName",
+          "gender",
+          "dateOfBirth",
+          "county",
+          "subCounty",
+          "classId"
+        ]
+      },
+      "UpdateStudentDto": {
+        "type": "object",
+        "properties": {
+          "admissionNumber": {
+            "type": "string",
+            "example": "ADM-2026-011"
+          },
+          "upi": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string",
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ]
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "example": "2013-04-12"
+          },
+          "birthCertificateNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "knecIndexNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "county": {
+            "type": "string"
+          },
+          "subCounty": {
+            "type": "string"
+          },
+          "religion": {
+            "type": "string",
+            "nullable": true
+          },
+          "specialNeeds": {
+            "type": "boolean"
+          },
+          "boardingStatus": {
+            "type": "string",
+            "enum": [
+              "DAY",
+              "BOARDER"
+            ]
+          },
+          "classId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "streamId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "photoUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "LinkGuardianDto": {
+        "type": "object",
+        "properties": {
+          "guardianId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "guardianId"
+        ]
+      },
+      "PhotoUploadResultDto": {
+        "type": "object",
+        "properties": {
+          "photoUrl": {
+            "type": "string",
+            "example": "https://res.cloudinary.com/demo/image/upload/v1/school.jpg"
+          }
+        },
+        "required": [
+          "photoUrl"
+        ]
+      },
+      "GuardianDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "nationalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "MOTHER",
+              "FATHER",
+              "AUNT",
+              "UNCLE",
+              "GRANDPARENT",
+              "SPONSOR",
+              "OTHER"
+            ]
+          },
+          "occupation": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentCount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "fullName",
+          "phone",
+          "email",
+          "nationalId",
+          "relationship",
+          "occupation",
+          "address",
+          "userId",
+          "studentCount",
+          "createdAt"
+        ]
+      },
+      "GuardianListDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuardianDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CreateGuardianDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "example": "Joseph"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Otieno"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+254711000010"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nationalId": {
+            "type": "string"
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "MOTHER",
+              "FATHER",
+              "AUNT",
+              "UNCLE",
+              "GRANDPARENT",
+              "SPONSOR",
+              "OTHER"
+            ]
+          },
+          "occupation": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional parent login account"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "phone",
+          "relationship"
+        ]
+      },
+      "UpdateGuardianDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+254711000010"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "nationalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "MOTHER",
+              "FATHER",
+              "AUNT",
+              "UNCLE",
+              "GRANDPARENT",
+              "SPONSOR",
+              "OTHER"
+            ]
+          },
+          "occupation": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "TeacherDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "tscNumber": {
+            "type": "string"
+          },
+          "nationalId": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "employmentType": {
+            "type": "string",
+            "enum": [
+              "TSC",
+              "BOM",
+              "INTERN"
+            ]
+          },
+          "loginEmail": {
+            "type": "string"
+          },
+          "assignmentCount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "tscNumber",
+          "nationalId",
+          "firstName",
+          "lastName",
+          "fullName",
+          "phone",
+          "email",
+          "employmentType",
+          "loginEmail",
+          "assignmentCount",
+          "createdAt"
+        ]
+      },
+      "TeacherListDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeacherDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "TeacherAssignmentDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "subjectCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "classId",
+          "className",
+          "subjectId",
+          "subjectName",
+          "subjectCode"
+        ]
+      },
+      "TeacherDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "tscNumber": {
+            "type": "string"
+          },
+          "nationalId": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "employmentType": {
+            "type": "string",
+            "enum": [
+              "TSC",
+              "BOM",
+              "INTERN"
+            ]
+          },
+          "loginEmail": {
+            "type": "string"
+          },
+          "assignmentCount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "assignments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeacherAssignmentDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "tscNumber",
+          "nationalId",
+          "firstName",
+          "lastName",
+          "fullName",
+          "phone",
+          "email",
+          "employmentType",
+          "loginEmail",
+          "assignmentCount",
+          "createdAt",
+          "assignments"
+        ]
+      },
+      "CreateTeacherDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Existing TEACHER login account"
+          },
+          "tscNumber": {
+            "type": "string",
+            "example": "TSC-2019-001234"
+          },
+          "nationalId": {
+            "type": "string",
+            "example": "12345678"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "Peter"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Mwangi"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+254720123458"
+          },
+          "email": {
+            "type": "string",
+            "example": "teacher@mwangaza.ac.ke"
+          },
+          "employmentType": {
+            "type": "string",
+            "enum": [
+              "TSC",
+              "BOM",
+              "INTERN"
+            ]
+          }
+        },
+        "required": [
+          "userId",
+          "tscNumber",
+          "nationalId",
+          "firstName",
+          "lastName",
+          "phone",
+          "email",
+          "employmentType"
+        ]
+      },
+      "UpdateTeacherDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tscNumber": {
+            "type": "string"
+          },
+          "nationalId": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+254720123458"
+          },
+          "email": {
+            "type": "string"
+          },
+          "employmentType": {
+            "type": "string",
+            "enum": [
+              "TSC",
+              "BOM",
+              "INTERN"
+            ]
+          }
+        }
+      },
+      "AssignClassSubjectDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subjectId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "classId",
+          "subjectId"
+        ]
+      },
+      "UserAccountDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "TEACHER",
+              "STUDENT",
+              "PARENT"
+            ]
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "lastLoginAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "phone",
+          "role",
+          "isActive",
+          "lastLoginAt",
+          "createdAt"
+        ]
+      },
+      "UserAccountListDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserAccountDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "AcademicYearDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "example": "2027-01-04"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "2027-10-29"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          },
+          "termCount": {
+            "type": "number"
+          },
+          "classCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "startDate",
+          "endDate",
+          "isCurrent",
+          "termCount",
+          "classCount"
+        ]
+      },
+      "AcademicYearListDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AcademicYearDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CreateAcademicYearDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "2027"
+          },
+          "startDate": {
+            "type": "string",
+            "example": "2027-01-04"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "2027-10-29"
+          },
+          "isCurrent": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "name",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "UpdateAcademicYearDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "example": "2027-01-04"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "2027-10-29"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TermDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "termNumber": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "example": "2027-01-04"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "2027-04-09"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "academicYearId",
+          "academicYearName",
+          "termNumber",
+          "name",
+          "startDate",
+          "endDate",
+          "isCurrent"
+        ]
+      },
+      "TermListDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TermDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CreateTermDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "termNumber": {
+            "type": "number",
+            "enum": [
+              1,
+              2,
+              3
+            ],
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Term 1"
+          },
+          "startDate": {
+            "type": "string",
+            "example": "2027-01-04"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "2027-04-09"
+          },
+          "isCurrent": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "academicYearId",
+          "termNumber",
+          "name",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "UpdateTermDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "termNumber": {
+            "type": "number",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "example": "2027-01-04"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "2027-04-09"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ClassDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "PP1",
+              "PP2",
+              "G1",
+              "G2",
+              "G3",
+              "G4",
+              "G5",
+              "G6",
+              "G7",
+              "G8",
+              "G9",
+              "G10",
+              "G11",
+              "G12",
+              "STD1",
+              "STD2",
+              "STD3",
+              "STD4",
+              "STD5",
+              "STD6",
+              "STD7",
+              "STD8",
+              "FORM1",
+              "FORM2",
+              "FORM3",
+              "FORM4"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "classTeacherId": {
+            "type": "string",
+            "nullable": true
+          },
+          "classTeacherName": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentCount": {
+            "type": "number"
+          },
+          "streamCount": {
+            "type": "number"
+          },
+          "subjectCount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "name",
+          "academicYearId",
+          "academicYearName",
+          "classTeacherId",
+          "classTeacherName",
+          "studentCount",
+          "streamCount",
+          "subjectCount",
+          "createdAt"
+        ]
+      },
+      "ClassListDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClassDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CreateClassDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "PP1",
+              "PP2",
+              "G1",
+              "G2",
+              "G3",
+              "G4",
+              "G5",
+              "G6",
+              "G7",
+              "G8",
+              "G9",
+              "G10",
+              "G11",
+              "G12",
+              "STD1",
+              "STD2",
+              "STD3",
+              "STD4",
+              "STD5",
+              "STD6",
+              "STD7",
+              "STD8",
+              "FORM1",
+              "FORM2",
+              "FORM3",
+              "FORM4"
+            ],
+            "example": "G7"
+          },
+          "name": {
+            "type": "string",
+            "example": "Grade 7 West"
+          },
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classTeacherId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "required": [
+          "level",
+          "name",
+          "academicYearId"
+        ]
+      },
+      "UpdateClassDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "PP1",
+              "PP2",
+              "G1",
+              "G2",
+              "G3",
+              "G4",
+              "G5",
+              "G6",
+              "G7",
+              "G8",
+              "G9",
+              "G10",
+              "G11",
+              "G12",
+              "STD1",
+              "STD2",
+              "STD3",
+              "STD4",
+              "STD5",
+              "STD6",
+              "STD7",
+              "STD8",
+              "FORM1",
+              "FORM2",
+              "FORM3",
+              "FORM4"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classTeacherId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "StreamDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "classLevel": {
+            "type": "string",
+            "enum": [
+              "PP1",
+              "PP2",
+              "G1",
+              "G2",
+              "G3",
+              "G4",
+              "G5",
+              "G6",
+              "G7",
+              "G8",
+              "G9",
+              "G10",
+              "G11",
+              "G12",
+              "STD1",
+              "STD2",
+              "STD3",
+              "STD4",
+              "STD5",
+              "STD6",
+              "STD7",
+              "STD8",
+              "FORM1",
+              "FORM2",
+              "FORM3",
+              "FORM4"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "studentCount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "classId",
+          "className",
+          "classLevel",
+          "name",
+          "studentCount",
+          "createdAt"
+        ]
+      },
+      "StreamListDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StreamDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CreateStreamDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Main"
+          }
+        },
+        "required": [
+          "classId",
+          "name"
+        ]
+      },
+      "UpdateStreamDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Main"
+          }
+        }
+      },
+      "SubjectDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "PRIMARY",
+              "JSS",
+              "SECONDARY"
+            ]
+          },
+          "isCbc": {
+            "type": "boolean"
+          },
+          "classSubjectCount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "code",
+          "level",
+          "isCbc",
+          "classSubjectCount",
+          "createdAt"
+        ]
+      },
+      "SubjectListDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubjectDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CreateSubjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Mathematics"
+          },
+          "code": {
+            "type": "string",
+            "example": "MAT"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "PRIMARY",
+              "JSS",
+              "SECONDARY"
+            ]
+          },
+          "isCbc": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "name",
+          "code",
+          "level"
+        ]
+      },
+      "UpdateSubjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "example": "MAT"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "PRIMARY",
+              "JSS",
+              "SECONDARY"
+            ]
+          },
+          "isCbc": {
+            "type": "boolean"
+          }
+        }
       }
     }
   }

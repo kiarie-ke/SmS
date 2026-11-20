@@ -5,10 +5,11 @@ It supports **CBC** (PP1–Grade 9 performance levels) and **8-4-4 / CBC Senior
 School** numeric grading behind one school-level setting, with KES fees, Kenyan
 phone numbers, NEMIS UPIs, TSC numbers and `Africa/Nairobi` date logic.
 
-> **Status: Phase 1 (Foundation) complete — awaiting approval for Phase 2.**
-> Authentication, roles, the full database schema, seed data, API conventions,
-> Swagger, and role-based web shells are working. No people, attendance, exams,
-> fees or notification screens exist yet; see [Roadmap](#roadmap).
+> **Status: Phase 2 (People & structure) complete — awaiting approval for Phase 3.**
+> Authentication, roles, people/structure CRUD, server-side teacher/parent
+> scoping, CSV student import, photo upload and the admin DataTable screens all
+> work. Attendance, exams, fees and notifications are still to come; see
+> [Roadmap](#roadmap).
 
 ---
 
@@ -56,7 +57,26 @@ phone numbers, NEMIS UPIs, TSC numbers and `Africa/Nairobi` date logic.
   shadcn/UI primitives, TanStack Query provider, Orval-generated API client.
 - 8 auth unit tests; both apps typecheck and build.
 
-**Not built yet:** everything in Phases 2–6 ([Roadmap](#roadmap)).
+**Phase 2 — People & structure**
+
+- Paginated/searchable/sortable list endpoints for students, guardians,
+  teachers, classes, streams, subjects, academic years and terms, plus a
+  read-only `GET /api/users` for linking teacher accounts.
+- **Server-side scoping** (`ScopingService`): ADMIN unrestricted; TEACHER sees
+  students in classes they teach or are class teacher of, and only those
+  classes; PARENT sees linked children; STUDENT sees only their own record.
+  Enforced in services (list, detail, import, photo), not just controllers.
+- Links: `POST /api/students/:id/guardians`,
+  `POST /api/teachers/:id/class-subjects`.
+- CSV import (`papaparse`) with a per-row success/error report and a 500-row cap.
+- Photo upload (`multer` + `sharp`): 2 MB, JPEG/PNG/WebP, metadata/EXIF stripped
+  by re-encoding, then a signed Cloudinary upload.
+- Admin DataTable screens (loading/empty/error states) with RHF + shared Zod
+  dialogs, a CSV import wizard, student detail tabs (profile/guardians/photo),
+  and scoped parent "My children" and teacher "My classes" tables.
+- 15 unit tests (8 auth + 7 scoping); API and web typecheck and build.
+
+**Not built yet:** everything in Phases 3–6 ([Roadmap](#roadmap)).
 
 ---
 
@@ -254,15 +274,18 @@ apps/
     scripts/           export-openapi.ts
     src/
       auth/            controller, service, repository, JWT, cookies, tests
-      common/          envelope, filter, guards, decorators, constants
+      common/          envelope, pagination, filter, guards, decorators
       config/          Joi env validation, Swagger config
       health/          public health endpoint
+      people/          students (CSV import, photos), guardians, teachers, users
+      structure/       classes, streams, subjects, academic years, terms
+      scoping/         ScopingService (student/class access rules)
       prisma/          PrismaService + global module
   web/
     src/
       middleware.ts    server-side role gate
-      app/             login, (dashboard) role pages, session BFF routes
-      components/      auth, dashboard shell, shadcn/ui primitives
+      app/             login, (dashboard) admin/teacher/parent pages, session BFF
+      components/      auth, dashboard shell, data-table, admin, shadcn/ui
       lib/             session signing, auth context, API client + generated
 packages/
   shared/              roles, Kenyan constants, grade bands, Zod schemas
@@ -368,6 +391,25 @@ schemas.
 | POST | `/api/auth/forgot-password` | public | **5/min** | Logs token; returns it outside production |
 | GET | `/api/auth/me` | bearer | global | Current user |
 | GET | `/api/auth/csrf` | public | global | Cookie/header names for clients |
+
+Phase 2 resources (all under `/api`, bearer auth; lists return `{ data, meta }`):
+
+| Resource | Endpoints | Who |
+|---|---|---|
+| Students | `GET /students`, `GET /students/:id`, `POST /students`, `PATCH /students/:id`, `DELETE /students/:id` (soft), `POST /students/:id/guardians`, `POST /students/import`, `POST /students/:id/photo` | reads scoped by role; writes ADMIN |
+| Guardians | `GET/POST /guardians`, `GET/PATCH/DELETE /guardians/:id` | ADMIN |
+| Teachers | `GET/POST /teachers`, `GET/PATCH/DELETE /teachers/:id` (soft), `POST /teachers/:id/class-subjects` | ADMIN |
+| Classes | `GET/POST /classes`, `GET/PATCH/DELETE /classes/:id` | read ADMIN/TEACHER (scoped), write ADMIN |
+| Streams | `GET/POST /streams`, `GET/PATCH/DELETE /streams/:id` | read ADMIN/TEACHER (scoped), write ADMIN |
+| Subjects | `GET/POST /subjects`, `GET/PATCH/DELETE /subjects/:id` | read ADMIN/TEACHER, write ADMIN |
+| Academic years | `GET/POST /academic-years`, `GET/PATCH/DELETE /academic-years/:id` | read ADMIN/TEACHER, write ADMIN |
+| Terms | `GET/POST /terms`, `GET /terms/current`, `GET/PATCH/DELETE /terms/:id` | read ADMIN/TEACHER, write ADMIN |
+| Users | `GET /users` (read-only, filter by `role`) | ADMIN |
+
+Shared list query: `page` (default 1), `limit` (default 20, max 100), `search`
+(case-insensitive), `sortBy` (whitelisted per resource), `sortOrder`
+(`asc`/`desc`). Filters are resource specific (`classId`, `level`, `gender`,
+`relationship`, `employmentType`, `academicYearId`, `isCurrent`).
 
 Login request/response:
 
@@ -485,24 +527,27 @@ authorization independently** — the middleware is UX, not security.
 ## Testing and verification
 
 ```bash
-pnpm test                    # API unit tests (8)
+pnpm test                    # API unit tests (15)
 pnpm typecheck               # api + web + shared
 pnpm build                   # all packages
 pnpm --filter api openapi    # contract export (requires DB)
 ```
 
-Phase 1 results (last run):
+Verification (last run):
 
 | Check | Result |
 |---|---|
-| Auth unit tests | **8/8 pass** — unknown email, failed-attempt increment, 5-attempt lockout, token issuance, refresh rotation + reuse revocation, refresh without session, password change, reset-token enumeration |
-| TypeScript | API and web clean (`strict`, `noImplicitAny`, `strictNullChecks`) |
-| Builds | `nest build` and `next build` (12 routes, middleware 140 kB) |
-| Seed | Migration applied; counts verified in Postgres |
-| Smoke | Login all 4 roles, RBAC 403/307, CSRF 403, refresh rotation, logout, Swagger, cookies |
+| Unit tests | **15/15 pass** — 8 auth + 7 scoping (teacher out-of-scope read denied, parent reading another child denied, scoped list, admin unrestricted, archived → 404) |
+| TypeScript | API, web and shared clean (`strict`, `noImplicitAny`, `strictNullChecks`) |
+| Builds | `nest build` and `next build` (18 routes, middleware 141 kB) |
+| Contract | `openapi.json` re-exported; Orval regenerated for all nine resources |
+| Live smoke | admin list 10; create 201 → patch 200 → delete 200 and archived hidden; teacher GET out-of-scope **403**; parent list 1, own child 200, other child **403**; photo without file 400, non-image 400; Swagger exposes `/api/students/import` and 5 student paths |
+| CSV import | 50 rows → **47 imported, 3 failed** with row-level reasons (missing `lastName`, unknown gender, duplicate admission number); imported rows removed afterwards |
 | Manual browser click-through | **Not performed** |
 
 ### Manual checklist
+
+Phase 1:
 
 1. `http://localhost:3000` redirects to `/login`.
 2. Sign in as each seeded role → each lands on its own dashboard.
@@ -511,7 +556,27 @@ Phase 1 results (last run):
 5. As TEACHER, open `/admin` → redirected to `/teacher`.
 6. Sign out → `/admin` redirects to `/login`.
 7. Reload a dashboard → session survives; no token in localStorage.
-8. `/api/docs` lists the auth endpoints.
+
+Phase 2 (start the API before the web app):
+
+8. `/admin/students` lists the 10 seeded students with search and paging;
+   loading, empty-search and error states are visible on the table.
+9. Create a student in Grade 4 North, edit the class, then archive it and
+   confirm it disappears (soft delete).
+10. Open a student → profile, guardians and photo tabs render; link a guardian
+    and see it listed with the Primary badge.
+11. `/admin/students/import` → upload
+    `apps/api/test/fixtures/students-import.csv` → report shows 50 total,
+    47 imported and 3 failed with reasons.
+12. Teacher login → `/teacher/classes` shows only Peter Mwangi's classes; a
+    Grade 4 student returns 403 from `GET /api/students/:id`.
+13. Parent login → `/parent/children` shows only the linked child.
+14. `/admin/staff`, `/admin/classes` (Classes/Streams tabs), `/admin/subjects`
+    and `/admin/academic-years` (Years/Terms tabs) list seeded data; create,
+    edit and delete work and the "current" flag moves to the chosen record.
+15. Photo upload without `CLOUDINARY_*` configured → clear 503 message; with
+    credentials set, the stored image has no EXIF metadata.
+16. `/api/docs` documents every Phase 2 endpoint.
 
 ---
 
@@ -519,9 +584,9 @@ Phase 1 results (last run):
 
 | Phase | Scope | Status |
 |---|---|---|
-| **1. Foundation** | Monorepo, DB, full schema, seed, auth, roles, Swagger, shells | **Done — awaiting approval** |
-| **2. People & structure** | CRUD for students/guardians/teachers/classes/streams/subjects/years/terms; teacher & parent scoping enforced server-side; CSV student import; Cloudinary photos with EXIF stripping; shadcn DataTable pages; student detail tabs | Next |
-| **3. Attendance** | Daily register with `(studentId, date)` upsert; parent/teacher views; class and student reports; ABSENT creates a notification | Planned |
+| **1. Foundation** | Monorepo, DB, full schema, seed, auth, roles, Swagger, shells | **Done** |
+| **2. People & structure** | CRUD for students/guardians/teachers/classes/streams/subjects/years/terms; teacher & parent scoping enforced server-side; CSV student import; Cloudinary photos with EXIF stripping; shadcn DataTable pages; student detail tabs | **Done — awaiting approval** |
+| **3. Attendance** | Daily register with `(studentId, date)` upsert; parent/teacher views; class and student reports; ABSENT creates a notification | Next |
 | **4. Exams & results** | 8-4-4 marks with server-computed grades/points; CBC assessments; ranking; two report-card templates; Puppeteer PDFs; publish/lock; parent visibility gated on `isPublished` | Planned |
 | **5. Fees & notifications** | Fee structures/invoices/payments; Daraja STK push + callback reconciliation; Africa's Talking SMS behind a provider interface; admin charts; audit viewer; fee statement PDF | Planned |
 | **6. Hardening** | E2E tests, frontend form tests, multi-stage Dockerfiles, Caddy production compose, GitHub Actions CI, deployment/backup guide, Kenya DPA note | Planned |
@@ -547,36 +612,29 @@ loaded automatically.
 6. Confirm no stray server holds 3001 (`ss -ltnp | grep 3001`). Start the API
    **before** the web app — Next will silently take 3001 if 3000 is busy.
 
-### Next task — Phase 2 only, after explicit approval
+### Next task — Phase 3 (attendance) only, after explicit approval
 
-Backend, in this order:
+Phase 2 is complete: see [What is built today](#what-is-built-today) and the
+verification table above. Phase 3 backend order:
 
-1. Generic pagination/search/sort DTO and a `PaginatedResult` helper (the
-   envelope interceptor already understands `{ data, meta }`).
-2. A repository per entity (students, guardians, teachers, classes, streams,
-   subjects, academic years, terms) — no Prisma outside repositories.
-3. `ScopingService`: TEACHER sees students in classes where they have a
-   `ClassSubject`; PARENT sees students linked through `StudentGuardian`;
-   ADMIN unrestricted. Call it from every relevant service, never only from the
-   controller.
-4. DTOs, services, controllers, register in modules, Swagger annotations.
-5. Link endpoints: `POST /students/:id/guardians`,
-   `POST /teachers/:id/class-subjects`.
-6. CSV import (`papaparse`) with per-row success/error report — one bad row must
-   not fail the batch.
-7. Cloudinary photo upload (signed, 2 MB, jpeg/png/webp, server-side EXIF strip)
-   via `multer`.
-8. Tests: teacher out-of-scope read denied, parent reading another child denied.
+1. `AttendanceRepository` — one row per student per day, upsert on
+   `(studentId, date)`; queries by class + date and by student + date range.
+2. `AttendanceService` on top of `ScopingService`: TEACHER may mark only
+   assigned classes, ADMIN any class, PARENT/STUDENT read-only and scoped.
+3. `POST /attendance/register` (bulk upsert for a class/day), `GET /attendance`
+   (`classId` + `date`), `GET /attendance/student/:id` (range), plus class and
+   student summary reports.
+4. ABSENT marks create an in-app `Notification` for linked guardians (SMS via a
+   provider interface in Phase 5).
+5. Tests: teacher cannot mark another class; parent can only read their child.
 
-Frontend: DataTable pages per entity with loading/empty/error states, create/edit
-dialogs (RHF + shared Zod), student detail tabs, CSV import wizard, photo upload
-with preview. Regenerate Orval after each contract change.
+Frontend: teacher daily register (class + date picker, PRESENT/ABSENT/LATE/
+EXCUSED), parent and student attendance history, class attendance summary.
 
-**Definition of done** (from the brief): every CRUD endpoint documented in
-Swagger; teacher and parent scoping tests pass; CSV import handles 50 rows with
-3 bad rows; Orval regenerated and the frontend compiles.
+**Done when:** the register is idempotent per student/day; scoping tests pass;
+Orval regenerated; web compiles; hand-test checklist written.
 
-Do not start Phase 3 work in the same session.
+Do not start Phase 4 work in the same session.
 
 ---
 
@@ -623,6 +681,18 @@ Do not start Phase 3 work in the same session.
 - Extra schema fields (`Student.userId`, `Guardian.userId`,
   `FeeInvoice.invoiceNumber`, `MpesaTransaction`) were added intentionally for
   later phases.
+- **Photo upload needs Cloudinary credentials.** Without `CLOUDINARY_*` in
+  `apps/api/.env`, `POST /api/students/:id/photo` returns 503 after still
+  validating the image and stripping metadata. The signed upload is implemented
+  with `node:crypto` + `fetch`, so the `cloudinary` SDK is not installed.
+- `GET /api/users` is read-only; accounts are still created with
+  `POST /api/auth/register`. Teacher creation requires an existing TEACHER
+  account, and a student's stream must belong to the chosen class.
+- CSV import requires `className` (or `classId`), caps at 500 rows, and reports
+  duplicate admission numbers / UPIs per row instead of failing the batch.
+- Deleting a guardian cascades their student links and hard-deletes the row;
+  students and teachers are soft-deleted and excluded from lists.
+- Deleting a class that still has students is blocked by the FK (409).
 
 ---
 
@@ -648,9 +718,9 @@ shows what exists **today** and what each phase must add.
 |---|---|---|---|---|---|
 | Sign in, view own dashboard | ✓ | ✓ | ✓ | ✓ | Implemented |
 | Create user accounts | ✓ | — | — | — | Implemented |
-| CRUD students/guardians/staff/structure | ✓ | — | — | — | Phase 2 |
-| Read students in own classes | ✓ | scoped | — | — | Phase 2 |
-| Read own / linked children | ✓ | — | self | linked | Phase 2 |
+| CRUD students/guardians/staff/structure | ✓ | — | — | — | Implemented |
+| Read students in own classes | ✓ | scoped | — | — | Implemented |
+| Read own / linked children | ✓ | — | self | linked | Implemented |
 | Mark daily attendance | ✓ | assigned classes | — | — | Phase 3 |
 | View attendance | ✓ | scoped | self | linked | Phase 3 |
 | Enter marks/CBC assessments | ✓ | assigned classes | — | — | Phase 4 |
@@ -697,5 +767,5 @@ shows what exists **today** and what each phase must add.
 ---
 
 **Owner:** project owner (`kenneth`).
-**Repository:** private, local git (Phase 1 committed).
-**Next milestone:** Phase 2 — People & structure, after explicit approval.
+**Repository:** private, local git (Phases 1–2).
+**Next milestone:** Phase 3 — Attendance, after explicit approval.

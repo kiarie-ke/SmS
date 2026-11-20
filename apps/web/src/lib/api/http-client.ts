@@ -1,3 +1,5 @@
+import { getAccessToken } from './auth-token';
+
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 export interface ApiErrorBody {
@@ -32,8 +34,16 @@ interface Envelope<T> {
  */
 export async function httpClient<T>(url: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers);
-  if (options.body && !headers.has('Content-Type')) {
+  // Let the browser set the multipart boundary for FormData bodies.
+  if (options.body instanceof FormData) {
+    headers.delete('Content-Type');
+  } else if (options.body && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
+  }
+
+  const token = getAccessToken();
+  if (token && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`);
   }
 
   const response = await fetch(`${API_BASE_URL}${url}`, {
