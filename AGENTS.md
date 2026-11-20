@@ -42,6 +42,17 @@ pnpm build                       # shared -> api -> web
 pnpm --filter api openapi        # export OpenAPI (needs DB)
 pnpm orval                       # regenerate web client after contract changes
 ```
+# Stop database
+docker compose stop db
+
+# Start database
+docker compose up -d db
+
+# Check database status
+docker compose ps
+
+# View database logs
+docker compose logs db
 
 Seeded logins (dev only): `admin@mwangaza.ac.ke / Admin@1234`,
 `teacher@mwangaza.ac.ke / Teacher@1234`,
