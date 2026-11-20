@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { API_BASE_URL } from '@/lib/api/http-client';
 import { forwardSetCookies, readCookie } from '@/lib/api/forward-cookies';
 import type { LoginResponseDto } from '@/lib/api/generated/models';
-import { CSRF_COOKIE } from '@/lib/api/cookies';
+import { CSRF_COOKIE, REFRESH_COOKIE } from '@/lib/api/cookies';
 import {
   SESSION_COOKIE,
   SESSION_MAX_AGE_SECONDS,
@@ -12,6 +12,18 @@ import {
 export async function POST(request: Request) {
   const cookieHeader = request.headers.get('cookie');
   const csrfToken = readCookie(cookieHeader, CSRF_COOKIE);
+  const refreshToken = readCookie(cookieHeader, REFRESH_COOKIE);
+
+  // Nobody is signed in yet: answer 401 rather than pushing a cookie-less
+  // request through the API, which rejects it as a CSRF failure (403).
+  if (!refreshToken || !csrfToken) {
+    const response = NextResponse.json(
+      { message: 'Session expired' },
+      { status: 401 },
+    );
+    response.cookies.delete(SESSION_COOKIE);
+    return response;
+  }
 
   const apiResponse = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
     method: 'POST',

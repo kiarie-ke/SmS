@@ -30,7 +30,6 @@ import {
 } from './academic-year.repository';
 import {
   AcademicYearDto,
-  AcademicYearListDto,
   AcademicYearQueryDto,
   CreateAcademicYearDto,
   UpdateAcademicYearDto,
@@ -105,7 +104,7 @@ export class AcademicYearsController {
 
   @Get()
   @Roles('ADMIN', 'TEACHER')
-  @ApiOkResponse({ type: AcademicYearListDto })
+  @ApiOkResponse({ type: AcademicYearDto, isArray: true })
   @ApiOperation({ summary: 'List academic years' })
   list(@Query() query: AcademicYearQueryDto) {
     return this.years.list(query);

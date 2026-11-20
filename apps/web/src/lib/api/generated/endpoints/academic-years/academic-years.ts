@@ -7,7 +7,6 @@
  */
 import type {
   AcademicYearDto,
-  AcademicYearListDto,
   AcademicYearsControllerListParams,
   CreateAcademicYearDto,
   MessageResponseDto,
@@ -37,7 +36,7 @@ const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string 
 };
 
 export type academicYearsControllerListResponse200 = {
-  data: AcademicYearListDto
+  data: AcademicYearDto[]
   status: 200
 }
 

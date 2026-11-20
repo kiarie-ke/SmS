@@ -26,6 +26,7 @@ import type {
   UpdateTeacherDto,
 } from '@/lib/api/generated/models';
 import { toErrorMessage } from '@/lib/api/errors';
+import { getPaginationMeta } from '@/lib/api/http-client';
 import { useApiQuery } from '@/lib/api/use-api-query';
 
 const assignmentSchema = z.object({
@@ -46,7 +47,7 @@ const EMPTY_TEACHER = {
 
 async function teacherAccountOptions(): Promise<FieldOption[]> {
   const response = await usersControllerList({ role: 'TEACHER', limit: 100 });
-  return response.data.data.map((user) => ({
+  return response.data.map((user) => ({
     value: user.id,
     label: `${user.email} (${user.phone})`,
   }));
@@ -54,12 +55,12 @@ async function teacherAccountOptions(): Promise<FieldOption[]> {
 
 async function classOptions(): Promise<FieldOption[]> {
   const response = await classesControllerList({ limit: 100 });
-  return response.data.data.map((klass) => ({ value: klass.id, label: klass.name }));
+  return response.data.map((klass) => ({ value: klass.id, label: klass.name }));
 }
 
 async function subjectOptions(): Promise<FieldOption[]> {
   const response = await subjectsControllerList({ limit: 100 });
-  return response.data.data.map((subject) => ({
+  return response.data.map((subject) => ({
     value: subject.id,
     label: `${subject.name} (${subject.code})`,
   }));
@@ -160,7 +161,7 @@ export default function StaffPage() {
     },
   ];
 
-  const meta = query.data?.data.meta;
+  const meta = getPaginationMeta(query.data);
 
   return (
     <div>
@@ -180,7 +181,7 @@ export default function StaffPage() {
       />
 
       <DataTable
-        rows={query.data?.data.data ?? []}
+        rows={query.data?.data ?? []}
         columns={columns}
         total={meta?.total ?? 0}
         page={list.page}

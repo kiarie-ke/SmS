@@ -30,11 +30,12 @@ import type {
   UpdateTermDto,
 } from '@/lib/api/generated/models';
 import { toErrorMessage } from '@/lib/api/errors';
+import { getPaginationMeta } from '@/lib/api/http-client';
 import { useApiQuery } from '@/lib/api/use-api-query';
 
 async function yearOptions(): Promise<FieldOption[]> {
   const response = await academicYearsControllerList({ limit: 100, sortBy: 'startDate', sortOrder: 'desc' });
-  return response.data.data.map((year) => ({ value: year.id, label: year.name }));
+  return response.data.map((year) => ({ value: year.id, label: year.name }));
 }
 
 function YearsSection() {
@@ -107,12 +108,12 @@ function YearsSection() {
     { key: 'classes', header: 'Classes', render: (year) => year.classCount },
   ];
 
-  const meta = query.data?.data.meta;
+  const meta = getPaginationMeta(query.data);
 
   return (
     <>
       <DataTable
-        rows={query.data?.data.data ?? []}
+        rows={query.data?.data ?? []}
         columns={columns}
         total={meta?.total ?? 0}
         page={list.page}
@@ -265,12 +266,12 @@ function TermsSection() {
     { key: 'end', header: 'Ends', render: (term) => term.endDate },
   ];
 
-  const meta = query.data?.data.meta;
+  const meta = getPaginationMeta(query.data);
 
   return (
     <>
       <DataTable
-        rows={query.data?.data.data ?? []}
+        rows={query.data?.data ?? []}
         columns={columns}
         total={meta?.total ?? 0}
         page={list.page}

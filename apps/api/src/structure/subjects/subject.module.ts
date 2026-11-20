@@ -28,7 +28,6 @@ import { SubjectRepository, SubjectRepositoryPort } from './subject.repository';
 import {
   CreateSubjectDto,
   SubjectDto,
-  SubjectListDto,
   SubjectQueryDto,
   UpdateSubjectDto,
   toSubjectDto,
@@ -103,7 +102,7 @@ export class SubjectsController {
 
   @Get()
   @Roles('ADMIN', 'TEACHER')
-  @ApiOkResponse({ type: SubjectListDto })
+  @ApiOkResponse({ type: SubjectDto, isArray: true })
   @ApiOperation({ summary: 'List subjects' })
   list(@Query() query: SubjectQueryDto) {
     return this.subjects.list(query);

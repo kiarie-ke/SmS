@@ -13,7 +13,6 @@ import type {
   PhotoUploadResultDto,
   StudentDetailDto,
   StudentDto,
-  StudentListDto,
   StudentsControllerImportCsvBody,
   StudentsControllerListParams,
   StudentsControllerUploadPhotoBody,
@@ -43,7 +42,7 @@ const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string 
 };
 
 export type studentsControllerListResponse200 = {
-  data: StudentListDto
+  data: StudentDto[]
   status: 200
 }
 

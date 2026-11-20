@@ -9,7 +9,6 @@ import type {
   CreateTermDto,
   MessageResponseDto,
   TermDto,
-  TermListDto,
   TermsControllerListParams,
   UpdateTermDto
 } from '../../models';
@@ -37,7 +36,7 @@ const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string 
 };
 
 export type termsControllerListResponse200 = {
-  data: TermListDto
+  data: TermDto[]
   status: 200
 }
 

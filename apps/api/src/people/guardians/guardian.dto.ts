@@ -10,7 +10,6 @@ import {
   Matches,
   MaxLength,
 } from 'class-validator';
-import { PaginationMetaDto } from '../../common/dto/pagination-meta.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import type { GuardianRecord, GuardianSortField } from './guardian.types';
 
@@ -153,10 +152,6 @@ export class GuardianDto {
   @ApiProperty() createdAt!: string;
 }
 
-export class GuardianListDto {
-  @ApiProperty({ type: [GuardianDto] }) data!: GuardianDto[];
-  @ApiProperty({ type: PaginationMetaDto }) meta!: PaginationMetaDto;
-}
 
 export function toGuardianDto(record: GuardianRecord): GuardianDto {
   return {

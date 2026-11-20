@@ -22,6 +22,7 @@ import type {
   UpdateSubjectDto,
 } from '@/lib/api/generated/models';
 import { toErrorMessage } from '@/lib/api/errors';
+import { getPaginationMeta } from '@/lib/api/http-client';
 import { useApiQuery } from '@/lib/api/use-api-query';
 
 const LEVEL_OPTIONS = [
@@ -94,7 +95,7 @@ export default function SubjectsPage() {
     { key: 'classes', header: 'Class subjects', render: (subject) => subject.classSubjectCount },
   ];
 
-  const meta = query.data?.data.meta;
+  const meta = getPaginationMeta(query.data);
 
   return (
     <div>
@@ -114,7 +115,7 @@ export default function SubjectsPage() {
       />
 
       <DataTable
-        rows={query.data?.data.data ?? []}
+        rows={query.data?.data ?? []}
         columns={columns}
         total={meta?.total ?? 0}
         page={list.page}

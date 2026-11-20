@@ -1,7 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CLASS_LEVELS } from '@school-system/shared';
 import { IsIn, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
-import { PaginationMetaDto } from '../../common/dto/pagination-meta.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import type { StreamRecord, StreamSortField } from './stream.repository';
 
@@ -53,10 +52,6 @@ export class StreamDto {
   @ApiProperty() createdAt!: string;
 }
 
-export class StreamListDto {
-  @ApiProperty({ type: [StreamDto] }) data!: StreamDto[];
-  @ApiProperty({ type: PaginationMetaDto }) meta!: PaginationMetaDto;
-}
 
 export function toStreamDto(record: StreamRecord): StreamDto {
   return {

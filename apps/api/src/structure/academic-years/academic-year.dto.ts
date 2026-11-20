@@ -8,7 +8,6 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { PaginationMetaDto } from '../../common/dto/pagination-meta.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import type {
   AcademicYearRecord,
@@ -88,10 +87,6 @@ export class AcademicYearDto {
   @ApiProperty() classCount!: number;
 }
 
-export class AcademicYearListDto {
-  @ApiProperty({ type: [AcademicYearDto] }) data!: AcademicYearDto[];
-  @ApiProperty({ type: PaginationMetaDto }) meta!: PaginationMetaDto;
-}
 
 export function toAcademicYearDto(record: AcademicYearRecord): AcademicYearDto {
   return {

@@ -31,7 +31,6 @@ import {
   CreateTeacherDto,
   TeacherDetailDto,
   TeacherDto,
-  TeacherListDto,
   TeacherQueryDto,
   UpdateTeacherDto,
   toTeacherDetailDto,
@@ -136,7 +135,7 @@ export class TeachersController {
   constructor(private readonly teachers: TeachersService) {}
 
   @Get()
-  @ApiOkResponse({ type: TeacherListDto })
+  @ApiOkResponse({ type: TeacherDto, isArray: true })
   @ApiOperation({ summary: 'List teachers (admin only)' })
   list(@Query() query: TeacherQueryDto) {
     return this.teachers.list(query);

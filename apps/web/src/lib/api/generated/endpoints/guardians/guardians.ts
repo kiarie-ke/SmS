@@ -8,7 +8,6 @@
 import type {
   CreateGuardianDto,
   GuardianDto,
-  GuardianListDto,
   GuardiansControllerListParams,
   MessageResponseDto,
   UpdateGuardianDto
@@ -37,7 +36,7 @@ const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string 
 };
 
 export type guardiansControllerListResponse200 = {
-  data: GuardianListDto
+  data: GuardianDto[]
   status: 200
 }
 

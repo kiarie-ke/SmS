@@ -40,7 +40,6 @@ import {
   PhotoUploadResultDto,
   StudentDetailDto,
   StudentDto,
-  StudentListDto,
 } from './dto/student-response.dto';
 import { ALLOWED_PHOTO_MIME_TYPES, MAX_PHOTO_BYTES } from './photo-storage.service';
 
@@ -72,7 +71,7 @@ export class StudentsController {
     summary:
       'List students (admin: all; teacher: assigned classes; parent: linked children; student: self)',
   })
-  @ApiOkResponse({ type: StudentListDto })
+  @ApiOkResponse({ type: StudentDto, isArray: true })
   list(@CurrentUser() user: AuthenticatedUser, @Query() query: StudentQueryDto) {
     return this.students.list(user, query);
   }

@@ -28,7 +28,6 @@ import { GuardianRepository, GuardianRepositoryPort } from './guardian.repositor
 import {
   CreateGuardianDto,
   GuardianDto,
-  GuardianListDto,
   GuardianQueryDto,
   UpdateGuardianDto,
   toGuardianDto,
@@ -113,7 +112,7 @@ export class GuardiansController {
   constructor(private readonly guardians: GuardiansService) {}
 
   @Get()
-  @ApiOkResponse({ type: GuardianListDto })
+  @ApiOkResponse({ type: GuardianDto, isArray: true })
   @ApiOperation({ summary: 'List guardians (admin only)' })
   list(@Query() query: GuardianQueryDto) {
     return this.guardians.list(query);

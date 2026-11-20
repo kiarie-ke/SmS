@@ -155,8 +155,7 @@ export const StudentsControllerListQueryParams = zod.object({
   "gender": zod.enum(['MALE', 'FEMALE']).optional()
 })
 
-export const StudentsControllerListResponse = zod.object({
-  "data": zod.array(zod.object({
+export const StudentsControllerListResponseItem = zod.object({
   "id": zod.string(),
   "admissionNumber": zod.string(),
   "upi": zod.string(),
@@ -179,14 +178,8 @@ export const StudentsControllerListResponse = zod.object({
   "streamName": zod.string().nullable(),
   "guardianCount": zod.number().describe('Number of linked guardians'),
   "createdAt": zod.string()
-})),
-  "meta": zod.object({
-  "page": zod.number(),
-  "limit": zod.number(),
-  "total": zod.number(),
-  "totalPages": zod.number()
 })
-})
+export const StudentsControllerListResponse = zod.array(StudentsControllerListResponseItem)
 
 
 /**
@@ -459,8 +452,7 @@ export const GuardiansControllerListQueryParams = zod.object({
   "relationship": zod.enum(['MOTHER', 'FATHER', 'AUNT', 'UNCLE', 'GRANDPARENT', 'SPONSOR', 'OTHER']).optional()
 })
 
-export const GuardiansControllerListResponse = zod.object({
-  "data": zod.array(zod.object({
+export const GuardiansControllerListResponseItem = zod.object({
   "id": zod.string(),
   "firstName": zod.string(),
   "lastName": zod.string(),
@@ -474,14 +466,8 @@ export const GuardiansControllerListResponse = zod.object({
   "userId": zod.string().nullable(),
   "studentCount": zod.number(),
   "createdAt": zod.string()
-})),
-  "meta": zod.object({
-  "page": zod.number(),
-  "limit": zod.number(),
-  "total": zod.number(),
-  "totalPages": zod.number()
 })
-})
+export const GuardiansControllerListResponse = zod.array(GuardiansControllerListResponseItem)
 
 
 /**
@@ -610,8 +596,7 @@ export const TeachersControllerListQueryParams = zod.object({
   "employmentType": zod.enum(['TSC', 'BOM', 'INTERN']).optional()
 })
 
-export const TeachersControllerListResponse = zod.object({
-  "data": zod.array(zod.object({
+export const TeachersControllerListResponseItem = zod.object({
   "id": zod.string(),
   "userId": zod.string(),
   "tscNumber": zod.string(),
@@ -625,14 +610,8 @@ export const TeachersControllerListResponse = zod.object({
   "loginEmail": zod.string(),
   "assignmentCount": zod.number(),
   "createdAt": zod.string()
-})),
-  "meta": zod.object({
-  "page": zod.number(),
-  "limit": zod.number(),
-  "total": zod.number(),
-  "totalPages": zod.number()
 })
-})
+export const TeachersControllerListResponse = zod.array(TeachersControllerListResponseItem)
 
 
 /**
@@ -800,8 +779,7 @@ export const UsersControllerListQueryParams = zod.object({
   "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT']).optional()
 })
 
-export const UsersControllerListResponse = zod.object({
-  "data": zod.array(zod.object({
+export const UsersControllerListResponseItem = zod.object({
   "id": zod.string(),
   "email": zod.string(),
   "phone": zod.string(),
@@ -809,14 +787,8 @@ export const UsersControllerListResponse = zod.object({
   "isActive": zod.boolean(),
   "lastLoginAt": zod.string().nullable(),
   "createdAt": zod.string()
-})),
-  "meta": zod.object({
-  "page": zod.number(),
-  "limit": zod.number(),
-  "total": zod.number(),
-  "totalPages": zod.number()
 })
-})
+export const UsersControllerListResponse = zod.array(UsersControllerListResponseItem)
 
 
 /**
@@ -841,8 +813,7 @@ export const AcademicYearsControllerListQueryParams = zod.object({
   "isCurrent": zod.boolean().optional().describe('Filter by the current academic year')
 })
 
-export const AcademicYearsControllerListResponse = zod.object({
-  "data": zod.array(zod.object({
+export const AcademicYearsControllerListResponseItem = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "startDate": zod.string(),
@@ -850,14 +821,8 @@ export const AcademicYearsControllerListResponse = zod.object({
   "isCurrent": zod.boolean(),
   "termCount": zod.number(),
   "classCount": zod.number()
-})),
-  "meta": zod.object({
-  "page": zod.number(),
-  "limit": zod.number(),
-  "total": zod.number(),
-  "totalPages": zod.number()
 })
-})
+export const AcademicYearsControllerListResponse = zod.array(AcademicYearsControllerListResponseItem)
 
 
 /**
@@ -961,8 +926,7 @@ export const TermsControllerListQueryParams = zod.object({
   "isCurrent": zod.boolean().optional()
 })
 
-export const TermsControllerListResponse = zod.object({
-  "data": zod.array(zod.object({
+export const TermsControllerListResponseItem = zod.object({
   "id": zod.string(),
   "academicYearId": zod.string(),
   "academicYearName": zod.string(),
@@ -971,14 +935,8 @@ export const TermsControllerListResponse = zod.object({
   "startDate": zod.string(),
   "endDate": zod.string(),
   "isCurrent": zod.boolean()
-})),
-  "meta": zod.object({
-  "page": zod.number(),
-  "limit": zod.number(),
-  "total": zod.number(),
-  "totalPages": zod.number()
 })
-})
+export const TermsControllerListResponse = zod.array(TermsControllerListResponseItem)
 
 
 /**
@@ -1104,8 +1062,7 @@ export const ClassesControllerListQueryParams = zod.object({
   "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']).optional()
 })
 
-export const ClassesControllerListResponse = zod.object({
-  "data": zod.array(zod.object({
+export const ClassesControllerListResponseItem = zod.object({
   "id": zod.string(),
   "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']),
   "name": zod.string(),
@@ -1117,14 +1074,8 @@ export const ClassesControllerListResponse = zod.object({
   "streamCount": zod.number(),
   "subjectCount": zod.number(),
   "createdAt": zod.string()
-})),
-  "meta": zod.object({
-  "page": zod.number(),
-  "limit": zod.number(),
-  "total": zod.number(),
-  "totalPages": zod.number()
 })
-})
+export const ClassesControllerListResponse = zod.array(ClassesControllerListResponseItem)
 
 
 /**
@@ -1237,8 +1188,7 @@ export const StreamsControllerListQueryParams = zod.object({
   "classId": zod.uuid().optional()
 })
 
-export const StreamsControllerListResponse = zod.object({
-  "data": zod.array(zod.object({
+export const StreamsControllerListResponseItem = zod.object({
   "id": zod.string(),
   "classId": zod.string(),
   "className": zod.string(),
@@ -1246,14 +1196,8 @@ export const StreamsControllerListResponse = zod.object({
   "name": zod.string(),
   "studentCount": zod.number(),
   "createdAt": zod.string()
-})),
-  "meta": zod.object({
-  "page": zod.number(),
-  "limit": zod.number(),
-  "total": zod.number(),
-  "totalPages": zod.number()
 })
-})
+export const StreamsControllerListResponse = zod.array(StreamsControllerListResponseItem)
 
 
 /**
@@ -1350,8 +1294,7 @@ export const SubjectsControllerListQueryParams = zod.object({
   "level": zod.enum(['PRIMARY', 'JSS', 'SECONDARY']).optional()
 })
 
-export const SubjectsControllerListResponse = zod.object({
-  "data": zod.array(zod.object({
+export const SubjectsControllerListResponseItem = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "code": zod.string(),
@@ -1359,14 +1302,8 @@ export const SubjectsControllerListResponse = zod.object({
   "isCbc": zod.boolean(),
   "classSubjectCount": zod.number(),
   "createdAt": zod.string()
-})),
-  "meta": zod.object({
-  "page": zod.number(),
-  "limit": zod.number(),
-  "total": zod.number(),
-  "totalPages": zod.number()
 })
-})
+export const SubjectsControllerListResponse = zod.array(SubjectsControllerListResponseItem)
 
 
 /**

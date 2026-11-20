@@ -7,7 +7,6 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator';
-import { PaginationMetaDto } from '../../common/dto/pagination-meta.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import type { ClassRecord, ClassSortField } from './class.repository';
 
@@ -87,10 +86,6 @@ export class ClassDto {
   @ApiProperty() createdAt!: string;
 }
 
-export class ClassListDto {
-  @ApiProperty({ type: [ClassDto] }) data!: ClassDto[];
-  @ApiProperty({ type: PaginationMetaDto }) meta!: PaginationMetaDto;
-}
 
 export function toClassDto(record: ClassRecord): ClassDto {
   return {

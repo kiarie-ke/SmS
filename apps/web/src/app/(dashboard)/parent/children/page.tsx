@@ -6,6 +6,7 @@ import { useListState } from '@/components/data-table/use-list-state';
 import { studentsControllerList } from '@/lib/api/generated/endpoints';
 import type { StudentDto } from '@/lib/api/generated/models';
 import { toErrorMessage } from '@/lib/api/errors';
+import { getPaginationMeta } from '@/lib/api/http-client';
 import { useApiQuery } from '@/lib/api/use-api-query';
 
 export default function ParentChildrenPage() {
@@ -35,7 +36,7 @@ export default function ParentChildrenPage() {
     { key: 'gender', header: 'Gender', render: (student) => student.gender },
   ];
 
-  const meta = query.data?.data.meta;
+  const meta = getPaginationMeta(query.data);
 
   return (
     <div>
@@ -44,7 +45,7 @@ export default function ParentChildrenPage() {
         description="Only students linked to your guardian record are returned by the API."
       />
       <DataTable
-        rows={query.data?.data.data ?? []}
+        rows={query.data?.data ?? []}
         columns={columns}
         total={meta?.total ?? 0}
         page={list.page}

@@ -12,7 +12,6 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { Roles } from '../../common/decorators/roles.decorator';
 import type { PaginatedResult } from '../../common/api-response';
 import { paginate } from '../../common/pagination';
-import { PaginationMetaDto } from '../../common/dto/pagination-meta.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -36,10 +35,6 @@ export class UserAccountDto {
   @ApiProperty() createdAt!: string;
 }
 
-export class UserAccountListDto {
-  @ApiProperty({ type: [UserAccountDto] }) data!: UserAccountDto[];
-  @ApiProperty({ type: PaginationMetaDto }) meta!: PaginationMetaDto;
-}
 
 export class UserAccountQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({ enum: ROLES })
@@ -104,7 +99,7 @@ export class UsersController {
   constructor(private readonly users: UsersService) {}
 
   @Get()
-  @ApiOkResponse({ type: UserAccountListDto })
+  @ApiOkResponse({ type: UserAccountDto, isArray: true })
   @ApiOperation({
     summary: 'List login accounts (admin only; used to link teacher records)',
   })

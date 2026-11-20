@@ -7,7 +7,6 @@
  */
 import type {
   ClassDto,
-  ClassListDto,
   ClassesControllerListParams,
   CreateClassDto,
   MessageResponseDto,
@@ -37,7 +36,7 @@ const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string 
 };
 
 export type classesControllerListResponse200 = {
-  data: ClassListDto
+  data: ClassDto[]
   status: 200
 }
 

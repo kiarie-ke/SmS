@@ -190,7 +190,7 @@ export function StudentDetailView({ id }: { id: string }) {
                     className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm"
                   >
                     <option value="">Select guardian…</option>
-                    {(guardians.data?.data.data ?? []).map((guardian) => (
+                    {(guardians.data?.data ?? []).map((guardian) => (
                       <option key={guardian.id} value={guardian.id}>
                         {guardian.fullName} · {guardian.phone}
                       </option>

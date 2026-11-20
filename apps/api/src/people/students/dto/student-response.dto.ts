@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CLASS_LEVELS, GENDERS, RELATIONSHIPS } from '@school-system/shared';
-import { PaginationMetaDto } from '../../../common/dto/pagination-meta.dto';
 import type { StudentDetailRecord, StudentRecord } from '../student.types';
 
 export class StudentGuardianDto {
@@ -44,10 +43,6 @@ export class StudentDetailDto extends StudentDto {
   @ApiProperty({ type: [StudentGuardianDto] }) guardians!: StudentGuardianDto[];
 }
 
-export class StudentListDto {
-  @ApiProperty({ type: [StudentDto] }) data!: StudentDto[];
-  @ApiProperty({ type: PaginationMetaDto }) meta!: PaginationMetaDto;
-}
 
 export class ImportRowResultDto {
   @ApiProperty({ description: 'Spreadsheet row number (header is row 1)' })

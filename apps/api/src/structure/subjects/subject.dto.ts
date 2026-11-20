@@ -9,7 +9,6 @@ import {
   Matches,
   MaxLength,
 } from 'class-validator';
-import { PaginationMetaDto } from '../../common/dto/pagination-meta.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import type { SubjectRecord, SubjectSortField } from './subject.repository';
 
@@ -91,10 +90,6 @@ export class SubjectDto {
   @ApiProperty() createdAt!: string;
 }
 
-export class SubjectListDto {
-  @ApiProperty({ type: [SubjectDto] }) data!: SubjectDto[];
-  @ApiProperty({ type: PaginationMetaDto }) meta!: PaginationMetaDto;
-}
 
 export function toSubjectDto(record: SubjectRecord): SubjectDto {
   return {

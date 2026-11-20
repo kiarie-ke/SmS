@@ -28,7 +28,6 @@ import { TermRepository, TermRepositoryPort } from './term.repository';
 import {
   CreateTermDto,
   TermDto,
-  TermListDto,
   TermQueryDto,
   UpdateTermDto,
   toTermDto,
@@ -109,7 +108,7 @@ export class TermsController {
 
   @Get()
   @Roles('ADMIN', 'TEACHER')
-  @ApiOkResponse({ type: TermListDto })
+  @ApiOkResponse({ type: TermDto, isArray: true })
   @ApiOperation({ summary: 'List terms' })
   list(@Query() query: TermQueryDto) {
     return this.terms.list(query);

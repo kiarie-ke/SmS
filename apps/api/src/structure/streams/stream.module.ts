@@ -32,7 +32,6 @@ import { StreamRepository, StreamRepositoryPort } from './stream.repository';
 import {
   CreateStreamDto,
   StreamDto,
-  StreamListDto,
   StreamQueryDto,
   UpdateStreamDto,
   toStreamDto,
@@ -109,7 +108,7 @@ export class StreamsController {
   constructor(private readonly streams: StreamsService) {}
 
   @Get()
-  @ApiOkResponse({ type: StreamListDto })
+  @ApiOkResponse({ type: StreamDto, isArray: true })
   @ApiOperation({ summary: 'List streams (admin: all; teacher: assigned classes)' })
   list(@CurrentUser() user: AuthenticatedUser, @Query() query: StreamQueryDto) {
     return this.streams.list(user, query);

@@ -358,7 +358,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StudentListDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StudentDto"
+                  }
                 }
               }
             }
@@ -751,7 +754,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GuardianListDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GuardianDto"
+                  }
                 }
               }
             }
@@ -1000,7 +1006,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TeacherListDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeacherDto"
+                  }
                 }
               }
             }
@@ -1281,7 +1290,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserAccountListDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserAccountDto"
+                  }
                 }
               }
             }
@@ -1376,7 +1388,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AcademicYearListDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AcademicYearDto"
+                  }
                 }
               }
             }
@@ -1628,7 +1643,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TermListDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TermDto"
+                  }
                 }
               }
             }
@@ -1935,7 +1953,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ClassListDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClassDto"
+                  }
                 }
               }
             }
@@ -2178,7 +2199,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StreamListDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StreamDto"
+                  }
                 }
               }
             }
@@ -2426,7 +2450,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SubjectListDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubjectDto"
+                  }
                 }
               }
             }
@@ -2965,51 +2992,6 @@
           "createdAt"
         ]
       },
-      "PaginationMetaDto": {
-        "type": "object",
-        "properties": {
-          "page": {
-            "type": "number",
-            "example": 1
-          },
-          "limit": {
-            "type": "number",
-            "example": 20
-          },
-          "total": {
-            "type": "number",
-            "example": 42
-          },
-          "totalPages": {
-            "type": "number",
-            "example": 3
-          }
-        },
-        "required": [
-          "page",
-          "limit",
-          "total",
-          "totalPages"
-        ]
-      },
-      "StudentListDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/StudentDto"
-            }
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMetaDto"
-          }
-        },
-        "required": [
-          "data",
-          "meta"
-        ]
-      },
       "ImportRowResultDto": {
         "type": "object",
         "properties": {
@@ -3524,24 +3506,6 @@
           "createdAt"
         ]
       },
-      "GuardianListDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/GuardianDto"
-            }
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMetaDto"
-          }
-        },
-        "required": [
-          "data",
-          "meta"
-        ]
-      },
       "CreateGuardianDto": {
         "type": "object",
         "properties": {
@@ -3704,24 +3668,6 @@
           "loginEmail",
           "assignmentCount",
           "createdAt"
-        ]
-      },
-      "TeacherListDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TeacherDto"
-            }
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMetaDto"
-          }
-        },
-        "required": [
-          "data",
-          "meta"
         ]
       },
       "TeacherAssignmentDto": {
@@ -3969,24 +3915,6 @@
           "createdAt"
         ]
       },
-      "UserAccountListDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserAccountDto"
-            }
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMetaDto"
-          }
-        },
-        "required": [
-          "data",
-          "meta"
-        ]
-      },
       "AcademicYearDto": {
         "type": "object",
         "properties": {
@@ -4022,24 +3950,6 @@
           "isCurrent",
           "termCount",
           "classCount"
-        ]
-      },
-      "AcademicYearListDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AcademicYearDto"
-            }
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMetaDto"
-          }
-        },
-        "required": [
-          "data",
-          "meta"
         ]
       },
       "CreateAcademicYearDto": {
@@ -4126,24 +4036,6 @@
           "startDate",
           "endDate",
           "isCurrent"
-        ]
-      },
-      "TermListDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TermDto"
-            }
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMetaDto"
-          }
-        },
-        "required": [
-          "data",
-          "meta"
         ]
       },
       "CreateTermDto": {
@@ -4297,24 +4189,6 @@
           "streamCount",
           "subjectCount",
           "createdAt"
-        ]
-      },
-      "ClassListDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ClassDto"
-            }
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMetaDto"
-          }
-        },
-        "required": [
-          "data",
-          "meta"
         ]
       },
       "CreateClassDto": {
@@ -4483,24 +4357,6 @@
           "createdAt"
         ]
       },
-      "StreamListDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/StreamDto"
-            }
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMetaDto"
-          }
-        },
-        "required": [
-          "data",
-          "meta"
-        ]
-      },
       "CreateStreamDto": {
         "type": "object",
         "properties": {
@@ -4569,24 +4425,6 @@
           "isCbc",
           "classSubjectCount",
           "createdAt"
-        ]
-      },
-      "SubjectListDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SubjectDto"
-            }
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMetaDto"
-          }
-        },
-        "required": [
-          "data",
-          "meta"
         ]
       },
       "CreateSubjectDto": {

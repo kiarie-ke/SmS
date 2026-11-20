@@ -11,7 +11,6 @@ import type {
   MessageResponseDto,
   TeacherDetailDto,
   TeacherDto,
-  TeacherListDto,
   TeachersControllerListParams,
   UpdateTeacherDto
 } from '../../models';
@@ -39,7 +38,7 @@ const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string 
 };
 
 export type teachersControllerListResponse200 = {
-  data: TeacherListDto
+  data: TeacherDto[]
   status: 200
 }
 

@@ -22,10 +22,27 @@ export class ApiError extends Error {
   }
 }
 
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 interface Envelope<T> {
   success: boolean;
   data?: T;
+  meta?: PaginationMeta;
   error?: ApiErrorBody;
+}
+
+/**
+ * Paginated lists keep their metadata on the envelope (`{ data, meta }`), so
+ * it is not part of the Orval response type. This reads it back safely.
+ */
+export function getPaginationMeta(response: unknown): PaginationMeta | undefined {
+  const meta = (response as { meta?: PaginationMeta } | null)?.meta;
+  return meta && typeof meta === 'object' ? meta : undefined;
 }
 
 /**
@@ -66,6 +83,7 @@ export async function httpClient<T>(url: string, options: RequestInit = {}): Pro
   // Orval's fetch client types responses as { data, status, headers }.
   return {
     data: payload.data,
+    meta: payload.meta,
     status: response.status,
     headers: response.headers,
   } as T;

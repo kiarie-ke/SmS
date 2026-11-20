@@ -13,7 +13,6 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { PaginationMetaDto } from '../../common/dto/pagination-meta.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import type { TermRecord, TermSortField } from './term.repository';
 
@@ -120,10 +119,6 @@ export class TermDto {
   @ApiProperty() isCurrent!: boolean;
 }
 
-export class TermListDto {
-  @ApiProperty({ type: [TermDto] }) data!: TermDto[];
-  @ApiProperty({ type: PaginationMetaDto }) meta!: PaginationMetaDto;
-}
 
 export function toTermDto(record: TermRecord): TermDto {
   return {

@@ -9,7 +9,6 @@ import type {
   CreateSubjectDto,
   MessageResponseDto,
   SubjectDto,
-  SubjectListDto,
   SubjectsControllerListParams,
   UpdateSubjectDto
 } from '../../models';
@@ -37,7 +36,7 @@ const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string 
 };
 
 export type subjectsControllerListResponse200 = {
-  data: SubjectListDto
+  data: SubjectDto[]
   status: 200
 }
 

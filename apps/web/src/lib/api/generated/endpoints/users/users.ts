@@ -6,14 +6,14 @@
  * OpenAPI spec version: 0.1.0
  */
 import type {
-  UserAccountListDto,
+  UserAccountDto,
   UsersControllerListParams
 } from '../../models';
 
 import { httpClient } from '../../../http-client';
 
 export type usersControllerListResponse200 = {
-  data: UserAccountListDto
+  data: UserAccountDto[]
   status: 200
 }
 

@@ -9,7 +9,6 @@ import type {
   CreateStreamDto,
   MessageResponseDto,
   StreamDto,
-  StreamListDto,
   StreamsControllerListParams,
   UpdateStreamDto
 } from '../../models';
@@ -37,7 +36,7 @@ const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string 
 };
 
 export type streamsControllerListResponse200 = {
-  data: StreamListDto
+  data: StreamDto[]
   status: 200
 }
 

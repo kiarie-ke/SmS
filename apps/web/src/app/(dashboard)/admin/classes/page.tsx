@@ -31,6 +31,7 @@ import type {
   UpdateStreamDto,
 } from '@/lib/api/generated/models';
 import { toErrorMessage } from '@/lib/api/errors';
+import { getPaginationMeta } from '@/lib/api/http-client';
 import { useApiQuery } from '@/lib/api/use-api-query';
 
 const LEVEL_OPTIONS = [
@@ -64,7 +65,7 @@ const LEVEL_OPTIONS = [
 
 async function yearOptions(): Promise<FieldOption[]> {
   const response = await academicYearsControllerList({ limit: 100, sortBy: 'startDate', sortOrder: 'desc' });
-  return response.data.data.map((year) => ({
+  return response.data.map((year) => ({
     value: year.id,
     label: `${year.name}${year.isCurrent ? ' (current)' : ''}`,
   }));
@@ -72,7 +73,7 @@ async function yearOptions(): Promise<FieldOption[]> {
 
 async function teacherOptions(): Promise<FieldOption[]> {
   const response = await teachersControllerList({ limit: 100 });
-  return response.data.data.map((teacher) => ({
+  return response.data.map((teacher) => ({
     value: teacher.id,
     label: `${teacher.fullName} · ${teacher.tscNumber}`,
   }));
@@ -80,7 +81,7 @@ async function teacherOptions(): Promise<FieldOption[]> {
 
 async function classOptions(): Promise<FieldOption[]> {
   const response = await classesControllerList({ limit: 100 });
-  return response.data.data.map((klass) => ({ value: klass.id, label: klass.name }));
+  return response.data.map((klass) => ({ value: klass.id, label: klass.name }));
 }
 
 function ClassesSection() {
@@ -143,12 +144,12 @@ function ClassesSection() {
     { key: 'streams', header: 'Streams', render: (klass) => klass.streamCount },
   ];
 
-  const meta = query.data?.data.meta;
+  const meta = getPaginationMeta(query.data);
 
   return (
     <>
       <DataTable
-        rows={query.data?.data.data ?? []}
+        rows={query.data?.data ?? []}
         columns={columns}
         total={meta?.total ?? 0}
         page={list.page}
@@ -288,12 +289,12 @@ function StreamsSection() {
     { key: 'students', header: 'Students', render: (stream) => stream.studentCount },
   ];
 
-  const meta = query.data?.data.meta;
+  const meta = getPaginationMeta(query.data);
 
   return (
     <>
       <DataTable
-        rows={query.data?.data.data ?? []}
+        rows={query.data?.data ?? []}
         columns={columns}
         total={meta?.total ?? 0}
         page={list.page}

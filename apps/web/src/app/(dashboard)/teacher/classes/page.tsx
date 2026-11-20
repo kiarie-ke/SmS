@@ -6,6 +6,7 @@ import { useListState } from '@/components/data-table/use-list-state';
 import { classesControllerList } from '@/lib/api/generated/endpoints';
 import type { ClassDto } from '@/lib/api/generated/models';
 import { toErrorMessage } from '@/lib/api/errors';
+import { getPaginationMeta } from '@/lib/api/http-client';
 import { useApiQuery } from '@/lib/api/use-api-query';
 
 export default function TeacherClassesPage() {
@@ -30,7 +31,7 @@ export default function TeacherClassesPage() {
     { key: 'subjects', header: 'Subjects', render: (klass) => klass.subjectCount },
   ];
 
-  const meta = query.data?.data.meta;
+  const meta = getPaginationMeta(query.data);
 
   return (
     <div>
@@ -39,7 +40,7 @@ export default function TeacherClassesPage() {
         description="Classes where you are the class teacher or teach a subject."
       />
       <DataTable
-        rows={query.data?.data.data ?? []}
+        rows={query.data?.data ?? []}
         columns={columns}
         total={meta?.total ?? 0}
         page={list.page}

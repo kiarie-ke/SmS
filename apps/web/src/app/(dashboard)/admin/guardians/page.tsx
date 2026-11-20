@@ -21,6 +21,7 @@ import type {
   UpdateGuardianDto,
 } from '@/lib/api/generated/models';
 import { toErrorMessage } from '@/lib/api/errors';
+import { getPaginationMeta } from '@/lib/api/http-client';
 import { useApiQuery } from '@/lib/api/use-api-query';
 
 const RELATIONSHIP_OPTIONS = [
@@ -127,7 +128,7 @@ export default function GuardiansPage() {
     },
   ];
 
-  const meta = query.data?.data.meta;
+  const meta = getPaginationMeta(query.data);
 
   return (
     <div>
@@ -147,7 +148,7 @@ export default function GuardiansPage() {
       />
 
       <DataTable
-        rows={query.data?.data.data ?? []}
+        rows={query.data?.data ?? []}
         columns={columns}
         total={meta?.total ?? 0}
         page={list.page}

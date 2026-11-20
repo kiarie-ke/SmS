@@ -31,7 +31,6 @@ import { ScopingService } from '../../scoping/scoping.service';
 import { ClassRepository, ClassRepositoryPort } from './class.repository';
 import {
   ClassDto,
-  ClassListDto,
   ClassQueryDto,
   CreateClassDto,
   UpdateClassDto,
@@ -118,7 +117,7 @@ export class ClassesController {
   constructor(private readonly classes: ClassesService) {}
 
   @Get()
-  @ApiOkResponse({ type: ClassListDto })
+  @ApiOkResponse({ type: ClassDto, isArray: true })
   @ApiOperation({
     summary: 'List classes (admin: all; teacher: assigned or class-teacher classes)',
   })

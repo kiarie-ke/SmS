@@ -14,7 +14,6 @@ import {
   Matches,
   MaxLength,
 } from 'class-validator';
-import { PaginationMetaDto } from '../../common/dto/pagination-meta.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import type {
   TeacherDetailRecord,
@@ -173,10 +172,6 @@ export class TeacherDetailDto extends TeacherDto {
   assignments!: TeacherAssignmentDto[];
 }
 
-export class TeacherListDto {
-  @ApiProperty({ type: [TeacherDto] }) data!: TeacherDto[];
-  @ApiProperty({ type: PaginationMetaDto }) meta!: PaginationMetaDto;
-}
 
 export function toTeacherDto(record: TeacherRecord): TeacherDto {
   return {

@@ -24,6 +24,7 @@ import type {
   UpdateStudentDto,
 } from '@/lib/api/generated/models';
 import { toErrorMessage } from '@/lib/api/errors';
+import { getPaginationMeta } from '@/lib/api/http-client';
 import { useApiQuery } from '@/lib/api/use-api-query';
 
 const EMPTY_STUDENT = {
@@ -44,7 +45,7 @@ const EMPTY_STUDENT = {
 
 async function classOptions(): Promise<FieldOption[]> {
   const response = await classesControllerList({ limit: 100 });
-  return response.data.data.map((klass) => ({
+  return response.data.map((klass) => ({
     value: klass.id,
     label: `${klass.name} (${klass.academicYearName})`,
   }));
@@ -53,7 +54,7 @@ async function classOptions(): Promise<FieldOption[]> {
 async function streamOptions(values: Record<string, unknown>): Promise<FieldOption[]> {
   if (!values.classId) return [];
   const response = await streamsControllerList({ classId: String(values.classId), limit: 100 });
-  return response.data.data.map((stream) => ({ value: stream.id, label: stream.name }));
+  return response.data.map((stream) => ({ value: stream.id, label: stream.name }));
 }
 
 function toPayload(values: Record<string, unknown>) {
@@ -94,8 +95,8 @@ export default function StudentsPage() {
       }),
   );
 
-  const rows = query.data?.data.data ?? [];
-  const meta = query.data?.data.meta;
+  const rows = query.data?.data ?? [];
+  const meta = getPaginationMeta(query.data);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['students'] });
 
