@@ -1382,3 +1382,1023 @@ export const SubjectsControllerRemoveParams = zod.object({
 export const SubjectsControllerRemoveResponse = zod.object({
   "message": zod.string()
 })
+
+
+/**
+ * @summary Bulk upsert attendance for a class/day
+ */
+export const AttendanceControllerRegisterBody = zod.object({
+  "classId": zod.uuid(),
+  "date": zod.string().describe('Calendar date (YYYY-MM-DD)'),
+  "entries": zod.array(zod.object({
+  "studentId": zod.uuid(),
+  "status": zod.enum(['PRESENT', 'ABSENT', 'LATE', 'EXCUSED']),
+  "remarks": zod.string().optional()
+}))
+})
+
+export const AttendanceControllerRegisterResponse = zod.void()
+
+
+/**
+ * @summary List attendance for a class/day
+ */
+export const AttendanceControllerListQueryParams = zod.object({
+  "classId": zod.uuid(),
+  "date": zod.string()
+})
+
+export const AttendanceControllerListResponseItem = zod.object({
+  "id": zod.string(),
+  "studentId": zod.string(),
+  "studentName": zod.string().optional(),
+  "admissionNumber": zod.string().optional(),
+  "classId": zod.string(),
+  "date": zod.string(),
+  "status": zod.enum(['PRESENT', 'ABSENT', 'LATE', 'EXCUSED']),
+  "markedByTeacherId": zod.string(),
+  "remarks": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const AttendanceControllerListResponse = zod.array(AttendanceControllerListResponseItem)
+
+
+/**
+ * @summary Attendance history for a student (range)
+ */
+export const AttendanceControllerStudentAttendanceParams = zod.object({
+  "id": zod.string()
+})
+
+export const AttendanceControllerStudentAttendanceQueryParams = zod.object({
+  "from": zod.string().optional(),
+  "to": zod.string().optional()
+})
+
+export const AttendanceControllerStudentAttendanceResponseItem = zod.object({
+  "id": zod.string(),
+  "studentId": zod.string(),
+  "studentName": zod.string().optional(),
+  "admissionNumber": zod.string().optional(),
+  "classId": zod.string(),
+  "date": zod.string(),
+  "status": zod.enum(['PRESENT', 'ABSENT', 'LATE', 'EXCUSED']),
+  "markedByTeacherId": zod.string(),
+  "remarks": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const AttendanceControllerStudentAttendanceResponse = zod.array(AttendanceControllerStudentAttendanceResponseItem)
+
+
+/**
+ * @summary Class attendance summary over a date range
+ */
+export const AttendanceControllerClassSummaryParams = zod.object({
+  "id": zod.string()
+})
+
+export const AttendanceControllerClassSummaryQueryParams = zod.object({
+  "from": zod.string().optional(),
+  "to": zod.string().optional()
+})
+
+export const AttendanceControllerClassSummaryResponseItem = zod.object({
+  "studentId": zod.string(),
+  "admissionNumber": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "present": zod.number(),
+  "absent": zod.number(),
+  "late": zod.number(),
+  "excused": zod.number(),
+  "total": zod.number()
+})
+export const AttendanceControllerClassSummaryResponse = zod.array(AttendanceControllerClassSummaryResponseItem)
+
+
+/**
+ * @summary Student attendance summary over a date range
+ */
+export const AttendanceControllerStudentSummaryParams = zod.object({
+  "id": zod.string()
+})
+
+export const AttendanceControllerStudentSummaryQueryParams = zod.object({
+  "from": zod.string().optional(),
+  "to": zod.string().optional()
+})
+
+export const AttendanceControllerStudentSummaryResponse = zod.object({
+  "present": zod.number(),
+  "absent": zod.number(),
+  "late": zod.number(),
+  "excused": zod.number(),
+  "total": zod.number(),
+  "percentage": zod.number()
+})
+
+
+/**
+ * @summary List exams (scoped by class)
+ */
+export const examsControllerListQueryPageDefault = 1;
+
+export const examsControllerListQueryLimitDefault = 20;
+export const examsControllerListQueryLimitMax = 100;
+
+export const examsControllerListQuerySearchMax = 100;
+
+export const examsControllerListQuerySortOrderDefault = `asc`;
+
+export const ExamsControllerListQueryParams = zod.object({
+  "page": zod.number().min(1).default(examsControllerListQueryPageDefault),
+  "limit": zod.number().min(1).max(examsControllerListQueryLimitMax).default(examsControllerListQueryLimitDefault),
+  "search": zod.string().max(examsControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(examsControllerListQuerySortOrderDefault),
+  "termId": zod.uuid().optional(),
+  "subjectId": zod.uuid().optional(),
+  "classId": zod.uuid().optional(),
+  "name": zod.enum(['CAT1', 'MIDTERM', 'ENDTERM', 'MOCK']).optional()
+})
+
+export const ExamsControllerListResponseItem = zod.object({
+  "id": zod.string(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string().optional(),
+  "subjectCode": zod.string().optional(),
+  "classId": zod.string(),
+  "className": zod.string().optional(),
+  "name": zod.enum(['CAT1', 'MIDTERM', 'ENDTERM', 'MOCK']),
+  "maxMarks": zod.number(),
+  "date": zod.string(),
+  "isPublished": zod.boolean(),
+  "publishedAt": zod.string().nullish(),
+  "lockedByUserId": zod.string().nullish(),
+  "lockedAt": zod.string().nullish(),
+  "markCount": zod.number(),
+  "createdAt": zod.string()
+})
+export const ExamsControllerListResponse = zod.array(ExamsControllerListResponseItem)
+
+
+/**
+ * @summary Create an exam
+ */
+export const ExamsControllerCreateBody = zod.object({
+  "termId": zod.uuid(),
+  "subjectId": zod.uuid(),
+  "classId": zod.uuid(),
+  "name": zod.enum(['CAT1', 'MIDTERM', 'ENDTERM', 'MOCK']),
+  "maxMarks": zod.number(),
+  "date": zod.string()
+})
+
+export const ExamsControllerCreateResponse = zod.object({
+  "id": zod.string(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string().optional(),
+  "subjectCode": zod.string().optional(),
+  "classId": zod.string(),
+  "className": zod.string().optional(),
+  "name": zod.enum(['CAT1', 'MIDTERM', 'ENDTERM', 'MOCK']),
+  "maxMarks": zod.number(),
+  "date": zod.string(),
+  "isPublished": zod.boolean(),
+  "publishedAt": zod.string().nullish(),
+  "lockedByUserId": zod.string().nullish(),
+  "lockedAt": zod.string().nullish(),
+  "markCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Get an exam
+ */
+export const ExamsControllerGetParams = zod.object({
+  "id": zod.string()
+})
+
+export const ExamsControllerGetResponse = zod.object({
+  "id": zod.string(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string().optional(),
+  "subjectCode": zod.string().optional(),
+  "classId": zod.string(),
+  "className": zod.string().optional(),
+  "name": zod.enum(['CAT1', 'MIDTERM', 'ENDTERM', 'MOCK']),
+  "maxMarks": zod.number(),
+  "date": zod.string(),
+  "isPublished": zod.boolean(),
+  "publishedAt": zod.string().nullish(),
+  "lockedByUserId": zod.string().nullish(),
+  "lockedAt": zod.string().nullish(),
+  "markCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Update an exam
+ */
+export const ExamsControllerUpdateParams = zod.object({
+  "id": zod.string()
+})
+
+export const ExamsControllerUpdateBody = zod.object({
+  "maxMarks": zod.number().optional(),
+  "date": zod.string().optional()
+})
+
+export const ExamsControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string().optional(),
+  "subjectCode": zod.string().optional(),
+  "classId": zod.string(),
+  "className": zod.string().optional(),
+  "name": zod.enum(['CAT1', 'MIDTERM', 'ENDTERM', 'MOCK']),
+  "maxMarks": zod.number(),
+  "date": zod.string(),
+  "isPublished": zod.boolean(),
+  "publishedAt": zod.string().nullish(),
+  "lockedByUserId": zod.string().nullish(),
+  "lockedAt": zod.string().nullish(),
+  "markCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete an exam
+ */
+export const ExamsControllerRemoveParams = zod.object({
+  "id": zod.string()
+})
+
+export const ExamsControllerRemoveResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List marks for an exam
+ */
+export const ExamsControllerMarksParams = zod.object({
+  "id": zod.string()
+})
+
+export const ExamsControllerMarksResponseItem = zod.object({
+  "id": zod.string(),
+  "examId": zod.string(),
+  "studentId": zod.string(),
+  "studentName": zod.string().optional(),
+  "admissionNumber": zod.string().optional(),
+  "score": zod.number(),
+  "grade": zod.string(),
+  "points": zod.number().nullish(),
+  "teacherComment": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const ExamsControllerMarksResponse = zod.array(ExamsControllerMarksResponseItem)
+
+
+/**
+ * @summary Bulk upsert marks for an exam (grades computed server-side)
+ */
+export const ExamsControllerRegisterMarksParams = zod.object({
+  "id": zod.string()
+})
+
+export const ExamsControllerRegisterMarksBody = zod.object({
+  "entries": zod.array(zod.object({
+  "studentId": zod.uuid(),
+  "score": zod.number(),
+  "teacherComment": zod.string().optional()
+}))
+})
+
+export const ExamsControllerRegisterMarksResponse = zod.unknown()
+
+
+/**
+ * @summary Publish an exam (locks it; results visible to students/parents)
+ */
+export const ExamsControllerPublishParams = zod.object({
+  "id": zod.string()
+})
+
+export const ExamsControllerPublishResponse = zod.object({
+  "id": zod.string(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string().optional(),
+  "subjectCode": zod.string().optional(),
+  "classId": zod.string(),
+  "className": zod.string().optional(),
+  "name": zod.enum(['CAT1', 'MIDTERM', 'ENDTERM', 'MOCK']),
+  "maxMarks": zod.number(),
+  "date": zod.string(),
+  "isPublished": zod.boolean(),
+  "publishedAt": zod.string().nullish(),
+  "lockedByUserId": zod.string().nullish(),
+  "lockedAt": zod.string().nullish(),
+  "markCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Lock an exam for editing
+ */
+export const ExamsControllerLockParams = zod.object({
+  "id": zod.string()
+})
+
+export const ExamsControllerLockResponse = zod.object({
+  "id": zod.string(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string().optional(),
+  "subjectCode": zod.string().optional(),
+  "classId": zod.string(),
+  "className": zod.string().optional(),
+  "name": zod.enum(['CAT1', 'MIDTERM', 'ENDTERM', 'MOCK']),
+  "maxMarks": zod.number(),
+  "date": zod.string(),
+  "isPublished": zod.boolean(),
+  "publishedAt": zod.string().nullish(),
+  "lockedByUserId": zod.string().nullish(),
+  "lockedAt": zod.string().nullish(),
+  "markCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Unlock an exam
+ */
+export const ExamsControllerUnlockParams = zod.object({
+  "id": zod.string()
+})
+
+export const ExamsControllerUnlockResponse = zod.object({
+  "id": zod.string(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string().optional(),
+  "subjectCode": zod.string().optional(),
+  "classId": zod.string(),
+  "className": zod.string().optional(),
+  "name": zod.enum(['CAT1', 'MIDTERM', 'ENDTERM', 'MOCK']),
+  "maxMarks": zod.number(),
+  "date": zod.string(),
+  "isPublished": zod.boolean(),
+  "publishedAt": zod.string().nullish(),
+  "lockedByUserId": zod.string().nullish(),
+  "lockedAt": zod.string().nullish(),
+  "markCount": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary List CBC learning outcomes
+ */
+export const CbcControllerListLearningOutcomesQueryParams = zod.object({
+  "subjectId": zod.string()
+})
+
+export const CbcControllerListLearningOutcomesResponseItem = zod.object({
+  "id": zod.string(),
+  "description": zod.string(),
+  "strandName": zod.string(),
+  "subStrandName": zod.string(),
+  "subjectName": zod.string().optional(),
+  "subjectId": zod.string().optional()
+})
+export const CbcControllerListLearningOutcomesResponse = zod.array(CbcControllerListLearningOutcomesResponseItem)
+
+
+/**
+ * @summary List CBC assessments (scoped)
+ */
+export const cbcControllerListQueryPageDefault = 1;
+
+export const cbcControllerListQueryLimitDefault = 20;
+export const cbcControllerListQueryLimitMax = 100;
+
+export const cbcControllerListQuerySearchMax = 100;
+
+export const cbcControllerListQuerySortOrderDefault = `asc`;
+
+export const CbcControllerListQueryParams = zod.object({
+  "page": zod.number().min(1).default(cbcControllerListQueryPageDefault),
+  "limit": zod.number().min(1).max(cbcControllerListQueryLimitMax).default(cbcControllerListQueryLimitDefault),
+  "search": zod.string().max(cbcControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(cbcControllerListQuerySortOrderDefault),
+  "studentId": zod.uuid().optional(),
+  "termId": zod.uuid().optional(),
+  "learningOutcomeId": zod.uuid().optional(),
+  "classId": zod.uuid().optional(),
+  "subjectId": zod.uuid().optional()
+})
+
+export const CbcControllerListResponseItem = zod.object({
+  "id": zod.string(),
+  "studentId": zod.string(),
+  "studentName": zod.string().optional(),
+  "admissionNumber": zod.string().optional(),
+  "classId": zod.string().optional(),
+  "learningOutcomeId": zod.string(),
+  "learningOutcomeDescription": zod.string().optional(),
+  "subjectName": zod.string().optional(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "performanceLevel": zod.enum(['EE', 'ME', 'AE', 'BE']),
+  "teacherComment": zod.string().nullish(),
+  "assessedAt": zod.string(),
+  "createdAt": zod.string()
+})
+export const CbcControllerListResponse = zod.array(CbcControllerListResponseItem)
+
+
+/**
+ * @summary Create/upsert a CBC assessment
+ */
+export const CbcControllerCreateBody = zod.object({
+  "studentId": zod.uuid(),
+  "learningOutcomeId": zod.uuid(),
+  "termId": zod.uuid(),
+  "performanceLevel": zod.enum(['EE', 'ME', 'AE', 'BE']),
+  "teacherComment": zod.string().optional()
+})
+
+export const CbcControllerCreateResponse = zod.object({
+  "id": zod.string(),
+  "studentId": zod.string(),
+  "studentName": zod.string().optional(),
+  "admissionNumber": zod.string().optional(),
+  "classId": zod.string().optional(),
+  "learningOutcomeId": zod.string(),
+  "learningOutcomeDescription": zod.string().optional(),
+  "subjectName": zod.string().optional(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "performanceLevel": zod.enum(['EE', 'ME', 'AE', 'BE']),
+  "teacherComment": zod.string().nullish(),
+  "assessedAt": zod.string(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Get a CBC assessment
+ */
+export const CbcControllerGetParams = zod.object({
+  "id": zod.string()
+})
+
+export const CbcControllerGetResponse = zod.object({
+  "id": zod.string(),
+  "studentId": zod.string(),
+  "studentName": zod.string().optional(),
+  "admissionNumber": zod.string().optional(),
+  "classId": zod.string().optional(),
+  "learningOutcomeId": zod.string(),
+  "learningOutcomeDescription": zod.string().optional(),
+  "subjectName": zod.string().optional(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "performanceLevel": zod.enum(['EE', 'ME', 'AE', 'BE']),
+  "teacherComment": zod.string().nullish(),
+  "assessedAt": zod.string(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Update a CBC assessment
+ */
+export const CbcControllerUpdateParams = zod.object({
+  "id": zod.string()
+})
+
+export const CbcControllerUpdateBody = zod.object({
+  "performanceLevel": zod.enum(['EE', 'ME', 'AE', 'BE']).optional(),
+  "teacherComment": zod.string().optional()
+})
+
+export const CbcControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "studentId": zod.string(),
+  "studentName": zod.string().optional(),
+  "admissionNumber": zod.string().optional(),
+  "classId": zod.string().optional(),
+  "learningOutcomeId": zod.string(),
+  "learningOutcomeDescription": zod.string().optional(),
+  "subjectName": zod.string().optional(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "performanceLevel": zod.enum(['EE', 'ME', 'AE', 'BE']),
+  "teacherComment": zod.string().nullish(),
+  "assessedAt": zod.string(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a CBC assessment
+ */
+export const CbcControllerRemoveParams = zod.object({
+  "id": zod.string()
+})
+
+export const CbcControllerRemoveResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Bulk upsert CBC assessments
+ */
+export const CbcControllerRegisterBody = zod.object({
+  "termId": zod.uuid(),
+  "entries": zod.array(zod.object({
+  "studentId": zod.uuid(),
+  "learningOutcomeId": zod.uuid(),
+  "performanceLevel": zod.enum(['EE', 'ME', 'AE', 'BE']),
+  "teacherComment": zod.string().optional()
+}))
+})
+
+export const CbcControllerRegisterResponse = zod.unknown()
+
+
+/**
+ * @summary List report cards (scoped)
+ */
+export const reportCardsControllerListQueryPageDefault = 1;
+
+export const reportCardsControllerListQueryLimitDefault = 20;
+export const reportCardsControllerListQueryLimitMax = 100;
+
+export const reportCardsControllerListQuerySearchMax = 100;
+
+export const reportCardsControllerListQuerySortOrderDefault = `asc`;
+
+export const ReportCardsControllerListQueryParams = zod.object({
+  "page": zod.number().min(1).default(reportCardsControllerListQueryPageDefault),
+  "limit": zod.number().min(1).max(reportCardsControllerListQueryLimitMax).default(reportCardsControllerListQueryLimitDefault),
+  "search": zod.string().max(reportCardsControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(reportCardsControllerListQuerySortOrderDefault),
+  "studentId": zod.uuid().optional(),
+  "termId": zod.uuid().optional(),
+  "classId": zod.uuid().optional(),
+  "published": zod.boolean().optional()
+})
+
+export const ReportCardsControllerListResponseItem = zod.object({
+  "id": zod.string(),
+  "studentId": zod.string(),
+  "studentName": zod.string().optional(),
+  "admissionNumber": zod.string().optional(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "classId": zod.string(),
+  "className": zod.string().optional(),
+  "template": zod.enum(['CBC', 'EIGHT_FOUR_FOUR']),
+  "teacherComment": zod.string().nullish(),
+  "principalComment": zod.string().nullish(),
+  "publishedAt": zod.string().nullish(),
+  "pdfUrl": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "marks": zod.array(zod.object({
+  "subjectName": zod.string(),
+  "examName": zod.string(),
+  "score": zod.number(),
+  "maxMarks": zod.number(),
+  "grade": zod.string(),
+  "points": zod.number().nullish()
+})).optional(),
+  "cbcAssessments": zod.array(zod.object({
+  "subjectName": zod.string(),
+  "learningOutcomeDescription": zod.string(),
+  "performanceLevel": zod.string()
+})).optional(),
+  "overallPercentage": zod.number().optional(),
+  "overallGrade": zod.string().optional(),
+  "rank": zod.number().optional(),
+  "totalStudents": zod.number().optional()
+})
+export const ReportCardsControllerListResponse = zod.array(ReportCardsControllerListResponseItem)
+
+
+/**
+ * @summary Get a report card with computed details
+ */
+export const ReportCardsControllerGetParams = zod.object({
+  "id": zod.string()
+})
+
+export const ReportCardsControllerGetResponse = zod.object({
+  "id": zod.string(),
+  "studentId": zod.string(),
+  "studentName": zod.string().optional(),
+  "admissionNumber": zod.string().optional(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "classId": zod.string(),
+  "className": zod.string().optional(),
+  "template": zod.enum(['CBC', 'EIGHT_FOUR_FOUR']),
+  "teacherComment": zod.string().nullish(),
+  "principalComment": zod.string().nullish(),
+  "publishedAt": zod.string().nullish(),
+  "pdfUrl": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "marks": zod.array(zod.object({
+  "subjectName": zod.string(),
+  "examName": zod.string(),
+  "score": zod.number(),
+  "maxMarks": zod.number(),
+  "grade": zod.string(),
+  "points": zod.number().nullish()
+})).optional(),
+  "cbcAssessments": zod.array(zod.object({
+  "subjectName": zod.string(),
+  "learningOutcomeDescription": zod.string(),
+  "performanceLevel": zod.string()
+})).optional(),
+  "overallPercentage": zod.number().optional(),
+  "overallGrade": zod.string().optional(),
+  "rank": zod.number().optional(),
+  "totalStudents": zod.number().optional()
+})
+
+
+/**
+ * @summary Update comments on a report card
+ */
+export const ReportCardsControllerUpdateParams = zod.object({
+  "id": zod.string()
+})
+
+export const ReportCardsControllerUpdateBody = zod.object({
+  "teacherComment": zod.string().optional(),
+  "principalComment": zod.string().optional()
+})
+
+export const ReportCardsControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "studentId": zod.string(),
+  "studentName": zod.string().optional(),
+  "admissionNumber": zod.string().optional(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "classId": zod.string(),
+  "className": zod.string().optional(),
+  "template": zod.enum(['CBC', 'EIGHT_FOUR_FOUR']),
+  "teacherComment": zod.string().nullish(),
+  "principalComment": zod.string().nullish(),
+  "publishedAt": zod.string().nullish(),
+  "pdfUrl": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "marks": zod.array(zod.object({
+  "subjectName": zod.string(),
+  "examName": zod.string(),
+  "score": zod.number(),
+  "maxMarks": zod.number(),
+  "grade": zod.string(),
+  "points": zod.number().nullish()
+})).optional(),
+  "cbcAssessments": zod.array(zod.object({
+  "subjectName": zod.string(),
+  "learningOutcomeDescription": zod.string(),
+  "performanceLevel": zod.string()
+})).optional(),
+  "overallPercentage": zod.number().optional(),
+  "overallGrade": zod.string().optional(),
+  "rank": zod.number().optional(),
+  "totalStudents": zod.number().optional()
+})
+
+
+/**
+ * @summary Generate report cards for a class/term
+ */
+export const ReportCardsControllerGenerateBody = zod.object({
+  "classId": zod.uuid(),
+  "termId": zod.uuid()
+})
+
+export const ReportCardsControllerGenerateResponse = zod.unknown()
+
+
+/**
+ * @summary Publish a report card
+ */
+export const ReportCardsControllerPublishParams = zod.object({
+  "id": zod.string()
+})
+
+export const ReportCardsControllerPublishResponse = zod.object({
+  "id": zod.string(),
+  "studentId": zod.string(),
+  "studentName": zod.string().optional(),
+  "admissionNumber": zod.string().optional(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "classId": zod.string(),
+  "className": zod.string().optional(),
+  "template": zod.enum(['CBC', 'EIGHT_FOUR_FOUR']),
+  "teacherComment": zod.string().nullish(),
+  "principalComment": zod.string().nullish(),
+  "publishedAt": zod.string().nullish(),
+  "pdfUrl": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "marks": zod.array(zod.object({
+  "subjectName": zod.string(),
+  "examName": zod.string(),
+  "score": zod.number(),
+  "maxMarks": zod.number(),
+  "grade": zod.string(),
+  "points": zod.number().nullish()
+})).optional(),
+  "cbcAssessments": zod.array(zod.object({
+  "subjectName": zod.string(),
+  "learningOutcomeDescription": zod.string(),
+  "performanceLevel": zod.string()
+})).optional(),
+  "overallPercentage": zod.number().optional(),
+  "overallGrade": zod.string().optional(),
+  "rank": zod.number().optional(),
+  "totalStudents": zod.number().optional()
+})
+
+
+/**
+ * @summary Unpublish a report card
+ */
+export const ReportCardsControllerUnpublishParams = zod.object({
+  "id": zod.string()
+})
+
+export const ReportCardsControllerUnpublishResponse = zod.object({
+  "id": zod.string(),
+  "studentId": zod.string(),
+  "studentName": zod.string().optional(),
+  "admissionNumber": zod.string().optional(),
+  "termId": zod.string(),
+  "termName": zod.string().optional(),
+  "classId": zod.string(),
+  "className": zod.string().optional(),
+  "template": zod.enum(['CBC', 'EIGHT_FOUR_FOUR']),
+  "teacherComment": zod.string().nullish(),
+  "principalComment": zod.string().nullish(),
+  "publishedAt": zod.string().nullish(),
+  "pdfUrl": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "marks": zod.array(zod.object({
+  "subjectName": zod.string(),
+  "examName": zod.string(),
+  "score": zod.number(),
+  "maxMarks": zod.number(),
+  "grade": zod.string(),
+  "points": zod.number().nullish()
+})).optional(),
+  "cbcAssessments": zod.array(zod.object({
+  "subjectName": zod.string(),
+  "learningOutcomeDescription": zod.string(),
+  "performanceLevel": zod.string()
+})).optional(),
+  "overallPercentage": zod.number().optional(),
+  "overallGrade": zod.string().optional(),
+  "rank": zod.number().optional(),
+  "totalStudents": zod.number().optional()
+})
+
+
+/**
+ * @summary List fee structures
+ */
+export const feesControllerListStructuresQueryPageDefault = 1;
+
+export const feesControllerListStructuresQueryLimitDefault = 20;
+export const feesControllerListStructuresQueryLimitMax = 100;
+
+export const feesControllerListStructuresQuerySearchMax = 100;
+
+export const feesControllerListStructuresQuerySortOrderDefault = `asc`;
+
+export const FeesControllerListStructuresQueryParams = zod.object({
+  "page": zod.number().min(1).default(feesControllerListStructuresQueryPageDefault),
+  "limit": zod.number().min(1).max(feesControllerListStructuresQueryLimitMax).default(feesControllerListStructuresQueryLimitDefault),
+  "search": zod.string().max(feesControllerListStructuresQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(feesControllerListStructuresQuerySortOrderDefault),
+  "classId": zod.uuid().optional(),
+  "termId": zod.uuid().optional()
+})
+
+export const FeesControllerListStructuresResponse = zod.unknown()
+
+
+/**
+ * @summary Create a fee structure
+ */
+export const FeesControllerCreateStructureBody = zod.looseObject({
+
+})
+
+export const FeesControllerCreateStructureResponse = zod.void()
+
+
+/**
+ * @summary Update a fee structure
+ */
+export const FeesControllerUpdateStructureParams = zod.object({
+  "id": zod.string()
+})
+
+export const FeesControllerUpdateStructureBody = zod.looseObject({
+
+})
+
+export const FeesControllerUpdateStructureResponse = zod.unknown()
+
+
+/**
+ * @summary Delete a fee structure
+ */
+export const FeesControllerRemoveStructureParams = zod.object({
+  "id": zod.string()
+})
+
+export const FeesControllerRemoveStructureResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List fee invoices (scoped)
+ */
+export const feesControllerListInvoicesQueryPageDefault = 1;
+
+export const feesControllerListInvoicesQueryLimitDefault = 20;
+export const feesControllerListInvoicesQueryLimitMax = 100;
+
+export const feesControllerListInvoicesQuerySearchMax = 100;
+
+export const feesControllerListInvoicesQuerySortOrderDefault = `asc`;
+
+export const FeesControllerListInvoicesQueryParams = zod.object({
+  "page": zod.number().min(1).default(feesControllerListInvoicesQueryPageDefault),
+  "limit": zod.number().min(1).max(feesControllerListInvoicesQueryLimitMax).default(feesControllerListInvoicesQueryLimitDefault),
+  "search": zod.string().max(feesControllerListInvoicesQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(feesControllerListInvoicesQuerySortOrderDefault),
+  "studentId": zod.uuid().optional(),
+  "termId": zod.uuid().optional(),
+  "classId": zod.uuid().optional(),
+  "status": zod.enum(['UNPAID', 'PARTIAL', 'PAID']).optional()
+})
+
+export const FeesControllerListInvoicesResponse = zod.unknown()
+
+
+/**
+ * @summary Get a fee invoice
+ */
+export const FeesControllerGetInvoiceParams = zod.object({
+  "id": zod.string()
+})
+
+export const FeesControllerGetInvoiceResponse = zod.unknown()
+
+
+/**
+ * @summary Generate invoices for a class/term from fee structures
+ */
+export const FeesControllerGenerateBody = zod.looseObject({
+
+})
+
+export const FeesControllerGenerateResponse = zod.unknown()
+
+
+/**
+ * @summary Record a payment against an invoice
+ */
+export const FeesControllerRecordPaymentParams = zod.object({
+  "id": zod.string()
+})
+
+export const FeesControllerRecordPaymentBody = zod.looseObject({
+
+})
+
+export const FeesControllerRecordPaymentResponse = zod.unknown()
+
+
+/**
+ * @summary Initiate M-Pesa STK push for an invoice
+ */
+export const FeesControllerStkPushParams = zod.object({
+  "id": zod.string()
+})
+
+export const FeesControllerStkPushBody = zod.looseObject({
+
+})
+
+export const FeesControllerStkPushResponse = zod.unknown()
+
+
+/**
+ * @summary Fee statement for a student/term
+ */
+export const FeesControllerStatementQueryParams = zod.object({
+  "studentId": zod.uuid(),
+  "termId": zod.uuid()
+})
+
+export const FeesControllerStatementResponse = zod.unknown()
+
+
+/**
+ * @summary M-Pesa STK callback (public)
+ */
+export const FeesControllerCallbackResponse = zod.unknown()
+
+
+/**
+ * @summary List notifications for the current user
+ */
+export const NotificationsControllerListResponse = zod.unknown()
+
+
+/**
+ * @summary Unread notification count
+ */
+export const NotificationsControllerCountResponse = zod.unknown()
+
+
+/**
+ * @summary Mark a notification as read
+ */
+export const NotificationsControllerReadParams = zod.object({
+  "id": zod.string()
+})
+
+export const NotificationsControllerReadResponse = zod.unknown()
+
+
+/**
+ * @summary Mark all notifications as read
+ */
+export const NotificationsControllerReadAllResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List audit logs (admin)
+ */
+export const AuditControllerListQueryParams = zod.object({
+  "entityType": zod.string()
+})
+
+export const AuditControllerListResponseItem = zod.object({
+  "id": zod.string(),
+  "actorUserId": zod.looseObject({
+
+}).nullish(),
+  "action": zod.string(),
+  "entityType": zod.string(),
+  "entityId": zod.looseObject({
+
+}).nullish(),
+  "before": zod.looseObject({
+
+}).nullish(),
+  "after": zod.looseObject({
+
+}).nullish(),
+  "ip": zod.looseObject({
+
+}).nullish(),
+  "userAgent": zod.looseObject({
+
+}).nullish(),
+  "createdAt": zod.string()
+})
+export const AuditControllerListResponse = zod.array(AuditControllerListResponseItem)

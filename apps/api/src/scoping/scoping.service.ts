@@ -72,6 +72,24 @@ export class ScopingService {
     }
   }
 
+  /** Resolve the Student row id for a user, or null. */
+  async studentIdForUser(userId: string): Promise<string | null> {
+    return this.scoping.findStudentIdByUserId(userId);
+  }
+
+  /** Resolve linked student ids for a parent user. */
+  async studentIdsForParent(userId: string): Promise<string[]> {
+    const guardianId = await this.scoping.findGuardianIdByUserId(userId);
+    if (!guardianId) return [];
+    return this.scoping.findStudentIdsForGuardian(guardianId);
+  }
+
+  /** Resolve the Teacher row id for a user (admin or teacher), or null. */
+  async teacherIdForUser(user: AuthenticatedUser): Promise<string | null> {
+    if (user.role !== 'ADMIN' && user.role !== 'TEACHER') return null;
+    return this.scoping.findTeacherIdByUserId(user.id);
+  }
+
   /** Throws 403 when the user may not touch the class. */
   async assertClass(user: AuthenticatedUser, classId: string): Promise<void> {
     const scope = await this.classScope(user);

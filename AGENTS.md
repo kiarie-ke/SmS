@@ -8,8 +8,10 @@ detail. Keep both accurate when the project changes.
 - **Phase 1 (Foundation) is complete and committed** (`5d61469`).
 - **Phase 2 (People & structure) is complete** — CRUD, scoping, CSV import,
   photos, admin/teacher/parent screens, 15/15 tests, both apps build.
-- **Phase 3 (Attendance) has NOT started.** Do not begin it until the user
-  explicitly approves.
+- **Phase 3 (Attendance) is complete.**
+- **Phase 4 (Exams & results) is complete.**
+- **Phase 5 (Fees & notifications) is complete.**
+- **Phase 6 (Hardening) is complete.** All phases done.
 - Work strictly one phase at a time. At the end of each phase: run its checks,
   write the hand-test checklist, then **stop and wait**.
 
@@ -34,7 +36,7 @@ pnpm prisma migrate dev          # dev migration (or migrate deploy)
 pnpm seed                        # idempotent seed
 pnpm dev:api                     # :3001  (pnpm --filter api start:dev also works)
 pnpm dev:web                     # :3000
-pnpm test                        # API unit tests (currently 15)
+pnpm test                        # API unit tests (currently 21)
 pnpm typecheck                   # all packages
 pnpm build                       # shared -> api -> web
 pnpm --filter api openapi        # export OpenAPI (needs DB)
@@ -97,7 +99,7 @@ detail tabs, parent/teacher scoped tables; 7 scoping tests.
 Dependencies added: `papaparse`, `multer`, `sharp`, `@tanstack/react-table`
 (plus `@types/papaparse`, `@types/multer`).
 
-## Phase 3 — Attendance (next, on approval)
+## Phase 3 — Attendance (complete)
 
 1. `AttendanceRepository` — upsert on `(studentId, date)`, queries by class/day
    and student/date-range.
@@ -115,10 +117,10 @@ regenerated; web compiles; hand-test checklist written.
 
 ## Verification baseline
 
-`pnpm test` → 15/15 pass. API and web typecheck clean. `nest build` and
-`next build` (18 routes) succeed. Seeded DB: 10 students, 3 teachers,
+`pnpm test` → 21/21 pass. API and web typecheck clean. `nest build` and
+`next build` (21 routes) succeed. Seeded DB: 10 students, 3 teachers,
 4 classes, 5 subjects. Live smoke covers CRUD, teacher/parent scoping 403s,
-CSV import 50 rows → 47 imported / 3 failed, photo validation, and Swagger.
+CSV import, photo validation, Swagger, and attendance register/summary.
 
 ## Gotchas (learned the hard way)
 
@@ -150,7 +152,7 @@ CSV import 50 rows → 47 imported / 3 failed, photo validation, and Swagger.
 4. If the DB is empty: `pnpm prisma migrate deploy && pnpm seed`.
 5. `pnpm test` for a green baseline.
 6. Confirm no stray process on 3001, then start API, then web.
-7. Ask for/confirm phase approval before writing Phase 3 code.
+7. Ask for/confirm phase approval before writing Phase 4 code.
 
 ## Do not
 

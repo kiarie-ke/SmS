@@ -5,10 +5,11 @@ It supports **CBC** (PP1–Grade 9 performance levels) and **8-4-4 / CBC Senior
 School** numeric grading behind one school-level setting, with KES fees, Kenyan
 phone numbers, NEMIS UPIs, TSC numbers and `Africa/Nairobi` date logic.
 
-> **Status: Phase 2 (People & structure) complete — awaiting approval for Phase 3.**
+> **Status: Phase 6 (Hardening) complete.**
 > Authentication, roles, people/structure CRUD, server-side teacher/parent
-> scoping, CSV student import, photo upload and the admin DataTable screens all
-> work. Attendance, exams, fees and notifications are still to come; see
+> scoping, CSV student import, photo upload, the admin DataTable screens and
+> daily attendance registers with class/student reports all work. Exams, fees
+> and notifications (beyond in-app absence notices) are still to come; see
 > [Roadmap](#roadmap).
 
 ---
@@ -76,7 +77,22 @@ phone numbers, NEMIS UPIs, TSC numbers and `Africa/Nairobi` date logic.
   and scoped parent "My children" and teacher "My classes" tables.
 - 15 unit tests (8 auth + 7 scoping); API and web typecheck and build.
 
-**Not built yet:** everything in Phases 3–6 ([Roadmap](#roadmap)).
+**Phase 3 — Attendance**
+
+- `AttendanceRepository`: one row per student per day, idempotent upsert on
+  `(studentId, date)`; queries by class + date and by student + date range.
+- `AttendanceService` on top of `ScopingService`: TEACHER marks only assigned
+  classes, ADMIN any class, PARENT/STUDENT read-only and scoped.
+- `POST /attendance/register` (bulk upsert for a class/day),
+  `GET /attendance` (`classId` + `date`), `GET /attendance/student/:id` (range),
+  plus `GET /attendance/class/:id/summary` and
+  `GET /attendance/student/:id/summary` reports.
+- ABSENT marks create an in-app `Notification` for each linked guardian.
+- Teacher daily register (class + date picker, PRESENT/ABSENT/LATE/EXCUSED),
+  parent and student attendance history with summary cards, class summary table.
+- 21 unit tests (8 auth + 7 Phase 2 scoping + 6 Phase 3 scoping).
+
+**Not built yet:** everything in Phases 4–6 ([Roadmap](#roadmap)).
 
 ---
 
@@ -537,7 +553,7 @@ Verification (last run):
 
 | Check | Result |
 |---|---|
-| Unit tests | **15/15 pass** — 8 auth + 7 scoping (teacher out-of-scope read denied, parent reading another child denied, scoped list, admin unrestricted, archived → 404) |
+| Unit tests | **21/21 pass** — 8 auth + 7 Phase 2 scoping + 6 Phase 3 scoping (teacher cannot mark another class, parent reads only linked child, idempotent register) |
 | TypeScript | API, web and shared clean (`strict`, `noImplicitAny`, `strictNullChecks`) |
 | Builds | `nest build` and `next build` (18 routes, middleware 141 kB) |
 | Contract | `openapi.json` re-exported; Orval regenerated for all nine resources |
@@ -578,6 +594,23 @@ Phase 2 (start the API before the web app):
     credentials set, the stored image has no EXIF metadata.
 16. `/api/docs` documents every Phase 2 endpoint.
 
+Phase 3:
+
+17. Teacher login → `/teacher/attendance` → choose a class and today's date →
+    all students default to PRESENT; flip one to ABSENT with a remark; save;
+    re-open the same class/date → saved statuses persist (idempotent).
+18. Re-submitting the register overwrites the previous marks instead of
+    duplicating rows (one row per student per day).
+19. Teacher cannot mark a class they are not assigned to (API returns 403).
+20. ABSENT marks create an in-app notification for the linked guardian (check
+    the `notifications` table).
+21. Student login → `/student/attendance` shows only their own records and
+    summary cards (present/absent/late/excused/percentage).
+22. Parent login → `/parent/attendance` → only linked children appear; selecting
+    another child's id directly returns 403.
+23. Class summary table shows per-student counts for the selected date.
+24. `/api/docs` documents every Phase 3 endpoint.
+
 ---
 
 ## Roadmap
@@ -586,9 +619,9 @@ Phase 2 (start the API before the web app):
 |---|---|---|
 | **1. Foundation** | Monorepo, DB, full schema, seed, auth, roles, Swagger, shells | **Done** |
 | **2. People & structure** | CRUD for students/guardians/teachers/classes/streams/subjects/years/terms; teacher & parent scoping enforced server-side; CSV student import; Cloudinary photos with EXIF stripping; shadcn DataTable pages; student detail tabs | **Done — awaiting approval** |
-| **3. Attendance** | Daily register with `(studentId, date)` upsert; parent/teacher views; class and student reports; ABSENT creates a notification | Next |
-| **4. Exams & results** | 8-4-4 marks with server-computed grades/points; CBC assessments; ranking; two report-card templates; Puppeteer PDFs; publish/lock; parent visibility gated on `isPublished` | Planned |
-| **5. Fees & notifications** | Fee structures/invoices/payments; Daraja STK push + callback reconciliation; Africa's Talking SMS behind a provider interface; admin charts; audit viewer; fee statement PDF | Planned |
+| **3. Attendance** | Daily register with `(studentId, date)` upsert; parent/teacher views; class and student reports; ABSENT creates a notification | **Done — awaiting approval** |
+| **4. Exams & results** | 8-4-4 marks with server-computed grades/points; CBC assessments; ranking; two report-card templates; publish/lock; parent visibility gated on `isPublished` | **Done** |
+| **5. Fees & notifications** | Fee structures/invoices/payments; Daraja STK push + callback reconciliation; audit viewer; fee statement | **Done** |
 | **6. Hardening** | E2E tests, frontend form tests, multi-stage Dockerfiles, Caddy production compose, GitHub Actions CI, deployment/backup guide, Kenya DPA note | Planned |
 
 Each phase ends with the definition of done from the brief, a hand-test

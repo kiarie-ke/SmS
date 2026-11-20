@@ -7,12 +7,17 @@ import { useAuth } from '@/lib/auth-context';
  * Waits for AuthProvider to rehydrate the access token from the refresh
  * cookie before firing an authenticated request.
  */
-export function useApiQuery<T>(key: readonly unknown[], fetcher: () => Promise<T>) {
+export function useApiQuery<T>(
+  key: readonly unknown[],
+  fetcher: () => Promise<T>,
+  options?: { enabled?: boolean },
+) {
   const { isLoading: authLoading } = useAuth();
+  const enabled = (options?.enabled ?? true) && !authLoading;
   const query = useQuery({
     queryKey: key as unknown[],
     queryFn: fetcher,
-    enabled: !authLoading,
+    enabled,
   });
 
   // A disabled query reports isLoading=false, which would flash "no records"

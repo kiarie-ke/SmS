@@ -26,3 +26,6 @@ coverage/
 # editor
 .vscode/
 .idea/
+.env.*
+*.pem
+*.key

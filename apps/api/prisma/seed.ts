@@ -461,6 +461,85 @@ async function seedFeeStructures(
   }
 }
 
+async function seedCbcCurriculum(subjects: { id: string; code: string }[]) {
+  const math = subjects.find((s) => s.code === 'MAT');
+  const eng = subjects.find((s) => s.code === 'ENG');
+
+  if (math) {
+    const strand = await prisma.strand.upsert({
+      where: { id: '00000000-0000-0000-0000-000000000001' },
+      update: {},
+      create: {
+        id: '00000000-0000-0000-0000-000000000001',
+        subjectId: math.id,
+        name: 'Numbers & Operations',
+        order: 1,
+      },
+    });
+    const subStrand = await prisma.subStrand.upsert({
+      where: { id: '00000000-0000-0000-0000-000000000002' },
+      update: {},
+      create: {
+        id: '00000000-0000-0000-0000-000000000002',
+        strandId: strand.id,
+        name: 'Whole Numbers and Fractions',
+      },
+    });
+    await prisma.learningOutcome.upsert({
+      where: { id: '00000000-0000-0000-0000-000000000003' },
+      update: {},
+      create: {
+        id: '00000000-0000-0000-0000-000000000003',
+        subStrandId: subStrand.id,
+        description: 'Demonstrates understanding of place values up to 10,000',
+        order: 1,
+      },
+    });
+    await prisma.learningOutcome.upsert({
+      where: { id: '00000000-0000-0000-0000-000000000004' },
+      update: {},
+      create: {
+        id: '00000000-0000-0000-0000-000000000004',
+        subStrandId: subStrand.id,
+        description: 'Applies four operations in solving real-life mathematical problems',
+        order: 2,
+      },
+    });
+  }
+
+  if (eng) {
+    const strand = await prisma.strand.upsert({
+      where: { id: '00000000-0000-0000-0000-000000000005' },
+      update: {},
+      create: {
+        id: '00000000-0000-0000-0000-000000000005',
+        subjectId: eng.id,
+        name: 'Listening and Speaking',
+        order: 1,
+      },
+    });
+    const subStrand = await prisma.subStrand.upsert({
+      where: { id: '00000000-0000-0000-0000-000000000006' },
+      update: {},
+      create: {
+        id: '00000000-0000-0000-0000-000000000006',
+        strandId: strand.id,
+        name: 'Pronunciation and Vocabulary',
+      },
+    });
+    await prisma.learningOutcome.upsert({
+      where: { id: '00000000-0000-0000-0000-000000000007' },
+      update: {},
+      create: {
+        id: '00000000-0000-0000-0000-000000000007',
+        subStrandId: subStrand.id,
+        description: 'Uses appropriate vocabulary and intonation in oral presentations',
+        order: 1,
+      },
+    });
+  }
+}
+
 async function main() {
   console.log('Seeding school system...');
   const school = await seedSchool();
@@ -473,7 +552,9 @@ async function main() {
   const { students } = await seedStudents(classes, streams, teacherUsers);
   const { guardians } = await seedGuardians(students);
   await seedClassSubjects(classes, subjects, teachers);
+  await seedCbcCurriculum(subjects);
   await seedFeeStructures(classes, terms[0].id, [15000, 20000, 25000, 30000]);
+  await seedFeeStructures(classes, terms[1].id, [15000, 20000, 25000, 30000]);
 
   console.log(
     [

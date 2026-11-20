@@ -15,6 +15,6 @@ import { StudentsController } from './students.controller';
     PhotoStorageService,
     { provide: StudentRepositoryPort, useClass: StudentRepository },
   ],
-  exports: [StudentsService],
+  exports: [StudentsService, StudentRepositoryPort],
 })
 export class StudentsModule {}

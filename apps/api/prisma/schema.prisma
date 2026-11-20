@@ -671,12 +671,12 @@ model FeePayment {
   method            PaymentMethod
   mpesaReceiptNumber String?      @unique
   paidAt            DateTime      @default(now())
-  recordedByUserId  String        @db.Uuid
+  recordedByUserId  String?       @db.Uuid
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
   invoice          FeeInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  recordedByUser   User       @relation("PaymentRecordedBy", fields: [recordedByUserId], references: [id], onDelete: Restrict)
+  recordedByUser   User?      @relation("PaymentRecordedBy", fields: [recordedByUserId], references: [id], onDelete: Restrict)
 
   @@index([invoiceId])
   @@index([recordedByUserId])

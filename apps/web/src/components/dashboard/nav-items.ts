@@ -1,5 +1,6 @@
 import type { Role } from '@school-system/shared';
 import {
+  Activity,
   BookMarked,
   BookOpen,
   CalendarCheck,
@@ -31,27 +32,32 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { title: 'Subjects', href: '/admin/subjects', icon: BookMarked, available: true },
     { title: 'Academic year', href: '/admin/academic-years', icon: CalendarDays, available: true },
     { title: 'Guardians', href: '/admin/guardians', icon: Contact, available: true },
-    { title: 'Fees', href: '/admin/fees', icon: Wallet, available: false },
+    { title: 'Fees', href: '/admin/fees', icon: Wallet, available: true },
+    { title: 'Audit', href: '/admin/audit', icon: Activity, available: true },
     { title: 'Reports', href: '/admin/reports', icon: ClipboardList, available: false },
     { title: 'Settings', href: '/admin/settings', icon: Settings, available: false },
   ],
   TEACHER: [
     { title: 'Dashboard', href: '/teacher', icon: LayoutDashboard, available: true },
     { title: 'My classes', href: '/teacher/classes', icon: BookOpen, available: true },
-    { title: 'Attendance', href: '/teacher/attendance', icon: CalendarCheck, available: false },
-    { title: 'Marks', href: '/teacher/marks', icon: ClipboardList, available: false },
+    { title: 'Attendance', href: '/teacher/attendance', icon: CalendarCheck, available: true },
+    { title: 'Marks', href: '/teacher/marks', icon: ClipboardList, available: true },
+    { title: 'CBC assessments', href: '/teacher/cbc', icon: ClipboardList, available: true },
+    { title: 'Report cards', href: '/teacher/report-cards', icon: ClipboardList, available: true },
+    { title: 'Fees', href: '/teacher/fees', icon: Wallet, available: true },
   ],
   STUDENT: [
     { title: 'Dashboard', href: '/student', icon: LayoutDashboard, available: true },
-    { title: 'Results', href: '/student/results', icon: ClipboardList, available: false },
-    { title: 'Attendance', href: '/student/attendance', icon: CalendarCheck, available: false },
-    { title: 'Fees', href: '/student/fees', icon: Receipt, available: false },
+    { title: 'Results', href: '/student/results', icon: ClipboardList, available: true },
+    { title: 'Attendance', href: '/student/attendance', icon: CalendarCheck, available: true },
+    { title: 'Fees', href: '/student/fees', icon: Receipt, available: true },
   ],
   PARENT: [
     { title: 'Dashboard', href: '/parent', icon: LayoutDashboard, available: true },
     { title: 'My children', href: '/parent/children', icon: Users, available: true },
-    { title: 'Attendance', href: '/parent/attendance', icon: CalendarCheck, available: false },
-    { title: 'Fees', href: '/parent/fees', icon: Wallet, available: false },
+    { title: 'Attendance', href: '/parent/attendance', icon: CalendarCheck, available: true },
+    { title: 'Results', href: '/parent/results', icon: ClipboardList, available: true },
+    { title: 'Fees', href: '/parent/fees', icon: Wallet, available: true },
   ],
 };
 
