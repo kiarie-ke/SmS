@@ -7,5 +7,7 @@
  */
 
 export type AuditControllerListParams = {
-  entityType: string;
+  entityType?: string;
+  limit?: number;
+  page?: number;
 };

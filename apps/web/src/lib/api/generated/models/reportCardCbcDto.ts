@@ -10,4 +10,6 @@ export interface ReportCardCbcDto {
   subjectName: string;
   learningOutcomeDescription: string;
   performanceLevel: string;
+  /** @nullable */
+  teacherComment?: string | null;
 }

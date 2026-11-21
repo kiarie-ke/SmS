@@ -58,12 +58,14 @@ export class ReportCardMarkDto {
   @ApiProperty() maxMarks!: number;
   @ApiProperty() grade!: string;
   @ApiPropertyOptional({ nullable: true, type: Number }) points!: number | null;
+  @ApiPropertyOptional({ nullable: true, type: String }) remarks!: string | null;
 }
 
 export class ReportCardCbcDto {
   @ApiProperty() subjectName!: string;
   @ApiProperty() learningOutcomeDescription!: string;
   @ApiProperty() performanceLevel!: string;
+  @ApiPropertyOptional({ nullable: true, type: String }) teacherComment!: string | null;
 }
 
 export class ReportCardDto {
@@ -86,8 +88,10 @@ export class ReportCardDto {
   @ApiPropertyOptional({ type: [ReportCardCbcDto] }) cbcAssessments?: ReportCardCbcDto[];
   @ApiPropertyOptional() overallPercentage?: number;
   @ApiPropertyOptional() overallGrade?: string;
+  @ApiPropertyOptional({ nullable: true, type: Number }) overallPoints?: number | null;
   @ApiPropertyOptional() rank?: number;
   @ApiPropertyOptional() totalStudents?: number;
+  @ApiPropertyOptional({ nullable: true, type: String }) teacherRemarks?: string | null;
 }
 
 export function toReportCardDto(record: ReportCardRecord): ReportCardDto {

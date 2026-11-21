@@ -3321,7 +3321,7 @@
         "parameters": [
           {
             "name": "subjectId",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -4532,10 +4532,26 @@
         "parameters": [
           {
             "name": "entityType",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
             }
           }
         ],
@@ -7026,6 +7042,10 @@
           "points": {
             "type": "number",
             "nullable": true
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -7047,6 +7067,10 @@
           },
           "performanceLevel": {
             "type": "string"
+          },
+          "teacherComment": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -7126,11 +7150,19 @@
           "overallGrade": {
             "type": "string"
           },
+          "overallPoints": {
+            "type": "number",
+            "nullable": true
+          },
           "rank": {
             "type": "number"
           },
           "totalStudents": {
             "type": "number"
+          },
+          "teacherRemarks": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -7197,7 +7229,7 @@
             "type": "string"
           },
           "actorUserId": {
-            "type": "object",
+            "type": "string",
             "nullable": true
           },
           "action": {
@@ -7207,23 +7239,25 @@
             "type": "string"
           },
           "entityId": {
-            "type": "object",
+            "type": "string",
             "nullable": true
           },
           "before": {
             "type": "object",
-            "nullable": true
+            "nullable": true,
+            "additionalProperties": true
           },
           "after": {
             "type": "object",
-            "nullable": true
+            "nullable": true,
+            "additionalProperties": true
           },
           "ip": {
-            "type": "object",
+            "type": "string",
             "nullable": true
           },
           "userAgent": {
-            "type": "object",
+            "type": "string",
             "nullable": true
           },
           "createdAt": {

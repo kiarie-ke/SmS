@@ -50,7 +50,7 @@ export type cbcControllerListLearningOutcomesResponseSuccess = (cbcControllerLis
 
 export type cbcControllerListLearningOutcomesResponse = (cbcControllerListLearningOutcomesResponseSuccess)
 
-export const getCbcControllerListLearningOutcomesUrl = (params: CbcControllerListLearningOutcomesParams,) => {
+export const getCbcControllerListLearningOutcomesUrl = (params?: CbcControllerListLearningOutcomesParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -68,7 +68,7 @@ export const getCbcControllerListLearningOutcomesUrl = (params: CbcControllerLis
 /**
  * @summary List CBC learning outcomes
  */
-export const cbcControllerListLearningOutcomes = async (params: CbcControllerListLearningOutcomesParams, options?: Parameters<typeof httpClient>[1]): Promise<cbcControllerListLearningOutcomesResponse> => {
+export const cbcControllerListLearningOutcomes = async (params?: CbcControllerListLearningOutcomesParams, options?: Parameters<typeof httpClient>[1]): Promise<cbcControllerListLearningOutcomesResponse> => {
 
   return httpClient<cbcControllerListLearningOutcomesResponse>(getCbcControllerListLearningOutcomesUrl(params),
   {

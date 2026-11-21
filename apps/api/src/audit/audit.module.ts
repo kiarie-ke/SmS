@@ -1,6 +1,6 @@
 import { Controller, Get, Query, Global } from '@nestjs/common';
 import { Module } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { AuditRepository, AuditRepositoryPort } from './audit.repository';
 import { AuditLogDto } from './audit.dto';
@@ -13,6 +13,9 @@ export class AuditController {
 
   @Get()
   @Roles('ADMIN')
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'entityType', required: false, type: String })
   @ApiOkResponse({ type: AuditLogDto, isArray: true })
   @ApiOperation({ summary: 'List audit logs (admin)' })
   async list(@Query('page') page = 1, @Query('limit') limit = 50, @Query('entityType') entityType?: string) {

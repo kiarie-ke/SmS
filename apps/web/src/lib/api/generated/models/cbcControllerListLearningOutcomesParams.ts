@@ -7,5 +7,5 @@
  */
 
 export type CbcControllerListLearningOutcomesParams = {
-  subjectId: string;
+  subjectId?: string;
 };

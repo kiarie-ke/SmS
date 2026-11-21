@@ -15,7 +15,7 @@ import {
   toReportCardDto,
   UpdateReportCardDto,
 } from './report-card.dto';
-import type { ReportCardCreateData } from './report-card.repository';
+import type { ReportCardCreateData, ReportCardRecord } from './report-card.repository';
 import type { ResourceScope } from '../scoping/scoping.service';
 
 @Injectable()
@@ -112,7 +112,7 @@ export class ReportCardsService {
     return card;
   }
 
-  private async attachDetails(dto: ReportCardDto, card: { id: string; studentId: string; termId: string; classId: string }) {
+  private async attachDetails(dto: ReportCardDto, card: ReportCardRecord) {
     // exams for class+term
     const { rows: exams } = await this.exams.list({
       skip: 0,
@@ -123,6 +123,8 @@ export class ReportCardsService {
 
     const marks: ReportCardMarkDto[] = [];
     let totalPct = 0;
+    let totalPoints = 0;
+    let pointsCount = 0;
     let count = 0;
 
     // rank computation: per-student average
@@ -137,17 +139,7 @@ export class ReportCardsService {
     });
     const activeStudents = classStudents.filter((s) => !s.isDeleted);
 
-    const studentAvg = new Map<string, number>();
-    for (const exam of exams) {
-      const examMarks = await this.exams.listMarks(exam.id);
-      for (const m of examMarks) {
-        const pct = exam.maxMarks > 0 ? (Number(m.score) / exam.maxMarks) * 100 : 0;
-        const prev = studentAvg.get(m.studentId);
-        if (prev === undefined) studentAvg.set(m.studentId, pct);
-        else studentAvg.set(m.studentId, (prev * 0 + pct) ); // placeholder, recompute below
-      }
-    }
-    // Recompute averages properly
+    // Compute one average per student across the exams in this term and class.
     const sums = new Map<string, { sum: number; n: number }>();
     for (const exam of exams) {
       const examMarks = await this.exams.listMarks(exam.id);
@@ -182,9 +174,14 @@ export class ReportCardsService {
           maxMarks: exam.maxMarks,
           grade: m.grade,
           points: m.points,
+          remarks: m.teacherComment,
         });
         totalPct += exam.maxMarks > 0 ? (Number(m.score) / exam.maxMarks) * 100 : 0;
         count++;
+        if (m.points !== null) {
+          totalPoints += m.points;
+          pointsCount++;
+        }
       }
     }
 
@@ -199,6 +196,7 @@ export class ReportCardsService {
       subjectName: c.learningOutcome?.strand?.subject?.name ?? 'Subject',
       learningOutcomeDescription: c.learningOutcome?.description ?? '',
       performanceLevel: c.performanceLevel,
+      teacherComment: c.teacherComment,
     }));
 
     const overallPercentage = count > 0 ? Math.round((totalPct / count) * 10) / 10 : 0;
@@ -209,7 +207,9 @@ export class ReportCardsService {
     dto.cbcAssessments = cbcAssessments;
     dto.overallPercentage = overallPercentage;
     dto.overallGrade = overallGrade;
+    dto.overallPoints = pointsCount > 0 ? totalPoints : null;
     dto.rank = rank;
     dto.totalStudents = activeStudents.length;
+    dto.teacherRemarks = card.teacherComment;
   }
 }

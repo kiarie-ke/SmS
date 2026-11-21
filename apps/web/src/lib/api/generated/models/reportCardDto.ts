@@ -32,6 +32,10 @@ export interface ReportCardDto {
   cbcAssessments?: ReportCardCbcDto[];
   overallPercentage?: number;
   overallGrade?: string;
+  /** @nullable */
+  overallPoints?: number | null;
   rank?: number;
   totalStudents?: number;
+  /** @nullable */
+  teacherRemarks?: string | null;
 }

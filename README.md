@@ -92,7 +92,9 @@ phone numbers, NEMIS UPIs, TSC numbers and `Africa/Nairobi` date logic.
   parent and student attendance history with summary cards, class summary table.
 - 21 unit tests (8 auth + 7 Phase 2 scoping + 6 Phase 3 scoping).
 
-**Not built yet:** everything in Phases 4–6 ([Roadmap](#roadmap)).
+**Phases 4–6 are implemented.** CBC and numeric exams, report cards, fees,
+Daraja/callback reconciliation, notifications, audit logs, production Docker
+configuration, Caddy and deployment documentation are present.
 
 ---
 
@@ -553,9 +555,9 @@ Verification (last run):
 
 | Check | Result |
 |---|---|
-| Unit tests | **21/21 pass** — 8 auth + 7 Phase 2 scoping + 6 Phase 3 scoping (teacher cannot mark another class, parent reads only linked child, idempotent register) |
+| Unit tests | **29/29 pass** — auth, student/people, attendance, exams, CBC and fee service suites |
 | TypeScript | API, web and shared clean (`strict`, `noImplicitAny`, `strictNullChecks`) |
-| Builds | `nest build` and `next build` (18 routes, middleware 141 kB) |
+| Builds | `nest build` and `next build` |
 | Contract | `openapi.json` re-exported; Orval regenerated for all nine resources |
 | Live smoke | admin list 10; create 201 → patch 200 → delete 200 and archived hidden; teacher GET out-of-scope **403**; parent list 1, own child 200, other child **403**; photo without file 400, non-image 400; Swagger exposes `/api/students/import` and 5 student paths |
 | CSV import | 50 rows → **47 imported, 3 failed** with row-level reasons (missing `lastName`, unknown gender, duplicate admission number); imported rows removed afterwards |
@@ -622,7 +624,7 @@ Phase 3:
 | **3. Attendance** | Daily register with `(studentId, date)` upsert; parent/teacher views; class and student reports; ABSENT creates a notification | **Done — awaiting approval** |
 | **4. Exams & results** | 8-4-4 marks with server-computed grades/points; CBC assessments; ranking; two report-card templates; publish/lock; parent visibility gated on `isPublished` | **Done** |
 | **5. Fees & notifications** | Fee structures/invoices/payments; Daraja STK push + callback reconciliation; audit viewer; fee statement | **Done** |
-| **6. Hardening** | E2E tests, frontend form tests, multi-stage Dockerfiles, Caddy production compose, GitHub Actions CI, deployment/backup guide, Kenya DPA note | Planned |
+| **6. Hardening** | E2E tests, frontend form tests, multi-stage Dockerfiles, Caddy production compose, GitHub Actions CI, deployment/backup guide, Kenya DPA note | **Done** |
 
 Each phase ends with the definition of done from the brief, a hand-test
 checklist, and an explicit stop for approval.

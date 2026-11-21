@@ -1777,7 +1777,7 @@ export const ExamsControllerUnlockResponse = zod.object({
  * @summary List CBC learning outcomes
  */
 export const CbcControllerListLearningOutcomesQueryParams = zod.object({
-  "subjectId": zod.string()
+  "subjectId": zod.string().optional()
 })
 
 export const CbcControllerListLearningOutcomesResponseItem = zod.object({
@@ -1990,17 +1990,21 @@ export const ReportCardsControllerListResponseItem = zod.object({
   "score": zod.number(),
   "maxMarks": zod.number(),
   "grade": zod.string(),
-  "points": zod.number().nullish()
+  "points": zod.number().nullish(),
+  "remarks": zod.string().nullish()
 })).optional(),
   "cbcAssessments": zod.array(zod.object({
   "subjectName": zod.string(),
   "learningOutcomeDescription": zod.string(),
-  "performanceLevel": zod.string()
+  "performanceLevel": zod.string(),
+  "teacherComment": zod.string().nullish()
 })).optional(),
   "overallPercentage": zod.number().optional(),
   "overallGrade": zod.string().optional(),
+  "overallPoints": zod.number().nullish(),
   "rank": zod.number().optional(),
-  "totalStudents": zod.number().optional()
+  "totalStudents": zod.number().optional(),
+  "teacherRemarks": zod.string().nullish()
 })
 export const ReportCardsControllerListResponse = zod.array(ReportCardsControllerListResponseItem)
 
@@ -2033,17 +2037,21 @@ export const ReportCardsControllerGetResponse = zod.object({
   "score": zod.number(),
   "maxMarks": zod.number(),
   "grade": zod.string(),
-  "points": zod.number().nullish()
+  "points": zod.number().nullish(),
+  "remarks": zod.string().nullish()
 })).optional(),
   "cbcAssessments": zod.array(zod.object({
   "subjectName": zod.string(),
   "learningOutcomeDescription": zod.string(),
-  "performanceLevel": zod.string()
+  "performanceLevel": zod.string(),
+  "teacherComment": zod.string().nullish()
 })).optional(),
   "overallPercentage": zod.number().optional(),
   "overallGrade": zod.string().optional(),
+  "overallPoints": zod.number().nullish(),
   "rank": zod.number().optional(),
-  "totalStudents": zod.number().optional()
+  "totalStudents": zod.number().optional(),
+  "teacherRemarks": zod.string().nullish()
 })
 
 
@@ -2080,17 +2088,21 @@ export const ReportCardsControllerUpdateResponse = zod.object({
   "score": zod.number(),
   "maxMarks": zod.number(),
   "grade": zod.string(),
-  "points": zod.number().nullish()
+  "points": zod.number().nullish(),
+  "remarks": zod.string().nullish()
 })).optional(),
   "cbcAssessments": zod.array(zod.object({
   "subjectName": zod.string(),
   "learningOutcomeDescription": zod.string(),
-  "performanceLevel": zod.string()
+  "performanceLevel": zod.string(),
+  "teacherComment": zod.string().nullish()
 })).optional(),
   "overallPercentage": zod.number().optional(),
   "overallGrade": zod.string().optional(),
+  "overallPoints": zod.number().nullish(),
   "rank": zod.number().optional(),
-  "totalStudents": zod.number().optional()
+  "totalStudents": zod.number().optional(),
+  "teacherRemarks": zod.string().nullish()
 })
 
 
@@ -2133,17 +2145,21 @@ export const ReportCardsControllerPublishResponse = zod.object({
   "score": zod.number(),
   "maxMarks": zod.number(),
   "grade": zod.string(),
-  "points": zod.number().nullish()
+  "points": zod.number().nullish(),
+  "remarks": zod.string().nullish()
 })).optional(),
   "cbcAssessments": zod.array(zod.object({
   "subjectName": zod.string(),
   "learningOutcomeDescription": zod.string(),
-  "performanceLevel": zod.string()
+  "performanceLevel": zod.string(),
+  "teacherComment": zod.string().nullish()
 })).optional(),
   "overallPercentage": zod.number().optional(),
   "overallGrade": zod.string().optional(),
+  "overallPoints": zod.number().nullish(),
   "rank": zod.number().optional(),
-  "totalStudents": zod.number().optional()
+  "totalStudents": zod.number().optional(),
+  "teacherRemarks": zod.string().nullish()
 })
 
 
@@ -2175,17 +2191,21 @@ export const ReportCardsControllerUnpublishResponse = zod.object({
   "score": zod.number(),
   "maxMarks": zod.number(),
   "grade": zod.string(),
-  "points": zod.number().nullish()
+  "points": zod.number().nullish(),
+  "remarks": zod.string().nullish()
 })).optional(),
   "cbcAssessments": zod.array(zod.object({
   "subjectName": zod.string(),
   "learningOutcomeDescription": zod.string(),
-  "performanceLevel": zod.string()
+  "performanceLevel": zod.string(),
+  "teacherComment": zod.string().nullish()
 })).optional(),
   "overallPercentage": zod.number().optional(),
   "overallGrade": zod.string().optional(),
+  "overallPoints": zod.number().nullish(),
   "rank": zod.number().optional(),
-  "totalStudents": zod.number().optional()
+  "totalStudents": zod.number().optional(),
+  "teacherRemarks": zod.string().nullish()
 })
 
 
@@ -2374,31 +2394,21 @@ export const NotificationsControllerReadAllResponse = zod.object({
  * @summary List audit logs (admin)
  */
 export const AuditControllerListQueryParams = zod.object({
-  "entityType": zod.string()
+  "entityType": zod.string().optional(),
+  "limit": zod.number().optional(),
+  "page": zod.number().optional()
 })
 
 export const AuditControllerListResponseItem = zod.object({
   "id": zod.string(),
-  "actorUserId": zod.looseObject({
-
-}).nullish(),
+  "actorUserId": zod.string().nullish(),
   "action": zod.string(),
   "entityType": zod.string(),
-  "entityId": zod.looseObject({
-
-}).nullish(),
-  "before": zod.looseObject({
-
-}).nullish(),
-  "after": zod.looseObject({
-
-}).nullish(),
-  "ip": zod.looseObject({
-
-}).nullish(),
-  "userAgent": zod.looseObject({
-
-}).nullish(),
+  "entityId": zod.string().nullish(),
+  "before": zod.record(zod.string(), zod.unknown()).nullish(),
+  "after": zod.record(zod.string(), zod.unknown()).nullish(),
+  "ip": zod.string().nullish(),
+  "userAgent": zod.string().nullish(),
   "createdAt": zod.string()
 })
 export const AuditControllerListResponse = zod.array(AuditControllerListResponseItem)

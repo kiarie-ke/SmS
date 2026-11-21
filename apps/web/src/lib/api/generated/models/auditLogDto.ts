@@ -5,28 +5,24 @@
  * School management API for Kenyan primary, JSS and secondary schools. Grading supports CBC performance levels and 8-4-4 numeric bands. Currency is KES; all date logic uses Africa/Nairobi.
  * OpenAPI spec version: 0.1.0
  */
-import type { AuditLogDtoActorUserId } from './auditLogDtoActorUserId';
 import type { AuditLogDtoAfter } from './auditLogDtoAfter';
 import type { AuditLogDtoBefore } from './auditLogDtoBefore';
-import type { AuditLogDtoEntityId } from './auditLogDtoEntityId';
-import type { AuditLogDtoIp } from './auditLogDtoIp';
-import type { AuditLogDtoUserAgent } from './auditLogDtoUserAgent';
 
 export interface AuditLogDto {
   id: string;
   /** @nullable */
-  actorUserId?: AuditLogDtoActorUserId;
+  actorUserId?: string | null;
   action: string;
   entityType: string;
   /** @nullable */
-  entityId?: AuditLogDtoEntityId;
+  entityId?: string | null;
   /** @nullable */
   before?: AuditLogDtoBefore;
   /** @nullable */
   after?: AuditLogDtoAfter;
   /** @nullable */
-  ip?: AuditLogDtoIp;
+  ip?: string | null;
   /** @nullable */
-  userAgent?: AuditLogDtoUserAgent;
+  userAgent?: string | null;
   createdAt: string;
 }

@@ -128,7 +128,7 @@ regenerated; web compiles; hand-test checklist written.
 
 ## Verification baseline
 
-`pnpm test` → 21/21 pass. API and web typecheck clean. `nest build` and
+`pnpm test` → 29/29 pass. API and web typecheck clean. `nest build` and
 `next build` (21 routes) succeed. Seeded DB: 10 students, 3 teachers,
 4 classes, 5 subjects. Live smoke covers CRUD, teacher/parent scoping 403s,
 CSV import, photo validation, Swagger, and attendance register/summary.

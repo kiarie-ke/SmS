@@ -24,7 +24,7 @@ export type auditControllerListResponseSuccess = (auditControllerListResponse200
 
 export type auditControllerListResponse = (auditControllerListResponseSuccess)
 
-export const getAuditControllerListUrl = (params: AuditControllerListParams,) => {
+export const getAuditControllerListUrl = (params?: AuditControllerListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -42,7 +42,7 @@ export const getAuditControllerListUrl = (params: AuditControllerListParams,) =>
 /**
  * @summary List audit logs (admin)
  */
-export const auditControllerList = async (params: AuditControllerListParams, options?: Parameters<typeof httpClient>[1]): Promise<auditControllerListResponse> => {
+export const auditControllerList = async (params?: AuditControllerListParams, options?: Parameters<typeof httpClient>[1]): Promise<auditControllerListResponse> => {
 
   return httpClient<auditControllerListResponse>(getAuditControllerListUrl(params),
   {

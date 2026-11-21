@@ -51,7 +51,8 @@ export default function TeacherCbcPage() {
   const subjectsQuery = useApiQuery(['subjects', 'all'], () => subjectsControllerList({ limit: 100 }));
   const outcomesQuery = useApiQuery(
     ['cbc', 'learning-outcomes', subjectId],
-    () => cbcControllerListLearningOutcomes({ subjectId: subjectId || undefined }),
+    () => cbcControllerListLearningOutcomes(subjectId ? { subjectId } : {}),
+    { enabled: !!subjectId },
   );
 
   const classes: ClassDto[] = classesQuery.data?.data ?? [];
@@ -77,7 +78,8 @@ export default function TeacherCbcPage() {
 
   useEffect(() => {
     if (outcomes.length > 0 && (!learningOutcomeId || !outcomes.some((o) => o.id === learningOutcomeId))) {
-      setLearningOutcomeId(outcomes[0].id);
+      const firstId = outcomes[0]?.id;
+      if (firstId) setLearningOutcomeId(firstId);
     }
   }, [outcomes, learningOutcomeId]);
 

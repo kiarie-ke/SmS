@@ -14,4 +14,6 @@ export interface ReportCardMarkDto {
   grade: string;
   /** @nullable */
   points?: number | null;
+  /** @nullable */
+  remarks?: string | null;
 }

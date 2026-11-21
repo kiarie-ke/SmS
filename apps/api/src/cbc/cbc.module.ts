@@ -17,6 +17,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import type { AuthenticatedUser } from '../common/auth-user';
@@ -43,6 +44,7 @@ export class CbcController {
 
   @Get('learning-outcomes')
   @Roles('ADMIN', 'TEACHER', 'STUDENT', 'PARENT')
+  @ApiQuery({ name: 'subjectId', required: false, type: String })
   @ApiOkResponse({ type: LearningOutcomeDto, isArray: true })
   @ApiOperation({ summary: 'List CBC learning outcomes' })
   listLearningOutcomes(@Query('subjectId') subjectId?: string) {
