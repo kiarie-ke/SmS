@@ -10,6 +10,8 @@ export * from './guardians/guardians';
 export * from './health/health';
 export * from './notifications/notifications';
 export * from './report-cards/report-cards';
+export * from './reports/reports';
+export * from './school-settings/school-settings';
 export * from './streams/streams';
 export * from './students/students';
 export * from './subjects/subjects';

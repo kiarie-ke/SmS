@@ -34,8 +34,8 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { title: 'Guardians', href: '/admin/guardians', icon: Contact, available: true },
     { title: 'Fees', href: '/admin/fees', icon: Wallet, available: true },
     { title: 'Audit', href: '/admin/audit', icon: Activity, available: true },
-    { title: 'Reports', href: '/admin/reports', icon: ClipboardList, available: false },
-    { title: 'Settings', href: '/admin/settings', icon: Settings, available: false },
+    { title: 'Reports', href: '/admin/reports', icon: ClipboardList, available: true },
+    { title: 'Settings', href: '/admin/settings', icon: Settings, available: true },
   ],
   TEACHER: [
     { title: 'Dashboard', href: '/teacher', icon: LayoutDashboard, available: true },

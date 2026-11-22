@@ -2412,3 +2412,128 @@ export const AuditControllerListResponseItem = zod.object({
   "createdAt": zod.string()
 })
 export const AuditControllerListResponse = zod.array(AuditControllerListResponseItem)
+
+
+/**
+ * @summary Get school-wide enrollment, attendance, academic and fee reports
+ */
+export const ReportsControllerSummaryQueryParams = zod.object({
+  "termId": zod.uuid().optional().describe('Limit term-based reports to this term')
+})
+
+export const ReportsControllerSummaryResponse = zod.object({
+  "term": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "academicYearName": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string()
+}).nullish(),
+  "totalStudents": zod.number(),
+  "enrollment": zod.array(zod.object({
+  "className": zod.string(),
+  "classLevel": zod.string(),
+  "studentCount": zod.number()
+})),
+  "attendanceRecords": zod.number(),
+  "attendanceRate": zod.number(),
+  "attendance": zod.array(zod.object({
+  "status": zod.string(),
+  "count": zod.number()
+})),
+  "marksRecorded": zod.number(),
+  "averageScore": zod.number().nullable(),
+  "academics": zod.array(zod.object({
+  "grade": zod.string(),
+  "count": zod.number(),
+  "averageScore": zod.number().nullable()
+})),
+  "cbcAssessments": zod.array(zod.object({
+  "performanceLevel": zod.string(),
+  "count": zod.number()
+})),
+  "publishedReportCards": zod.number(),
+  "invoiceCount": zod.number(),
+  "billedAmount": zod.number(),
+  "collectedAmount": zod.number(),
+  "outstandingAmount": zod.number(),
+  "fees": zod.array(zod.object({
+  "status": zod.string(),
+  "invoiceCount": zod.number(),
+  "billedAmount": zod.number()
+}))
+})
+
+
+/**
+ * @summary Get school identity and grading settings
+ */
+export const SchoolSettingsControllerGetResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "motto": zod.string().nullish(),
+  "county": zod.string(),
+  "subCounty": zod.string(),
+  "type": zod.enum(['PUBLIC', 'PRIVATE']),
+  "category": zod.enum(['DAY', 'BOARDING', 'MIXED']),
+  "levels": zod.array(zod.enum(['PRIMARY', 'JSS', 'SECONDARY'])),
+  "gradeScaleType": zod.enum(['CBC_8_4_4', 'CBC']),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "address": zod.string().nullish(),
+  "principalName": zod.string(),
+  "nemisCode": zod.string().nullish(),
+  "knecCenterNumber": zod.string().nullish()
+})
+
+
+/**
+ * @summary Update school identity and grading settings
+ */
+export const SchoolSettingsControllerUpdateBody = zod.object({
+  "name": zod.string().optional(),
+  "motto": zod.string().nullish(),
+  "county": zod.string().optional(),
+  "subCounty": zod.string().optional(),
+  "type": zod.enum(['PUBLIC', 'PRIVATE']).optional(),
+  "category": zod.enum(['DAY', 'BOARDING', 'MIXED']).optional(),
+  "levels": zod.array(zod.enum(['PRIMARY', 'JSS', 'SECONDARY'])).optional(),
+  "gradeScaleType": zod.enum(['CBC_8_4_4', 'CBC']).optional(),
+  "phone": zod.string().optional(),
+  "email": zod.string().optional(),
+  "address": zod.string().nullish(),
+  "principalName": zod.string().optional(),
+  "nemisCode": zod.string().nullish(),
+  "knecCenterNumber": zod.string().nullish()
+})
+
+export const SchoolSettingsControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "motto": zod.string().nullish(),
+  "county": zod.string(),
+  "subCounty": zod.string(),
+  "type": zod.enum(['PUBLIC', 'PRIVATE']),
+  "category": zod.enum(['DAY', 'BOARDING', 'MIXED']),
+  "levels": zod.array(zod.enum(['PRIMARY', 'JSS', 'SECONDARY'])),
+  "gradeScaleType": zod.enum(['CBC_8_4_4', 'CBC']),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "address": zod.string().nullish(),
+  "principalName": zod.string(),
+  "nemisCode": zod.string().nullish(),
+  "knecCenterNumber": zod.string().nullish()
+})
+
+
+/**
+ * @summary Set the current academic year and one of its terms atomically
+ */
+export const SchoolSettingsControllerSetAcademicPeriodBody = zod.object({
+  "academicYearId": zod.string(),
+  "termId": zod.string()
+})
+
+export const SchoolSettingsControllerSetAcademicPeriodResponse = zod.object({
+  "message": zod.string()
+})

@@ -9,6 +9,10 @@ import {
   EMPLOYMENT_TYPES,
   GENDERS,
   RELATIONSHIPS,
+  GRADE_SCALE_TYPES,
+  SCHOOL_CATEGORIES,
+  SCHOOL_LEVELS,
+  SCHOOL_TYPES,
   SUBJECT_LEVELS,
 } from './constants';
 import { kenyanPhoneSchema } from './schemas';
@@ -110,3 +114,21 @@ export const termFormSchema = z
     path: ['endDate'],
   });
 export type TermFormInput = z.infer<typeof termFormSchema>;
+
+export const schoolSettingsFormSchema = z.object({
+  name: z.string().trim().min(2, 'School name is required').max(160),
+  motto: optionalText(250),
+  county: z.string().trim().min(2, 'County is required').max(100),
+  subCounty: z.string().trim().min(2, 'Sub-county is required').max(100),
+  type: z.enum(SCHOOL_TYPES),
+  category: z.enum(SCHOOL_CATEGORIES),
+  levels: z.array(z.enum(SCHOOL_LEVELS)).min(1, 'Select at least one school level'),
+  gradeScaleType: z.enum(GRADE_SCALE_TYPES),
+  phone: kenyanPhoneSchema,
+  email: z.string().trim().toLowerCase().email('Enter a valid email').max(254),
+  address: optionalText(250),
+  principalName: z.string().trim().min(2, 'Principal name is required').max(160),
+  nemisCode: optionalText(40),
+  knecCenterNumber: optionalText(40),
+});
+export type SchoolSettingsFormInput = z.infer<typeof schoolSettingsFormSchema>;

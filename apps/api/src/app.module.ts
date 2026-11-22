@@ -17,6 +17,8 @@ import { FeesModule } from './fees/fee.module';
 import { NotificationsModule } from './notifications/notification.module';
 import { AuditModule } from './audit/audit.module';
 import { SmsModule } from './sms/sms.module';
+import { ReportsModule } from './reports/report.module';
+import { SchoolSettingsModule } from './school-settings/school-settings.module';
 import { ClassesModule } from './structure/classes/class.module';
 import { StreamsModule } from './structure/streams/stream.module';
 import { SubjectsModule } from './structure/subjects/subject.module';
@@ -73,6 +75,8 @@ import { PrismaModule } from './prisma/prisma.module';
     NotificationsModule,
     AuditModule,
     SmsModule,
+    ReportsModule,
+    SchoolSettingsModule,
   ],
   controllers: [HealthController],
   providers: [

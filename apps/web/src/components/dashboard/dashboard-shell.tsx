@@ -130,7 +130,7 @@ export function DashboardShell({ role, email, children }: DashboardShellProps) {
                 </span>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem disabled>
+              <DropdownMenuItem onClick={() => router.push('/profile')}>
                 <UserRound className="mr-2 size-4" /> Profile
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => void handleLogout()}>

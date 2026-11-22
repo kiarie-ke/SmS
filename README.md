@@ -94,7 +94,10 @@ phone numbers, NEMIS UPIs, TSC numbers and `Africa/Nairobi` date logic.
 
 **Phases 4–6 are implemented.** CBC and numeric exams, report cards, fees,
 Daraja/callback reconciliation, notifications, audit logs, production Docker
-configuration, Caddy and deployment documentation are present.
+configuration, Caddy and deployment documentation are present. Admins can
+review term-based enrollment, attendance, academic and fee reports with CSV
+exports; edit school identity, grading mode and the active academic period;
+and all signed-in roles can view their account profile.
 
 ---
 
@@ -409,6 +412,9 @@ schemas.
 | POST | `/api/auth/forgot-password` | public | **5/min** | Logs token; returns it outside production |
 | GET | `/api/auth/me` | bearer | global | Current user |
 | GET | `/api/auth/csrf` | public | global | Cookie/header names for clients |
+| GET | `/api/reports/summary` | bearer, **ADMIN** | global | Enrollment, attendance, academic and fee aggregates; optional `termId` |
+| GET/PATCH | `/api/school-settings` | bearer, **ADMIN** | global | Read/update school identity and grading settings |
+| PATCH | `/api/school-settings/academic-period` | bearer, **ADMIN** | global | Atomically set a current academic year and one of its terms |
 
 Phase 2 resources (all under `/api`, bearer auth; lists return `{ data, meta }`):
 
@@ -527,12 +533,15 @@ date). Money: `Decimal`, currency `KES` only.
 
 | Route | Who | Behaviour |
 |---|---|---|
-| `/` | anyone | Redirects to the session role's dashboard or `/login` |
+| `/` | anyone | Shows sign-in when signed out; otherwise redirects to the role dashboard |
 | `/login` | anonymous | Form; redirects authenticated users to their dashboard |
 | `/admin` | ADMIN | School-wide shell |
+| `/admin/reports` | ADMIN | Term-filtered enrollment, attendance, academic and fee reports with CSV export |
+| `/admin/settings` | ADMIN | Edit school details, grading mode and current academic year/term |
 | `/teacher` | TEACHER | Teacher shell |
 | `/student` | STUDENT | Student shell |
 | `/parent` | PARENT | Parent shell |
+| `/profile` | authenticated users | Read-only account details |
 | `/api/session/*` | same origin | BFF login/refresh/logout (not public API) |
 
 `middleware.ts` matches `/admin/:path*`, `/teacher/:path*`, `/student/:path*`,

@@ -4580,6 +4580,143 @@
           "audit"
         ]
       }
+    },
+    "/api/reports/summary": {
+      "get": {
+        "operationId": "ReportsController_summary",
+        "parameters": [
+          {
+            "name": "termId",
+            "required": false,
+            "in": "query",
+            "description": "Limit term-based reports to this term",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportSummaryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get school-wide enrollment, attendance, academic and fee reports",
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/api/school-settings": {
+      "get": {
+        "operationId": "SchoolSettingsController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolSettingsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get school identity and grading settings",
+        "tags": [
+          "school-settings"
+        ]
+      },
+      "patch": {
+        "operationId": "SchoolSettingsController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSchoolSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolSettingsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update school identity and grading settings",
+        "tags": [
+          "school-settings"
+        ]
+      }
+    },
+    "/api/school-settings/academic-period": {
+      "patch": {
+        "operationId": "SchoolSettingsController_setAcademicPeriod",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAcademicPeriodDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set the current academic year and one of its terms atomically",
+        "tags": [
+          "school-settings"
+        ]
+      }
     }
   },
   "info": {
@@ -7269,6 +7406,388 @@
           "action",
           "entityType",
           "createdAt"
+        ]
+      },
+      "ReportTermDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "academicYearName",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "EnrollmentReportRowDto": {
+        "type": "object",
+        "properties": {
+          "className": {
+            "type": "string"
+          },
+          "classLevel": {
+            "type": "string"
+          },
+          "studentCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "className",
+          "classLevel",
+          "studentCount"
+        ]
+      },
+      "AttendanceReportRowDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "status",
+          "count"
+        ]
+      },
+      "AcademicReportRowDto": {
+        "type": "object",
+        "properties": {
+          "grade": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          },
+          "averageScore": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "grade",
+          "count",
+          "averageScore"
+        ]
+      },
+      "CbcReportRowDto": {
+        "type": "object",
+        "properties": {
+          "performanceLevel": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "performanceLevel",
+          "count"
+        ]
+      },
+      "FeeReportRowDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "invoiceCount": {
+            "type": "number"
+          },
+          "billedAmount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "status",
+          "invoiceCount",
+          "billedAmount"
+        ]
+      },
+      "ReportSummaryDto": {
+        "type": "object",
+        "properties": {
+          "term": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReportTermDto"
+              }
+            ]
+          },
+          "totalStudents": {
+            "type": "number"
+          },
+          "enrollment": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnrollmentReportRowDto"
+            }
+          },
+          "attendanceRecords": {
+            "type": "number"
+          },
+          "attendanceRate": {
+            "type": "number"
+          },
+          "attendance": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceReportRowDto"
+            }
+          },
+          "marksRecorded": {
+            "type": "number"
+          },
+          "averageScore": {
+            "type": "number",
+            "nullable": true
+          },
+          "academics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AcademicReportRowDto"
+            }
+          },
+          "cbcAssessments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CbcReportRowDto"
+            }
+          },
+          "publishedReportCards": {
+            "type": "number"
+          },
+          "invoiceCount": {
+            "type": "number"
+          },
+          "billedAmount": {
+            "type": "number"
+          },
+          "collectedAmount": {
+            "type": "number"
+          },
+          "outstandingAmount": {
+            "type": "number"
+          },
+          "fees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeeReportRowDto"
+            }
+          }
+        },
+        "required": [
+          "totalStudents",
+          "enrollment",
+          "attendanceRecords",
+          "attendanceRate",
+          "attendance",
+          "marksRecorded",
+          "averageScore",
+          "academics",
+          "cbcAssessments",
+          "publishedReportCards",
+          "invoiceCount",
+          "billedAmount",
+          "collectedAmount",
+          "outstandingAmount",
+          "fees"
+        ]
+      },
+      "SchoolSettingsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "motto": {
+            "type": "string",
+            "nullable": true
+          },
+          "county": {
+            "type": "string"
+          },
+          "subCounty": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "PRIVATE"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "DAY",
+              "BOARDING",
+              "MIXED"
+            ]
+          },
+          "levels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PRIMARY",
+                "JSS",
+                "SECONDARY"
+              ]
+            }
+          },
+          "gradeScaleType": {
+            "type": "string",
+            "enum": [
+              "CBC_8_4_4",
+              "CBC"
+            ]
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "principalName": {
+            "type": "string"
+          },
+          "nemisCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "knecCenterNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "county",
+          "subCounty",
+          "type",
+          "category",
+          "levels",
+          "gradeScaleType",
+          "phone",
+          "email",
+          "principalName"
+        ]
+      },
+      "UpdateSchoolSettingsDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "motto": {
+            "type": "string",
+            "nullable": true
+          },
+          "county": {
+            "type": "string"
+          },
+          "subCounty": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "PRIVATE"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "DAY",
+              "BOARDING",
+              "MIXED"
+            ]
+          },
+          "levels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PRIMARY",
+                "JSS",
+                "SECONDARY"
+              ]
+            }
+          },
+          "gradeScaleType": {
+            "type": "string",
+            "enum": [
+              "CBC_8_4_4",
+              "CBC"
+            ]
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "principalName": {
+            "type": "string"
+          },
+          "nemisCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "knecCenterNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateAcademicPeriodDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          },
+          "termId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "academicYearId",
+          "termId"
         ]
       }
     }
