@@ -11,6 +11,10 @@ phone numbers, NEMIS UPIs, TSC numbers and `Africa/Nairobi` date logic.
 > notices, procurement/inventory, and admissions/progression remain separate
 > future phases; see [Roadmap](#roadmap).
 
+This project is released under the [MIT License](LICENSE). Contributions are
+welcome; please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull
+request.
+
 ---
 
 ## Table of contents
