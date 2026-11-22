@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://school:school@localhost:5435/school_system?schema=public
     services:
       postgres:
         image: postgres:16-alpine
@@ -32,12 +34,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm prisma migrate deploy
         working-directory: apps/api
-        env:
-          DATABASE_URL: postgresql://school:school@localhost:5435/school_system?schema=public
       - run: pnpm seed
         working-directory: apps/api
-        env:
-          DATABASE_URL: postgresql://school:school@localhost:5435/school_system?schema=public
       - run: pnpm test
       - run: pnpm typecheck
       - run: pnpm build
