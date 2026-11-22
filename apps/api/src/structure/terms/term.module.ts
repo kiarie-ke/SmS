@@ -107,7 +107,7 @@ export class TermsController {
   constructor(private readonly terms: TermsService) {}
 
   @Get()
-  @Roles('ADMIN', 'TEACHER')
+  @Roles('ADMIN', 'TEACHER', 'BURSAR')
   @ApiOkResponse({ type: TermDto, isArray: true })
   @ApiOperation({ summary: 'List terms' })
   list(@Query() query: TermQueryDto) {
@@ -115,7 +115,7 @@ export class TermsController {
   }
 
   @Get('current')
-  @Roles('ADMIN', 'TEACHER')
+  @Roles('ADMIN', 'TEACHER', 'BURSAR')
   @ApiOkResponse({ type: TermDto })
   @ApiOperation({ summary: 'Get the current term' })
   current() {
@@ -123,7 +123,7 @@ export class TermsController {
   }
 
   @Get(':id')
-  @Roles('ADMIN', 'TEACHER')
+  @Roles('ADMIN', 'TEACHER', 'BURSAR')
   @ApiOkResponse({ type: TermDto })
   @ApiOperation({ summary: 'Get a term' })
   get(@Param('id', ParseUUIDPipe) id: string) {

@@ -11,7 +11,11 @@ detail. Keep both accurate when the project changes.
 - **Phase 3 (Attendance) is complete.**
 - **Phase 4 (Exams & results) is complete.**
 - **Phase 5 (Fees & notifications) is complete.**
-- **Phase 6 (Hardening) is complete.** All phases done.
+- **Phase 6 (Hardening) is complete.**
+- **Phase 7 (Bursar & library) is complete.** Bursar finances, Librarian
+  catalogue/inventory/loans and student loan history are implemented.
+- **Phase 8 (Staff operations) is complete.** Weekly timetables, lesson plans,
+  school calendar and substitute coverage are implemented.
 - Work strictly one phase at a time. At the end of each phase: run its checks,
   write the hand-test checklist, then **stop and wait**.
 
@@ -36,28 +40,37 @@ pnpm prisma migrate dev          # dev migration (or migrate deploy)
 pnpm seed                        # idempotent seed
 pnpm dev:api                     # :3001  (pnpm --filter api start:dev also works)
 pnpm dev:web                     # :3000
-pnpm test                        # API unit tests (currently 21)
+pnpm test                        # API unit tests (currently 46)
 pnpm typecheck                   # all packages
 pnpm build                       # shared -> api -> web
 pnpm --filter api openapi        # export OpenAPI (needs DB)
 pnpm orval                       # regenerate web client after contract changes
 ```
+
 # Stop database
+
 docker compose stop db
 
 # Start database
+
 docker compose up -d db
 
 # Check database status
+
 docker compose ps
 
 # View database logs
+
 docker compose logs db
 
-Seeded logins (dev only): `admin@mwangaza.ac.ke / Admin@1234`,
+Seeded logins (development only; `pnpm seed` creates/resets these demo users):
+`admin@mwangaza.ac.ke / Admin@1234`,
 `teacher@mwangaza.ac.ke / Teacher@1234`,
 `student@mwangaza.ac.ke / Student@1234`,
-`parent@mwangaza.ac.ke / Parent@1234`.
+`parent@mwangaza.ac.ke / Parent@1234`,
+`bursar@mwangaza.ac.ke / Bursar@1234`,
+`librarian@mwangaza.ac.ke / Librarian@1234`.
+Never use seeded passwords in production.
 
 ## Current architecture
 
@@ -68,6 +81,9 @@ Browser ──► Next :3000 (middleware + BFF /api/session/*) ──► API :30
 - `apps/api/src/auth` — controller, service, JWT/refresh, cookies, repository, tests
 - `apps/api/src/common` — envelope, pagination DTO/helper, exception filter, guards (`jwt`, `roles`, `csrf`), decorators
 - `apps/api/src/people` — students (CSV import, photos), guardians, teachers, users
+- `apps/api/src/finance` — Bursar/Admin non-fee income and expense ledger
+- `apps/api/src/library` — book catalogue, copies, loans, returns and student history
+- `apps/api/src/operations` — timetable periods/entries, lesson plans, calendar and substitutions
 - `apps/api/src/structure` — classes, streams, subjects, academic years, terms
 - `apps/api/src/scoping` — `ScopingService`, the single source of access rules
 - `apps/api/src/prisma` — `PrismaService` (pg driver adapter)
@@ -128,10 +144,42 @@ regenerated; web compiles; hand-test checklist written.
 
 ## Verification baseline
 
-`pnpm test` → 29/29 pass. API and web typecheck clean. `nest build` and
-`next build` (21 routes) succeed. Seeded DB: 10 students, 3 teachers,
-4 classes, 5 subjects. Live smoke covers CRUD, teacher/parent scoping 403s,
-CSV import, photo validation, Swagger, and attendance register/summary.
+The current verification results are recorded in `README.md`. Seeded DB:
+10 students, 3 teachers, 4 classes, 5 subjects. Existing live smoke covers
+CRUD, teacher/parent scoping 403s, CSV import, photo validation, Swagger, and
+attendance register/summary.
+
+## Phase 7 — Bursar & library (complete)
+
+- BURSAR and LIBRARIAN roles with Admin-managed account creation and role routing.
+- Bursars manage fees through the existing fee module and record non-fee
+  income/operating expenses in a separate KES ledger; payroll is excluded.
+- Librarians manage curriculum metadata, physical copies, CSV import, and
+  issue/return workflows. Textbooks are due at academic-year end; other books
+  are returned manually, with no fines.
+- Students can see only their own loan history. Librarian student lookup returns
+  only the minimum identity/class fields needed for issuing books.
+- KICD-approved catalogue entries require a source URL. The official approved
+  lists are PDFs, so metadata must be entered or imported from school-verified
+  sources; no unverified catalogue is seeded.
+- At phase end: run checks, update README hand-test checklist, then stop.
+
+## Phase 8 — Staff operations (complete)
+
+- Admin configures academic-year periods/breaks, weekly class/stream timetables,
+  calendar events and date-specific teacher substitutions.
+- Teachers read only their own weekly timetable and create, submit and revise
+  lesson plans for assigned class/subject/term combinations. Admin reviews
+  submitted plans.
+- Backend validates schedule conflicts, Monday-starting plans within terms,
+  substitution dates and teacher availability. Student-facing behavior remains
+  unchanged.
+- The forward-only migration `20261122101000_staff_operations` has been applied.
+  Do not reset the database or use `migrate dev` to resolve drift.
+- Checks: 46 API tests, workspace typecheck, production build and Prisma
+  migration status. README contains the Phase 8 hand-test checklist.
+- Stop after this phase and wait for UAT/approval before beginning another
+  feature phase.
 
 ## Gotchas (learned the hard way)
 
@@ -163,11 +211,11 @@ CSV import, photo validation, Swagger, and attendance register/summary.
 4. If the DB is empty: `pnpm prisma migrate deploy && pnpm seed`.
 5. `pnpm test` for a green baseline.
 6. Confirm no stray process on 3001, then start API, then web.
-7. Ask for/confirm phase approval before writing Phase 4 code.
+7. Ask for/confirm phase approval before starting a future feature phase.
 
 ## Do not
 
-- Start a later phase, or expand a phase, without approval.
+- Start unrelated feature work or expand scope without approval.
 - Hand-write API request/response types in the web app.
 - Import Prisma into controllers/services, or bypass DTO validation.
 - Weaken/skip tests, suppress type errors, or commit `.env` files.

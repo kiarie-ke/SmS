@@ -5,12 +5,11 @@ It supports **CBC** (PP1–Grade 9 performance levels) and **8-4-4 / CBC Senior
 School** numeric grading behind one school-level setting, with KES fees, Kenyan
 phone numbers, NEMIS UPIs, TSC numbers and `Africa/Nairobi` date logic.
 
-> **Status: Phase 6 (Hardening) complete.**
-> Authentication, roles, people/structure CRUD, server-side teacher/parent
-> scoping, CSV student import, photo upload, the admin DataTable screens and
-> daily attendance registers with class/student reports all work. Exams, fees
-> and notifications (beyond in-app absence notices) are still to come; see
-> [Roadmap](#roadmap).
+> **Status: Phase 8 (Staff operations) implemented.**
+> Authentication, people and structure, attendance, exams/results, fees,
+> bursar/library workflows, and staff operations are implemented. Parent
+> notices, procurement/inventory, and admissions/progression remain separate
+> future phases; see [Roadmap](#roadmap).
 
 ---
 
@@ -46,7 +45,7 @@ phone numbers, NEMIS UPIs, TSC numbers and `Africa/Nairobi` date logic.
 
 - pnpm monorepo: `apps/api`, `apps/web`, `packages/shared`.
 - PostgreSQL 16 via Docker Compose with healthcheck and named volume.
-- **Full Prisma schema for all six phases**, not just auth — CBC strands and
+- **Full Prisma schema**, not just auth — CBC strands and
   assessments, 8-4-4 exams/marks/grade scales, attendance, fees and M-Pesa
   transactions, report cards, notifications and audit logs.
 - Initial migration applied and an idempotent seed for a realistic school.
@@ -54,7 +53,7 @@ phone numbers, NEMIS UPIs, TSC numbers and `Africa/Nairobi` date logic.
   JWT auth with refresh-token rotation and reuse revocation, account lockout,
   role guard, CSRF double-submit, throttling, helmet, pino logs, CORS.
 - Web: login form (React Hook Form + shared Zod), signed session cookie,
-  middleware role gate, responsive dashboard shells for all four roles,
+  middleware role gate, responsive dashboard shells for all roles,
   shadcn/UI primitives, TanStack Query provider, Orval-generated API client.
 - 8 auth unit tests; both apps typecheck and build.
 
@@ -99,29 +98,65 @@ review term-based enrollment, attendance, academic and fee reports with CSV
 exports; edit school identity, grading mode and the active academic period;
 and all signed-in roles can view their account profile.
 
+**Phase 7 — Bursar & library**
+
+- Added BURSAR and LIBRARIAN roles. Admins create these accounts from
+  `/admin/accounts`; each role has its own dashboard and API permissions.
+- Bursars manage fee structures, invoices and payments through the existing
+  Fees module, and record non-fee income and operating expenses in a separate
+  KES ledger with date-filtered totals. Payroll is out of scope.
+- Librarians manage curriculum book metadata, physical-copy inventory, CSV
+  imports (500-row cap), and issue/return records. Textbooks are due at the
+  current academic-year end; storybooks/other books are returned manually.
+- Students see only their own book-loan history in `/student/library`.
+  Librarians receive only minimal student identity/class fields needed to issue
+  books; they do not receive general student-list access.
+- KICD approved-material lists are linked from the
+  [official KICD page](https://kicd.ac.ke/approved-cbc-course-materials/); these
+  are PDFs, so the catalogue is not pre-seeded from unverified data. Imported
+  or manually entered entries marked KICD-approved must include a source URL.
+- Fees and other finances remain separate to prevent double-counting fee
+  payments as general income.
+
+**Phase 8 — Staff operations**
+
+- Admins configure weekly timetable periods (including breaks), schedule
+  classes/streams, teachers, subjects and venues, and manage the school
+  calendar.
+- Scheduling rejects overlapping period definitions and class, teacher or
+  venue conflicts. Teacher timetable reads are restricted server-side to the
+  signed-in teacher.
+- Teachers create Monday-starting weekly lesson plans for their assigned
+  class/subject/term, save drafts, submit for review, and revise returned plans.
+  Admins can approve plans or request revisions.
+- Admins assign dated substitutes to scheduled lessons; the date must match
+  the weekly timetable day and fall within its academic year. Teacher schedule
+  conflicts and duplicate cover are rejected.
+- Staff-only features; the existing student portal has not been expanded.
+
 ---
 
 ## Tech stack
 
-| Layer | Choice | Version |
-|---|---|---|
-| Runtime | Node.js | 22+ (verified on 24) |
-| Package manager | pnpm (via corepack) | 12.21.0 |
-| API | NestJS + Express | 11.2.11 |
-| ORM | Prisma + `@prisma/adapter-pg` | 7.10.1 |
-| Database | PostgreSQL (Docker) | 16 |
-| Auth | `@nestjs/jwt`, `passport-jwt`, `argon2` (argon2id) | current |
-| Validation (API) | `class-validator` + `class-transformer` | current |
-| Validation (web/shared) | Zod | 4.x |
-| Docs | `@nestjs/swagger` | 11.x |
-| Config / logging | `@nestjs/config` + Joi, `nestjs-pino` + pino | current |
-| Web | Next.js App Router + React | 15.5.29 / 19 |
-| Styling | Tailwind CSS 4 + shadcn/ui (`base-nova`) | current |
-| Server state | TanStack Query | 5.x |
-| Forms | React Hook Form + `@hookform/resolvers` | current |
-| Dates | `date-fns`, `date-fns-tz` | current |
-| API client | Orval (fetch client, tags-split, Zod) | 8.48 |
-| Tests | Jest + ts-jest | 29.x |
+| Layer                   | Choice                                             | Version              |
+| ----------------------- | -------------------------------------------------- | -------------------- |
+| Runtime                 | Node.js                                            | 22+ (verified on 24) |
+| Package manager         | pnpm (via corepack)                                | 12.21.0              |
+| API                     | NestJS + Express                                   | 11.2.11              |
+| ORM                     | Prisma + `@prisma/adapter-pg`                      | 7.10.1               |
+| Database                | PostgreSQL (Docker)                                | 16                   |
+| Auth                    | `@nestjs/jwt`, `passport-jwt`, `argon2` (argon2id) | current              |
+| Validation (API)        | `class-validator` + `class-transformer`            | current              |
+| Validation (web/shared) | Zod                                                | 4.x                  |
+| Docs                    | `@nestjs/swagger`                                  | 11.x                 |
+| Config / logging        | `@nestjs/config` + Joi, `nestjs-pino` + pino       | current              |
+| Web                     | Next.js App Router + React                         | 15.5.29 / 19         |
+| Styling                 | Tailwind CSS 4 + shadcn/ui (`base-nova`)           | current              |
+| Server state            | TanStack Query                                     | 5.x                  |
+| Forms                   | React Hook Form + `@hookform/resolvers`            | current              |
+| Dates                   | `date-fns`, `date-fns-tz`                          | current              |
+| API client              | Orval (fetch client, tags-split, Zod)              | 8.48                 |
+| Tests                   | Jest + ts-jest                                     | 29.x                 |
 
 Tailwind is wired for v4 (`@tailwindcss/postcss`, CSS-first theme). Fonts use the
 system stack because the build environment cannot reach Google Fonts.
@@ -165,14 +200,14 @@ pnpm dev:api                         # http://localhost:3001
 pnpm dev:web                         # http://localhost:3000
 ```
 
-| URL | Purpose |
-|---|---|
-| `http://localhost:3000` | Web app (redirects to `/login` or your role dashboard) |
-| `http://localhost:3001/api` | API base path |
-| `http://localhost:3001/api/docs` | Swagger UI |
-| `http://localhost:3001/api/docs-json` | OpenAPI document |
-| `http://localhost:3001/api/health` | Health check (public) |
-| `postgresql://school:school@localhost:5435/school_system` | Database |
+| URL                                                       | Purpose                                                |
+| --------------------------------------------------------- | ------------------------------------------------------ |
+| `http://localhost:3000`                                   | Web app (redirects to `/login` or your role dashboard) |
+| `http://localhost:3001/api`                               | API base path                                          |
+| `http://localhost:3001/api/docs`                          | Swagger UI                                             |
+| `http://localhost:3001/api/docs-json`                     | OpenAPI document                                       |
+| `http://localhost:3001/api/health`                        | Health check (public)                                  |
+| `postgresql://school:school@localhost:5435/school_system` | Database                                               |
 
 The Compose file maps host **5435** to container 5432 because 5432–5434 may
 already be in use on a shared machine. If you change it, update
@@ -192,19 +227,26 @@ pnpm --filter @school-system/web start        # next start
 
 All accounts are development-only and created by `apps/api/prisma/seed.ts`.
 
-| Role | Email | Password | Linked record |
-|---|---|---|---|
-| ADMIN | `admin@mwangaza.ac.ke` | `Admin@1234` | — |
-| TEACHER | `teacher@mwangaza.ac.ke` | `Teacher@1234` | Peter Mwangi (TSC) |
-| TEACHER | `james.kamau@mwangaza.ac.ke` | `Teacher@1234` | James Kamau (TSC) |
-| TEACHER | `esther.chepkoech@mwangaza.ac.ke` | `Teacher@1234` | Esther Chepkoech (BOM) |
-| STUDENT | `student@mwangaza.ac.ke` | `Student@1234` | Brian Otieno |
-| PARENT | `parent@mwangaza.ac.ke` | `Parent@1234` | Joseph Otieno (guardian) |
+| Role      | Email                             | Password         | Linked record            |
+| --------- | --------------------------------- | ---------------- | ------------------------ |
+| ADMIN     | `admin@mwangaza.ac.ke`            | `Admin@1234`     | —                        |
+| TEACHER   | `teacher@mwangaza.ac.ke`          | `Teacher@1234`   | Peter Mwangi (TSC)       |
+| TEACHER   | `james.kamau@mwangaza.ac.ke`      | `Teacher@1234`   | James Kamau (TSC)        |
+| TEACHER   | `esther.chepkoech@mwangaza.ac.ke` | `Teacher@1234`   | Esther Chepkoech (BOM)   |
+| STUDENT   | `student@mwangaza.ac.ke`          | `Student@1234`   | Brian Otieno             |
+| PARENT    | `parent@mwangaza.ac.ke`           | `Parent@1234`    | Joseph Otieno (guardian) |
+| BURSAR    | `bursar@mwangaza.ac.ke`           | `Bursar@1234`    | —                        |
+| LIBRARIAN | `librarian@mwangaza.ac.ke`        | `Librarian@1234` | —                        |
+
+These demo credentials are development-only. Run `pnpm seed` to create or
+refresh them; the seed resets their passwords. Never use these passwords in
+production.
 
 Seed contents: 1 school (Mwangaza Academy), 2 academic years, 3 terms (Term 2 is
 current), 4 classes with one stream each (PP1, Grade 4, Grade 7, Form 3),
-5 subjects, 3 teachers, 10 students, 10 guardians, one TUITION fee structure per
-class for Term 1, and both grade scales (12 Kenyan 8-4-4 bands, 4 CBC levels).
+5 subjects, 3 teachers, 10 students, 10 guardians, and one TUITION fee structure
+per class for Term 1 and Term 2, plus both grade scales (12 Kenyan 8-4-4 bands,
+4 CBC levels).
 
 ---
 
@@ -213,23 +255,23 @@ class for Term 1, and both grade scales (12 Kenyan 8-4-4 bands, 4 CBC levels).
 `apps/api/.env` is loaded by `@nestjs/config` and by `prisma.config.ts`
 (`import 'dotenv/config'`). `apps/web/.env.local` is loaded by Next.
 
-| Variable | App | Required | Default | Notes |
-|---|---|---|---|---|
-| `NODE_ENV` | api | no | `development` | `development` / `test` / `production` |
-| `PORT` | api | no | `3001` | API port |
-| `WEB_ORIGIN` | api | no | `http://localhost:3000` | CORS origin, credentials allowed |
-| `SWAGGER_ENABLED` | api | no | `true` | `/api/docs` |
-| `DATABASE_URL` | api | **yes** | — | `postgresql://user:pass@host:port/db?schema=public` |
-| `JWT_ACCESS_SECRET` | api | **yes** | — | ≥32 chars |
-| `JWT_ACCESS_TTL` | api | no | `15m` | Access-token lifetime |
-| `JWT_REFRESH_SECRET` | api | **yes** | — | ≥32 chars, different from access secret |
-| `JWT_REFRESH_TTL` | api | no | `7d` | Also sets cookie max-age |
-| `COOKIE_SECURE` | api | no | `false` | Set `true` in production (HTTPS) |
-| `DARAJA_*` | api | no | empty | Phase 5 (M-Pesa) |
-| `AT_*` | api | no | empty | Phase 5 (Africa's Talking SMS) |
-| `CLOUDINARY_*` | api | no | empty | Phase 2 (student photos) |
-| `NEXT_PUBLIC_API_URL` | web | **yes** | — | API origin **without** `/api`, e.g. `http://localhost:3001` |
-| `SESSION_SECRET` | web | **yes** | — | ≥32 chars; signs the `ss_session` cookie (HMAC-SHA256) |
+| Variable              | App | Required | Default                 | Notes                                                       |
+| --------------------- | --- | -------- | ----------------------- | ----------------------------------------------------------- |
+| `NODE_ENV`            | api | no       | `development`           | `development` / `test` / `production`                       |
+| `PORT`                | api | no       | `3001`                  | API port                                                    |
+| `WEB_ORIGIN`          | api | no       | `http://localhost:3000` | CORS origin, credentials allowed                            |
+| `SWAGGER_ENABLED`     | api | no       | `true`                  | `/api/docs`                                                 |
+| `DATABASE_URL`        | api | **yes**  | —                       | `postgresql://user:pass@host:port/db?schema=public`         |
+| `JWT_ACCESS_SECRET`   | api | **yes**  | —                       | ≥32 chars                                                   |
+| `JWT_ACCESS_TTL`      | api | no       | `15m`                   | Access-token lifetime                                       |
+| `JWT_REFRESH_SECRET`  | api | **yes**  | —                       | ≥32 chars, different from access secret                     |
+| `JWT_REFRESH_TTL`     | api | no       | `7d`                    | Also sets cookie max-age                                    |
+| `COOKIE_SECURE`       | api | no       | `false`                 | Set `true` in production (HTTPS)                            |
+| `DARAJA_*`            | api | no       | empty                   | Phase 5 (M-Pesa)                                            |
+| `AT_*`                | api | no       | empty                   | Phase 5 (Africa's Talking SMS)                              |
+| `CLOUDINARY_*`        | api | no       | empty                   | Phase 2 (student photos)                                    |
+| `NEXT_PUBLIC_API_URL` | web | **yes**  | —                       | API origin **without** `/api`, e.g. `http://localhost:3001` |
+| `SESSION_SECRET`      | web | **yes**  | —                       | ≥32 chars; signs the `ss_session` cookie (HMAC-SHA256)      |
 
 Never commit `.env` or `.env.local`; both are gitignored. `.env.example` is the
 single source of truth for the variable list.
@@ -240,20 +282,20 @@ single source of truth for the variable list.
 
 ### Root
 
-| Command | What it does |
-|---|---|
-| `pnpm install` | Install workspace; postinstall builds shared and generates Prisma |
-| `pnpm dev` | API + web in parallel |
-| `pnpm dev:api` / `pnpm dev:web` | One app with watch mode |
-| `pnpm build` | Shared → API → web production builds |
-| `pnpm test` | API unit tests (Jest) |
-| `pnpm typecheck` | All packages, no emit |
-| `pnpm seed` | Run the Prisma seed |
-| `pnpm migrate` | `prisma migrate dev` (development) |
-| `pnpm prisma <args>` | Forward a command to the API's Prisma CLI |
-| `pnpm orval` | Regenerate the web API client from `apps/api/openapi.json` |
-| `pnpm lint` | Placeholder until ESLint is added (Phase 6) |
-| `pnpm db:up` / `pnpm db:down` | Start / stop Postgres |
+| Command                         | What it does                                                      |
+| ------------------------------- | ----------------------------------------------------------------- |
+| `pnpm install`                  | Install workspace; postinstall builds shared and generates Prisma |
+| `pnpm dev`                      | API + web in parallel                                             |
+| `pnpm dev:api` / `pnpm dev:web` | One app with watch mode                                           |
+| `pnpm build`                    | Shared → API → web production builds                              |
+| `pnpm test`                     | API unit tests (Jest)                                             |
+| `pnpm typecheck`                | All packages, no emit                                             |
+| `pnpm seed`                     | Run the Prisma seed                                               |
+| `pnpm migrate`                  | `prisma migrate dev` (development)                                |
+| `pnpm prisma <args>`            | Forward a command to the API's Prisma CLI                         |
+| `pnpm orval`                    | Regenerate the web API client from `apps/api/openapi.json`        |
+| `pnpm lint`                     | Placeholder until ESLint is added (Phase 6)                       |
+| `pnpm db:up` / `pnpm db:down`   | Start / stop Postgres                                             |
 
 ### API (`apps/api`)
 
@@ -401,34 +443,47 @@ production serve the web and API on the same site or configure a cookie domain.
 All routes are under `/api`. Swagger is authoritative for request/response
 schemas.
 
-| Method | Path | Auth | Throttle | Notes |
-|---|---|---|---|---|
-| GET | `/api/health` | public | global | Liveness probe |
-| POST | `/api/auth/login` | public | **5/min** | Returns access token; sets cookies |
-| POST | `/api/auth/refresh` | cookie + CSRF | global | Rotates refresh token |
-| POST | `/api/auth/logout` | cookie + CSRF | global | Revokes session, clears cookies |
-| POST | `/api/auth/register` | bearer, **ADMIN** | global | No public signup |
-| POST | `/api/auth/change-password` | bearer | global | Revokes the refresh session |
-| POST | `/api/auth/forgot-password` | public | **5/min** | Logs token; returns it outside production |
-| GET | `/api/auth/me` | bearer | global | Current user |
-| GET | `/api/auth/csrf` | public | global | Cookie/header names for clients |
-| GET | `/api/reports/summary` | bearer, **ADMIN** | global | Enrollment, attendance, academic and fee aggregates; optional `termId` |
-| GET/PATCH | `/api/school-settings` | bearer, **ADMIN** | global | Read/update school identity and grading settings |
-| PATCH | `/api/school-settings/academic-period` | bearer, **ADMIN** | global | Atomically set a current academic year and one of its terms |
+| Method    | Path                                                 | Auth                        | Throttle  | Notes                                                                  |
+| --------- | ---------------------------------------------------- | --------------------------- | --------- | ---------------------------------------------------------------------- |
+| GET       | `/api/health`                                        | public                      | global    | Liveness probe                                                         |
+| POST      | `/api/auth/login`                                    | public                      | **5/min** | Returns access token; sets cookies                                     |
+| POST      | `/api/auth/refresh`                                  | cookie + CSRF               | global    | Rotates refresh token                                                  |
+| POST      | `/api/auth/logout`                                   | cookie + CSRF               | global    | Revokes session, clears cookies                                        |
+| POST      | `/api/auth/register`                                 | bearer, **ADMIN**           | global    | No public signup                                                       |
+| POST      | `/api/auth/change-password`                          | bearer                      | global    | Revokes the refresh session                                            |
+| POST      | `/api/auth/forgot-password`                          | public                      | **5/min** | Logs token; returns it outside production                              |
+| GET       | `/api/auth/me`                                       | bearer                      | global    | Current user                                                           |
+| GET       | `/api/auth/csrf`                                     | public                      | global    | Cookie/header names for clients                                        |
+| GET       | `/api/reports/summary`                               | bearer, **ADMIN**           | global    | Enrollment, attendance, academic and fee aggregates; optional `termId` |
+| GET/PATCH | `/api/school-settings`                               | bearer, **ADMIN**           | global    | Read/update school identity and grading settings                       |
+| PATCH     | `/api/school-settings/academic-period`               | bearer, **ADMIN**           | global    | Atomically set a current academic year and one of its terms            |
+| GET/POST  | `/api/finance/transactions`                          | bearer, **ADMIN/BURSAR**    | global    | List or record non-fee income and expenses                             |
+| GET       | `/api/finance/summary`                               | bearer, **ADMIN/BURSAR**    | global    | Date-filtered income, expenses and net balance                         |
+| GET/POST  | `/api/library/books`; PATCH `/api/library/books/:id` | bearer, **ADMIN/LIBRARIAN** | global    | Catalogue metadata; CSV import is `POST /api/library/books/import`     |
+| POST/GET  | `/api/library/books/:id/copies`                      | bearer, **ADMIN/LIBRARIAN** | global    | Add/list physical copies                                               |
+| GET/POST  | `/api/library/loans`                                 | bearer, **ADMIN/LIBRARIAN** | global    | List loans and issue copies                                            |
+| POST      | `/api/library/loans/:id/return`                      | bearer, **ADMIN/LIBRARIAN** | global    | Mark a copy returned                                                   |
+| GET       | `/api/library/my-loans`                              | bearer, **STUDENT**         | global    | Only the signed-in student's loan history                              |
+| GET       | `/api/library/students`                              | bearer, **ADMIN/LIBRARIAN** | global    | Minimal student lookup for issuing a loan                              |
+| GET/POST  | `/api/operations/periods`                            | bearer, **ADMIN/TEACHER**   | global    | List periods; Admin configures lesson periods and breaks                |
+| GET/POST  | `/api/operations/timetable`                          | bearer, **ADMIN/TEACHER**   | global    | Teachers see only their own schedule; Admin manages entries             |
+| GET/POST  | `/api/operations/lesson-plans`                       | bearer, **ADMIN/TEACHER**   | global    | Teachers manage their plans; Admin reviews submitted plans              |
+| GET/POST  | `/api/operations/calendar`                           | bearer, **ADMIN/TEACHER**   | global    | Staff read the calendar; Admin manages events                           |
+| GET/POST  | `/api/operations/substitutions`                      | bearer, **ADMIN/TEACHER**   | global    | Teachers see involving them; Admin assigns/cancels cover                |
 
 Phase 2 resources (all under `/api`, bearer auth; lists return `{ data, meta }`):
 
-| Resource | Endpoints | Who |
-|---|---|---|
-| Students | `GET /students`, `GET /students/:id`, `POST /students`, `PATCH /students/:id`, `DELETE /students/:id` (soft), `POST /students/:id/guardians`, `POST /students/import`, `POST /students/:id/photo` | reads scoped by role; writes ADMIN |
-| Guardians | `GET/POST /guardians`, `GET/PATCH/DELETE /guardians/:id` | ADMIN |
-| Teachers | `GET/POST /teachers`, `GET/PATCH/DELETE /teachers/:id` (soft), `POST /teachers/:id/class-subjects` | ADMIN |
-| Classes | `GET/POST /classes`, `GET/PATCH/DELETE /classes/:id` | read ADMIN/TEACHER (scoped), write ADMIN |
-| Streams | `GET/POST /streams`, `GET/PATCH/DELETE /streams/:id` | read ADMIN/TEACHER (scoped), write ADMIN |
-| Subjects | `GET/POST /subjects`, `GET/PATCH/DELETE /subjects/:id` | read ADMIN/TEACHER, write ADMIN |
-| Academic years | `GET/POST /academic-years`, `GET/PATCH/DELETE /academic-years/:id` | read ADMIN/TEACHER, write ADMIN |
-| Terms | `GET/POST /terms`, `GET /terms/current`, `GET/PATCH/DELETE /terms/:id` | read ADMIN/TEACHER, write ADMIN |
-| Users | `GET /users` (read-only, filter by `role`) | ADMIN |
+| Resource       | Endpoints                                                                                                                                                                                         | Who                                      |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| Students       | `GET /students`, `GET /students/:id`, `POST /students`, `PATCH /students/:id`, `DELETE /students/:id` (soft), `POST /students/:id/guardians`, `POST /students/import`, `POST /students/:id/photo` | reads scoped by role; writes ADMIN       |
+| Guardians      | `GET/POST /guardians`, `GET/PATCH/DELETE /guardians/:id`                                                                                                                                          | ADMIN                                    |
+| Teachers       | `GET/POST /teachers`, `GET/PATCH/DELETE /teachers/:id` (soft), `POST /teachers/:id/class-subjects`                                                                                                | ADMIN                                    |
+| Classes        | `GET/POST /classes`, `GET/PATCH/DELETE /classes/:id`                                                                                                                                              | read ADMIN/TEACHER (scoped), write ADMIN |
+| Streams        | `GET/POST /streams`, `GET/PATCH/DELETE /streams/:id`                                                                                                                                              | read ADMIN/TEACHER (scoped), write ADMIN |
+| Subjects       | `GET/POST /subjects`, `GET/PATCH/DELETE /subjects/:id`                                                                                                                                            | read ADMIN/TEACHER, write ADMIN          |
+| Academic years | `GET/POST /academic-years`, `GET/PATCH/DELETE /academic-years/:id`                                                                                                                                | read ADMIN/TEACHER, write ADMIN          |
+| Terms          | `GET/POST /terms`, `GET /terms/current`, `GET/PATCH/DELETE /terms/:id`                                                                                                                            | read ADMIN/TEACHER, write ADMIN          |
+| Users          | `GET /users` (read-only, filter by `role`)                                                                                                                                                        | ADMIN                                    |
 
 Shared list query: `page` (default 1), `limit` (default 20, max 100), `search`
 (case-insensitive), `sortBy` (whitelisted per resource), `sortOrder`
@@ -449,9 +504,15 @@ curl -s -c cookies.txt -X POST http://localhost:3001/api/auth/login \
   "data": {
     "accessToken": "eyJ...",
     "expiresIn": 900,
-    "user": { "id": "...", "email": "admin@mwangaza.ac.ke", "phone": "+254720123457",
-              "role": "ADMIN", "isActive": true, "lastLoginAt": "..." }
-  }
+    "user": {
+      "id": "...",
+      "email": "admin@mwangaza.ac.ke",
+      "phone": "+254720123457",
+      "role": "ADMIN",
+      "isActive": true,
+      "lastLoginAt": "...",
+    },
+  },
 }
 ```
 
@@ -465,17 +526,20 @@ normalized to `+2547XXXXXXXX` / `+2541XXXXXXXX`.
 UUID primary keys, `createdAt`/`updatedAt`, indexes on every foreign key and
 search field. Soft delete only on `Student` and `Teacher` (`isDeleted`).
 
-| Group | Models |
-|---|---|
-| School | `School`, `GradeScale` |
-| Identity | `User` (role, lockout, refresh hash, reset token) |
-| People | `Student`, `Guardian`, `StudentGuardian`, `Teacher` |
-| Structure | `AcademicYear`, `Term`, `Class`, `Stream`, `Subject`, `ClassSubject` |
-| CBC | `Strand`, `SubStrand`, `LearningOutcome`, `CbcAssessment` |
-| 8-4-4 | `Exam`, `Mark`, `GradeScale` |
-| Attendance | `Attendance` (daily register only) |
-| Fees | `FeeStructure`, `FeeInvoice`, `FeePayment`, `MpesaTransaction` |
-| Reporting | `ReportCard`, `Notification`, `AuditLog` |
+| Group      | Models                                                               |
+| ---------- | -------------------------------------------------------------------- |
+| School     | `School`, `GradeScale`                                               |
+| Identity   | `User` (role, lockout, refresh hash, reset token)                    |
+| People     | `Student`, `Guardian`, `StudentGuardian`, `Teacher`                  |
+| Structure  | `AcademicYear`, `Term`, `Class`, `Stream`, `Subject`, `ClassSubject` |
+| CBC        | `Strand`, `SubStrand`, `LearningOutcome`, `CbcAssessment`            |
+| 8-4-4      | `Exam`, `Mark`, `GradeScale`                                         |
+| Attendance | `Attendance` (daily register only)                                   |
+| Fees       | `FeeStructure`, `FeeInvoice`, `FeePayment`, `MpesaTransaction`       |
+| Finance    | `FinanceTransaction` (non-fee income and expenses)                   |
+| Library    | `Book`, `BookCopy`, `BookLoan`                                       |
+| Operations | `TimetablePeriod`, `TimetableEntry`, `LessonPlan`, `SchoolCalendarEvent`, `TeacherSubstitution` |
+| Reporting  | `ReportCard`, `Notification`, `AuditLog`                             |
 
 Important constraints:
 
@@ -502,20 +566,20 @@ JSON per school.
 
 **8-4-4** (`CBC_8_4_4`) — seeded default:
 
-| Score | Grade | Points |
-|---|---|---|
-| 80–100 | A | 12 |
-| 75–79 | A- | 11 |
-| 70–74 | B+ | 10 |
-| 65–69 | B | 9 |
-| 60–64 | B- | 8 |
-| 55–59 | C+ | 7 |
-| 50–54 | C | 6 |
-| 45–49 | C- | 5 |
-| 40–44 | D+ | 4 |
-| 35–39 | D | 3 |
-| 30–34 | D- | 2 |
-| 0–29 | E | 1 |
+| Score  | Grade | Points |
+| ------ | ----- | ------ |
+| 80–100 | A     | 12     |
+| 75–79  | A-    | 11     |
+| 70–74  | B+    | 10     |
+| 65–69  | B     | 9      |
+| 60–64  | B-    | 8      |
+| 55–59  | C+    | 7      |
+| 50–54  | C     | 6      |
+| 45–49  | C-    | 5      |
+| 40–44  | D+    | 4      |
+| 35–39  | D     | 3      |
+| 30–34  | D-    | 2      |
+| 0–29   | E     | 1      |
 
 **CBC** — `EE` / `ME` / `AE` / `BE` per learning outcome, plus a seeded
 performance-level descriptor scale for reporting.
@@ -531,18 +595,29 @@ date). Money: `Decimal`, currency `KES` only.
 
 ## Web app routes and permissions
 
-| Route | Who | Behaviour |
-|---|---|---|
-| `/` | anyone | Shows sign-in when signed out; otherwise redirects to the role dashboard |
-| `/login` | anonymous | Form; redirects authenticated users to their dashboard |
-| `/admin` | ADMIN | School-wide shell |
-| `/admin/reports` | ADMIN | Term-filtered enrollment, attendance, academic and fee reports with CSV export |
-| `/admin/settings` | ADMIN | Edit school details, grading mode and current academic year/term |
-| `/teacher` | TEACHER | Teacher shell |
-| `/student` | STUDENT | Student shell |
-| `/parent` | PARENT | Parent shell |
-| `/profile` | authenticated users | Read-only account details |
-| `/api/session/*` | same origin | BFF login/refresh/logout (not public API) |
+| Route                              | Who                 | Behaviour                                                                      |
+| ---------------------------------- | ------------------- | ------------------------------------------------------------------------------ |
+| `/`                                | anyone              | Shows sign-in when signed out; otherwise redirects to the role dashboard       |
+| `/login`                           | anonymous           | Form; redirects authenticated users to their dashboard                         |
+| `/admin`                           | ADMIN               | School-wide shell                                                              |
+| `/admin/reports`                   | ADMIN               | Term-filtered enrollment, attendance, academic and fee reports with CSV export |
+| `/admin/settings`                  | ADMIN               | Edit school details, grading mode and current academic year/term               |
+| `/admin/operations`                | ADMIN               | Manage periods, weekly timetable, calendar, substitutions and plan reviews     |
+| `/teacher`                         | TEACHER             | Teacher shell                                                                  |
+| `/teacher/operations`              | TEACHER             | Own timetable, weekly lesson plans, submit and revise                           |
+| `/student`                         | STUDENT             | Student shell                                                                  |
+| `/parent`                          | PARENT              | Parent shell                                                                   |
+| `/bursar`                          | BURSAR              | Bursar dashboard                                                               |
+| `/bursar/fees`                     | BURSAR              | Existing fee management screens                                                |
+| `/bursar/finance`                  | BURSAR              | Non-fee income, expenses and totals                                            |
+| `/librarian`                       | LIBRARIAN           | Librarian dashboard                                                            |
+| `/librarian/books`                 | LIBRARIAN           | Catalogue, KICD metadata and CSV import                                        |
+| `/librarian/loans`                 | LIBRARIAN           | Copy issue and return workflow                                                 |
+| `/student/library`                 | STUDENT             | Own active and returned book loans                                             |
+| `/admin/accounts`                  | ADMIN               | Create BURSAR and LIBRARIAN accounts                                           |
+| `/admin/finance`, `/admin/library` | ADMIN               | Admin access to finance and library workflows                                  |
+| `/profile`                         | authenticated users | Read-only account details                                                      |
+| `/api/session/*`                   | same origin         | BFF login/refresh/logout (not public API)                                      |
 
 `middleware.ts` matches `/admin/:path*`, `/teacher/:path*`, `/student/:path*`,
 `/parent/:path*`, verifies the signed cookie, and redirects a wrong-role user to
@@ -554,7 +629,7 @@ authorization independently** — the middleware is UX, not security.
 ## Testing and verification
 
 ```bash
-pnpm test                    # API unit tests (15)
+pnpm test                    # API unit tests
 pnpm typecheck               # api + web + shared
 pnpm build                   # all packages
 pnpm --filter api openapi    # contract export (requires DB)
@@ -562,15 +637,16 @@ pnpm --filter api openapi    # contract export (requires DB)
 
 Verification (last run):
 
-| Check | Result |
-|---|---|
-| Unit tests | **29/29 pass** — auth, student/people, attendance, exams, CBC and fee service suites |
-| TypeScript | API, web and shared clean (`strict`, `noImplicitAny`, `strictNullChecks`) |
-| Builds | `nest build` and `next build` |
-| Contract | `openapi.json` re-exported; Orval regenerated for all nine resources |
-| Live smoke | admin list 10; create 201 → patch 200 → delete 200 and archived hidden; teacher GET out-of-scope **403**; parent list 1, own child 200, other child **403**; photo without file 400, non-image 400; Swagger exposes `/api/students/import` and 5 student paths |
-| CSV import | 50 rows → **47 imported, 3 failed** with row-level reasons (missing `lastName`, unknown gender, duplicate admission number); imported rows removed afterwards |
-| Manual browser click-through | **Not performed** |
+| Check                        | Result                                                                                                                                                        |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit tests                   | **46/46 pass** across 11 API suites, including operations, finance and library                                                                                |
+| TypeScript                   | API, web and shared clean (`strict`, `noImplicitAny`, `strictNullChecks`)                                                                                     |
+| Builds                       | Shared package, `nest build` and `next build`, including both new operations routes                                                                             |
+| Contract                     | `openapi.json` re-exported; Orval regenerated for finance, library and operations endpoints                                                                    |
+| Database                     | Prisma reports the schema is up to date (3 migrations)                                                                                                        |
+| Live smoke                   | Admin finance summary/catalogue **200**; student own loan history **200**; student catalogue/finance access **403**                                           |
+| CSV import                   | 50 rows → **47 imported, 3 failed** with row-level reasons (missing `lastName`, unknown gender, duplicate admission number); imported rows removed afterwards |
+| Manual browser click-through | **Not performed**; Phase 7 and Phase 8 UAT steps are listed below                                                                                              |
 
 ### Manual checklist
 
@@ -622,18 +698,77 @@ Phase 3:
 23. Class summary table shows per-student counts for the selected date.
 24. `/api/docs` documents every Phase 3 endpoint.
 
+Phase 7 (create the accounts as ADMIN; use the seeded Admin account):
+
+25. Sign in with the seeded BURSAR and LIBRARIAN demo accounts (or create
+    accounts from `/admin/accounts`); verify each reaches its own dashboard.
+26. Sign in as BURSAR → `/bursar/fees`; create a fee structure, generate an
+    invoice, record a payment and confirm the student statement reflects it.
+    Confirm a TEACHER can still use the existing fee-payment workflow.
+27. `/bursar/finance` → record non-fee income and an operating expense; check
+    totals, date filters, transaction descriptions and KES formatting. Confirm
+    fee payments do not appear in this separate ledger.
+28. Sign in as LIBRARIAN → `/librarian/books`; use the official KICD link to
+    verify a title, add its metadata/source URL and physical accession number.
+    Try importing the downloadable CSV template with valid and invalid rows;
+    confirm row-level results and the 500-row cap.
+29. Add a book for selected class levels and one for all levels; confirm
+    class-level filters include the all-level title. A student outside a
+    selected level must not receive that book.
+30. `/librarian/loans` → issue a textbook and confirm its due date is the
+    academic-year end; issue a storybook/other book and confirm no automatic
+    due date. Return each copy and verify it becomes available again.
+31. Sign in as a STUDENT → `/student/library`; verify only that student's loan
+    history appears. Attempt to access another student's loan history through
+    the API and confirm the response remains scoped to the signed-in student.
+32. Confirm TEACHER/PARENT roles cannot access Bursar or Librarian API routes,
+    and `/api/docs` documents the new endpoints.
+
+Phase 8 — staff operations:
+
+33. As ADMIN, open `/admin/operations`; add lesson periods and a break for the
+    current academic year. Confirm overlapping times are rejected and break
+    periods cannot be assigned lessons.
+34. Add timetable lessons for a class (and stream, where used). Confirm the
+    API rejects a class/stream, teacher, or venue conflict; remove an unused
+    lesson and verify the weekly schedule updates.
+35. Sign in as TEACHER → `/teacher/operations`; confirm only that teacher's
+    timetable is shown, including day, time, class/stream, subject and venue.
+    Confirm direct API requests cannot reveal another teacher's schedule.
+36. As ADMIN, add a school calendar event. Verify it appears in the staff
+    calendar API and a TEACHER cannot create, update or delete calendar events.
+37. As TEACHER, create a weekly plan for an assigned class/subject/term using
+    a Monday within the term, save it as a draft, then submit it. Verify
+    non-Monday dates and unassigned class/subject combinations are rejected.
+38. As ADMIN, approve a submitted plan and request revisions on another.
+    Verify the teacher can edit/resubmit a returned plan but cannot edit an
+    approved/submitted plan or another teacher's plan.
+39. As ADMIN, assign a substitute to a scheduled lesson on its matching
+    weekday. Verify duplicate cover, a date outside the academic year, and a
+    substitute already scheduled in that slot are rejected. Confirm the
+    assigned/original teachers can see the relevant substitution.
+40. Confirm no new student-facing routes or phone-dependent workflows were
+    introduced, and `/api/docs` includes every operations endpoint.
+
+KICD catalogue note: the [official approved-material lists](https://kicd.ac.ke/approved-cbc-course-materials/)
+are published as PDFs. The app supplies the source link and metadata
+import/manual-entry tools; the school must populate the catalogue from verified
+information.
+
 ---
 
 ## Roadmap
 
-| Phase | Scope | Status |
-|---|---|---|
-| **1. Foundation** | Monorepo, DB, full schema, seed, auth, roles, Swagger, shells | **Done** |
-| **2. People & structure** | CRUD for students/guardians/teachers/classes/streams/subjects/years/terms; teacher & parent scoping enforced server-side; CSV student import; Cloudinary photos with EXIF stripping; shadcn DataTable pages; student detail tabs | **Done — awaiting approval** |
-| **3. Attendance** | Daily register with `(studentId, date)` upsert; parent/teacher views; class and student reports; ABSENT creates a notification | **Done — awaiting approval** |
-| **4. Exams & results** | 8-4-4 marks with server-computed grades/points; CBC assessments; ranking; two report-card templates; publish/lock; parent visibility gated on `isPublished` | **Done** |
-| **5. Fees & notifications** | Fee structures/invoices/payments; Daraja STK push + callback reconciliation; audit viewer; fee statement | **Done** |
-| **6. Hardening** | E2E tests, frontend form tests, multi-stage Dockerfiles, Caddy production compose, GitHub Actions CI, deployment/backup guide, Kenya DPA note | **Done** |
+| Phase                       | Scope                                                                                                                                                                                                                            | Status                                                          |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| **1. Foundation**           | Monorepo, DB, full schema, seed, auth, roles, Swagger, shells                                                                                                                                                                    | **Done**                                                        |
+| **2. People & structure**   | CRUD for students/guardians/teachers/classes/streams/subjects/years/terms; teacher & parent scoping enforced server-side; CSV student import; Cloudinary photos with EXIF stripping; shadcn DataTable pages; student detail tabs | **Done — awaiting approval**                                    |
+| **3. Attendance**           | Daily register with `(studentId, date)` upsert; parent/teacher views; class and student reports; ABSENT creates a notification                                                                                                   | **Done — awaiting approval**                                    |
+| **4. Exams & results**      | 8-4-4 marks with server-computed grades/points; CBC assessments; ranking; two report-card templates; publish/lock; parent visibility gated on `isPublished`                                                                      | **Done**                                                        |
+| **5. Fees & notifications** | Fee structures/invoices/payments; Daraja STK push + callback reconciliation; audit viewer; fee statement                                                                                                                         | **Done**                                                        |
+| **6. Hardening**            | E2E tests, frontend form tests, multi-stage Dockerfiles, Caddy production compose, GitHub Actions CI, deployment/backup guide, Kenya DPA note                                                                                    | **Done**                                                        |
+| **7. Bursar & library**     | Bursar fee/finance workflows; Librarian catalogue, inventory, CSV import, loans/returns; student-visible loan history                                                                                                            | **Implemented; automated checks complete, UAT checklist ready** |
+| **8. Staff operations**     | Weekly timetable, periods and breaks, school calendar, teacher lesson plans and review, dated substitute coverage                                                                                                                   | **Implemented; automated checks complete, UAT checklist ready** |
 
 Each phase ends with the definition of done from the brief, a hand-test
 checklist, and an explicit stop for approval.
@@ -656,46 +791,29 @@ loaded automatically.
 6. Confirm no stray server holds 3001 (`ss -ltnp | grep 3001`). Start the API
    **before** the web app — Next will silently take 3001 if 3000 is busy.
 
-### Next task — Phase 3 (attendance) only, after explicit approval
+### Next task
 
-Phase 2 is complete: see [What is built today](#what-is-built-today) and the
-verification table above. Phase 3 backend order:
-
-1. `AttendanceRepository` — one row per student per day, upsert on
-   `(studentId, date)`; queries by class + date and by student + date range.
-2. `AttendanceService` on top of `ScopingService`: TEACHER may mark only
-   assigned classes, ADMIN any class, PARENT/STUDENT read-only and scoped.
-3. `POST /attendance/register` (bulk upsert for a class/day), `GET /attendance`
-   (`classId` + `date`), `GET /attendance/student/:id` (range), plus class and
-   student summary reports.
-4. ABSENT marks create an in-app `Notification` for linked guardians (SMS via a
-   provider interface in Phase 5).
-5. Tests: teacher cannot mark another class; parent can only read their child.
-
-Frontend: teacher daily register (class + date picker, PRESENT/ABSENT/LATE/
-EXCUSED), parent and student attendance history, class attendance summary.
-
-**Done when:** the register is idempotent per student/day; scoping tests pass;
-Orval regenerated; web compiles; hand-test checklist written.
-
-Do not start Phase 4 work in the same session.
+All eight approved phases are implemented. Phase 8 verification and the
+hand-test checklist are recorded above. Stop here; do not begin parent notices,
+procurement/inventory, admissions/progression or other feature work without
+explicit approval.
 
 ---
 
 ## Troubleshooting
 
-| Symptom | Cause / fix |
-|---|---|
-| `EADDRINUSE :::3001` | A stray `next start` grabbed 3001 because 3000 was busy. Find it with `ss -ltnp \| grep 3001`, kill it, start the API first. |
-| `429 Too Many Requests` during curl loops | Global limit is 20/min per IP. Wait ~60s or restart the API (in-memory counters). |
-| `Could not find a production build in '.next'` | Run `pnpm --filter @school-system/web build`; `.next/BUILD_ID` must exist. |
-| `Cannot find module '../generated/prisma/client'` | `pnpm --filter @school-system/api prisma:generate`. |
-| Prisma CLI cannot find `DATABASE_URL` | Prisma 7 does not auto-load `.env`; `prisma.config.ts` imports `dotenv/config`. Run from `apps/api` or via `pnpm prisma ...`. |
-| API `dist` missing `common/duration.js` | Incremental build + `deleteOutDir` skipped unchanged files. `incremental` is disabled in `tsconfig.build.json` — keep it off. |
-| `tsx` script that boots Nest exits silently | tsx/esbuild does not emit decorator metadata. Use ts-node for OpenAPI export (`pnpm --filter api openapi`). |
-| pnpm install fails with `ERR_PNPM_IGNORED_BUILDS` | pnpm 12 uses `allowBuilds` in `pnpm-workspace.yaml`; approve the named package or run `pnpm approve-builds`. |
-| Google Fonts build error | Fonts use the system stack; do not re-introduce `next/font/google` without network access. |
-| Login works via API but not web | Check `NEXT_PUBLIC_API_URL` has **no** `/api`, and `SESSION_SECRET` is ≥32 chars. |
+| Symptom                                           | Cause / fix                                                                                                                   |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `EADDRINUSE :::3001`                              | A stray `next start` grabbed 3001 because 3000 was busy. Find it with `ss -ltnp \| grep 3001`, kill it, start the API first.  |
+| `429 Too Many Requests` during curl loops         | Global limit is 20/min per IP. Wait ~60s or restart the API (in-memory counters).                                             |
+| `Could not find a production build in '.next'`    | Run `pnpm --filter @school-system/web build`; `.next/BUILD_ID` must exist.                                                    |
+| `Cannot find module '../generated/prisma/client'` | `pnpm --filter @school-system/api prisma:generate`.                                                                           |
+| Prisma CLI cannot find `DATABASE_URL`             | Prisma 7 does not auto-load `.env`; `prisma.config.ts` imports `dotenv/config`. Run from `apps/api` or via `pnpm prisma ...`. |
+| API `dist` missing `common/duration.js`           | Incremental build + `deleteOutDir` skipped unchanged files. `incremental` is disabled in `tsconfig.build.json` — keep it off. |
+| `tsx` script that boots Nest exits silently       | tsx/esbuild does not emit decorator metadata. Use ts-node for OpenAPI export (`pnpm --filter api openapi`).                   |
+| pnpm install fails with `ERR_PNPM_IGNORED_BUILDS` | pnpm 12 uses `allowBuilds` in `pnpm-workspace.yaml`; approve the named package or run `pnpm approve-builds`.                  |
+| Google Fonts build error                          | Fonts use the system stack; do not re-introduce `next/font/google` without network access.                                    |
+| Login works via API but not web                   | Check `NEXT_PUBLIC_API_URL` has **no** `/api`, and `SESSION_SECRET` is ≥32 chars.                                             |
 
 ---
 
@@ -706,13 +824,18 @@ Do not start Phase 4 work in the same session.
   them (2, 4, 5).
 - **No public signup**; admins create accounts. There is no password-reset
   completion endpoint yet (Phase 1 only issues/logs a token).
-- **No ESLint/Prettier enforcement**, CI, Docker images or production compose
-  until Phase 6; `pnpm lint` is a placeholder.
+- **No ESLint/Prettier enforcement**; `pnpm lint` is a placeholder.
 - **Single-school deployment** in practice, but `School` is a table and
   `gradeScaleType` is per school.
 - **Daily attendance only** — no per-lesson registers.
 - **Fees**: one invoice per student per term (`@@unique(studentId, termId)`) to
   keep bulk generation idempotent.
+- **Bursar ledger**: non-fee income and expenses are recorded separately from
+  fee payments; there is no payroll, edit/delete, reversal or approval workflow.
+- **Library**: catalogue entries are not pre-seeded because KICD publishes
+  approved lists as PDFs. Textbooks are due at academic-year end; other book
+  returns are manual, with no fines or return reminders. LOST/DAMAGED copy
+  statuses are reserved in the data model but do not yet have a UI workflow.
 - **Access tokens can be byte-identical within the same second** (same claims);
   refresh tokens always differ because of `jti`.
 - **Rate limits are per IP** and in-memory, so they reset on restart and do not
@@ -744,34 +867,41 @@ Do not start Phase 4 work in the same session.
 
 Minimum viable team. One person may hold several roles.
 
-| Role | Responsibility | Needed by |
-|---|---|---|
-| Product owner / school administrator | Approves each phase, confirms school policy (grading mode, fee rules, term dates), performs UAT | All phases |
-| Backend engineer | NestJS modules, repositories, DTOs, scoping, payments/SMS integration, tests | All phases |
-| Frontend engineer | Next.js routes, DataTables, forms, dashboards, report previews | All phases |
-| QA engineer | Manual checklists per phase, E2E and form tests, regression | Phases 2–6 |
-| DevOps engineer | Dockerfiles, Caddy/TLS, CI, backups, restore drills | Phase 6 (can be shared) |
-| Design (optional) | Review shadcn-based screens, mobile at 375 px | Phases 2–5 |
+| Role                                 | Responsibility                                                                                  | Needed by               |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------------------- |
+| Product owner / school administrator | Approves each phase, confirms school policy (grading mode, fee rules, term dates), performs UAT | All phases              |
+| Backend engineer                     | NestJS modules, repositories, DTOs, scoping, payments/SMS integration, tests                    | All phases              |
+| Frontend engineer                    | Next.js routes, DataTables, forms, dashboards, report previews                                  | All phases              |
+| QA engineer                          | Manual checklists per phase, E2E and form tests, regression                                     | Phases 2–7              |
+| DevOps engineer                      | Dockerfiles, Caddy/TLS, CI, backups, restore drills                                             | Phase 6 (can be shared) |
+| Design (optional)                    | Review shadcn-based screens, mobile at 375 px                                                   | Phases 2–5              |
 
 ### Permission matrix
 
 `ADMIN` is unrestricted. Server-side scoping is the source of truth; the table
-shows what exists **today** and what each phase must add.
+shows what exists **today**.
 
-| Capability | ADMIN | TEACHER | STUDENT | PARENT | Status |
-|---|---|---|---|---|---|
-| Sign in, view own dashboard | ✓ | ✓ | ✓ | ✓ | Implemented |
-| Create user accounts | ✓ | — | — | — | Implemented |
-| CRUD students/guardians/staff/structure | ✓ | — | — | — | Implemented |
-| Read students in own classes | ✓ | scoped | — | — | Implemented |
-| Read own / linked children | ✓ | — | self | linked | Implemented |
-| Mark daily attendance | ✓ | assigned classes | — | — | Phase 3 |
-| View attendance | ✓ | scoped | self | linked | Phase 3 |
-| Enter marks/CBC assessments | ✓ | assigned classes | — | — | Phase 4 |
-| Publish/lock exams | ✓ | — | — | — | Phase 4 |
-| View published results | ✓ | scoped | self | linked | Phase 4 |
-| Fees, invoices, payments | ✓ | — | read self | read linked | Phase 5 |
-| Audit log viewer | ✓ | — | — | — | Phase 5 |
+| Capability                              | ADMIN | TEACHER          | STUDENT   | PARENT      | BURSAR | LIBRARIAN      | Status      |
+| --------------------------------------- | ----- | ---------------- | --------- | ----------- | ------ | -------------- | ----------- |
+| Sign in, view own dashboard             | ✓     | ✓                | ✓         | ✓           | ✓      | ✓              | Implemented |
+| Create user accounts                    | ✓     | —                | —         | —           | —      | —              | Implemented |
+| CRUD students/guardians/staff/structure | ✓     | —                | —         | —           | —      | —              | Implemented |
+| Read students in own classes            | ✓     | scoped           | —         | —           | —      | —              | Implemented |
+| Read own / linked children              | ✓     | —                | self      | linked      | —      | —              | Implemented |
+| Mark daily attendance                   | ✓     | assigned classes | —         | —           | —      | —              | Phase 3     |
+| View attendance                         | ✓     | scoped           | self      | linked      | —      | —              | Phase 3     |
+| Enter marks/CBC assessments             | ✓     | assigned classes | —         | —           | —      | —              | Phase 4     |
+| Publish/lock exams                      | ✓     | —                | —         | —           | —      | —              | Phase 4     |
+| View published results                  | ✓     | scoped           | self      | linked      | —      | —              | Phase 4     |
+| Fees, invoices, payments                | ✓     | scoped           | read self | read linked | all    | —              | Phases 5, 7 |
+| Other income/expenses                   | ✓     | —                | —         | —           | all    | —              | Phase 7     |
+| Catalogue, copies, loans and returns    | ✓     | —                | —         | —           | —      | all            | Phase 7     |
+| Student lookup for issuing books        | ✓     | —                | —         | —           | —      | minimal fields | Phase 7     |
+| View library loans                      | ✓     | —                | self      | —           | —      | all            | Phase 7     |
+| Manage timetable/calendar/substitutions | all   | read own schedule/substitutions | — | — | — | — | Phase 8 |
+| Create/submit lesson plans               | —     | assigned classes | —         | —           | —      | —              | Phase 8     |
+| Review lesson plans                      | all   | —                | —         | —           | —      | —              | Phase 8     |
+| Audit log viewer                        | ✓     | —                | —         | —           | —      | —              | Phase 5     |
 
 ---
 
@@ -811,5 +941,5 @@ shows what exists **today** and what each phase must add.
 ---
 
 **Owner:** project owner (`kenneth`).
-**Repository:** private, local git (Phases 1–2).
-**Next milestone:** Phase 3 — Attendance, after explicit approval.
+**Repository:** `kiarie-ke/SmS`.
+**Next milestone:** Phase 8 UAT; future feature work requires explicit approval.

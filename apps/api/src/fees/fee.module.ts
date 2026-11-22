@@ -45,7 +45,7 @@ export class FeesController {
   constructor(private readonly fees: FeeService) {}
 
   @Get('structures')
-  @Roles('ADMIN', 'TEACHER')
+  @Roles('ADMIN', 'TEACHER', 'BURSAR')
   @ApiOkResponse({ description: 'List fee structures' })
   @ApiOperation({ summary: 'List fee structures' })
   listStructures(@Query() query: FeeStructureQueryDto) {
@@ -53,7 +53,7 @@ export class FeesController {
   }
 
   @Post('structures')
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'BURSAR')
   @ApiCreatedResponse({ description: 'Create fee structure' })
   @ApiOperation({ summary: 'Create a fee structure' })
   createStructure(@Body() dto: CreateFeeStructureDto) {
@@ -61,7 +61,7 @@ export class FeesController {
   }
 
   @Patch('structures/:id')
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'BURSAR')
   @ApiOkResponse({ description: 'Update fee structure' })
   @ApiOperation({ summary: 'Update a fee structure' })
   updateStructure(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateFeeStructureDto) {
@@ -70,7 +70,7 @@ export class FeesController {
 
   @Delete('structures/:id')
   // @Delete not imported as decorator? use Delete
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'BURSAR')
   @HttpCode(200)
   @ApiOkResponse({ type: MessageResponseDto })
   @ApiOperation({ summary: 'Delete a fee structure' })
@@ -79,7 +79,7 @@ export class FeesController {
   }
 
   @Get('invoices')
-  @Roles('ADMIN', 'TEACHER', 'STUDENT', 'PARENT')
+  @Roles('ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'BURSAR')
   @ApiOkResponse({ description: 'List invoices' })
   @ApiOperation({ summary: 'List fee invoices (scoped)' })
   listInvoices(@CurrentUser() user: AuthenticatedUser, @Query() query: FeeInvoiceQueryDto) {
@@ -87,7 +87,7 @@ export class FeesController {
   }
 
   @Get('invoices/:id')
-  @Roles('ADMIN', 'TEACHER', 'STUDENT', 'PARENT')
+  @Roles('ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'BURSAR')
   @ApiOkResponse({ description: 'Get invoice' })
   @ApiOperation({ summary: 'Get a fee invoice' })
   getInvoice(@CurrentUser() user: AuthenticatedUser, @Param('id', ParseUUIDPipe) id: string) {
@@ -95,7 +95,7 @@ export class FeesController {
   }
 
   @Post('invoices/generate')
-  @Roles('ADMIN', 'TEACHER')
+  @Roles('ADMIN', 'TEACHER', 'BURSAR')
   @HttpCode(200)
   @ApiOkResponse({ description: 'Generate invoices' })
   @ApiOperation({ summary: 'Generate invoices for a class/term from fee structures' })
@@ -104,7 +104,7 @@ export class FeesController {
   }
 
   @Post('invoices/:id/payments')
-  @Roles('ADMIN', 'TEACHER')
+  @Roles('ADMIN', 'TEACHER', 'BURSAR')
   @HttpCode(200)
   @ApiOkResponse({ description: 'Record payment' })
   @ApiOperation({ summary: 'Record a payment against an invoice' })

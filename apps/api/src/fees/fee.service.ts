@@ -169,7 +169,7 @@ export class FeeService {
   }
 
   private async assertInvoiceAccess(inv: FeeInvoiceRecord, userId: string, role: Role) {
-    if (role === 'ADMIN' || role === 'TEACHER') return;
+    if (role === 'ADMIN' || role === 'TEACHER' || role === 'BURSAR') return;
     if (role === 'STUDENT') {
       const sid = await this.scoping.studentIdForUser(userId);
       if (sid !== inv.studentId) throw new ForbiddenException('Not your invoice');

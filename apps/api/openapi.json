@@ -1279,7 +1279,9 @@
                 "ADMIN",
                 "TEACHER",
                 "STUDENT",
-                "PARENT"
+                "PARENT",
+                "BURSAR",
+                "LIBRARIAN"
               ]
             }
           }
@@ -4717,6 +4719,1940 @@
           "school-settings"
         ]
       }
+    },
+    "/api/finance/transactions": {
+      "get": {
+        "operationId": "FinanceController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INCOME",
+                "EXPENSE"
+              ]
+            }
+          },
+          {
+            "name": "fromDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-01-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "toDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-12-31",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List non-fee income and expense entries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FinanceTransactionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List finance transactions",
+        "tags": [
+          "finance"
+        ]
+      },
+      "post": {
+        "operationId": "FinanceController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFinanceTransactionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Record a non-fee income or expense",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceTransactionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Record a finance transaction",
+        "tags": [
+          "finance"
+        ]
+      }
+    },
+    "/api/finance/summary": {
+      "get": {
+        "operationId": "FinanceController_summary",
+        "parameters": [
+          {
+            "name": "fromDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-01-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "toDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-12-31",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Income, expenses and net balance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceSummaryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get finance totals",
+        "tags": [
+          "finance"
+        ]
+      }
+    },
+    "/api/library/books": {
+      "get": {
+        "operationId": "LibraryController_listBooks",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "TEXTBOOK",
+                "STORY",
+                "OTHER"
+              ]
+            }
+          },
+          {
+            "name": "classLevel",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PP1",
+                "PP2",
+                "G1",
+                "G2",
+                "G3",
+                "G4",
+                "G5",
+                "G6",
+                "G7",
+                "G8",
+                "G9",
+                "G10",
+                "G11",
+                "G12",
+                "STD1",
+                "STD2",
+                "STD3",
+                "STD4",
+                "STD5",
+                "STD6",
+                "STD7",
+                "STD8",
+                "FORM1",
+                "FORM2",
+                "FORM3",
+                "FORM4"
+              ]
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List catalogue metadata and copy counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookCatalogueDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List library books",
+        "tags": [
+          "library"
+        ]
+      },
+      "post": {
+        "operationId": "LibraryController_createBook",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Create a book catalogue record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookCatalogueDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a book",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/library/books/{id}": {
+      "patch": {
+        "operationId": "LibraryController_updateBook",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBookDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update or archive a catalogue entry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookCatalogueDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a book",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/library/books/import": {
+      "post": {
+        "operationId": "LibraryController_importCsv",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Per-row CSV import report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookImportResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Import book metadata from CSV (500-row limit)",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/library/books/{id}/copies": {
+      "post": {
+        "operationId": "LibraryController_createCopy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookCopyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Add a physical library copy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookCopyCatalogueDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add a copy of a book",
+        "tags": [
+          "library"
+        ]
+      },
+      "get": {
+        "operationId": "LibraryController_listCopies",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "AVAILABLE",
+                "LOANED",
+                "LOST",
+                "DAMAGED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookCopyCatalogueDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List inventory copies of a book",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/library/students": {
+      "get": {
+        "operationId": "LibraryController_listStudents",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LibraryStudentDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Search student identities needed to issue books",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/library/loans": {
+      "get": {
+        "operationId": "LibraryController_listLoans",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "RETURNED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List book loans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookLoanDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List active or returned loans",
+        "tags": [
+          "library"
+        ]
+      },
+      "post": {
+        "operationId": "LibraryController_issue",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueBookDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Issue a book copy to a student",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookLoanDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Issue a book",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/library/loans/{id}/return": {
+      "post": {
+        "operationId": "LibraryController_return",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mark a book as returned and make its copy available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookLoanDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Return a book",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/library/my-loans": {
+      "get": {
+        "operationId": "LibraryController_myLoans",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "RETURNED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List only the signed-in student’s loans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookLoanDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "View my library loans",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/api/operations/periods": {
+      "get": {
+        "operationId": "OperationsController_listPeriods",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TimetablePeriodDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List timetable periods",
+        "tags": [
+          "school-operations"
+        ]
+      },
+      "post": {
+        "operationId": "OperationsController_createPeriod",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePeriodDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimetablePeriodDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a timetable period or break",
+        "tags": [
+          "school-operations"
+        ]
+      }
+    },
+    "/api/operations/periods/{id}": {
+      "patch": {
+        "operationId": "OperationsController_updatePeriod",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePeriodDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimetablePeriodDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a timetable period or break",
+        "tags": [
+          "school-operations"
+        ]
+      },
+      "delete": {
+        "operationId": "OperationsController_deletePeriod",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete an unused timetable period",
+        "tags": [
+          "school-operations"
+        ]
+      }
+    },
+    "/api/operations/timetable": {
+      "get": {
+        "operationId": "OperationsController_listTimetable",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "classId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "weekday",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY",
+                "FRIDAY",
+                "SATURDAY",
+                "SUNDAY"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TimetableEntryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List timetable entries (teachers see only their own)",
+        "tags": [
+          "school-operations"
+        ]
+      },
+      "post": {
+        "operationId": "OperationsController_createTimetableEntry",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTimetableEntryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimetableEntryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Schedule a class lesson",
+        "tags": [
+          "school-operations"
+        ]
+      }
+    },
+    "/api/operations/timetable/{id}": {
+      "delete": {
+        "operationId": "OperationsController_deleteTimetableEntry",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove a scheduled lesson",
+        "tags": [
+          "school-operations"
+        ]
+      }
+    },
+    "/api/operations/lesson-plans": {
+      "get": {
+        "operationId": "OperationsController_listLessonPlans",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "classId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "termId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "SUBMITTED",
+                "APPROVED",
+                "REVISION_REQUESTED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LessonPlanDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List lesson plans (teachers see their own)",
+        "tags": [
+          "school-operations"
+        ]
+      },
+      "post": {
+        "operationId": "OperationsController_createLessonPlan",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLessonPlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonPlanDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a weekly lesson plan",
+        "tags": [
+          "school-operations"
+        ]
+      }
+    },
+    "/api/operations/lesson-plans/{id}": {
+      "patch": {
+        "operationId": "OperationsController_updateLessonPlan",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLessonPlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonPlanDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a draft or returned lesson plan",
+        "tags": [
+          "school-operations"
+        ]
+      }
+    },
+    "/api/operations/lesson-plans/{id}/submit": {
+      "post": {
+        "operationId": "OperationsController_submitLessonPlan",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonPlanDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Submit a lesson plan for admin review",
+        "tags": [
+          "school-operations"
+        ]
+      }
+    },
+    "/api/operations/lesson-plans/{id}/review": {
+      "post": {
+        "operationId": "OperationsController_reviewLessonPlan",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewLessonPlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonPlanDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approve a lesson plan or request revisions",
+        "tags": [
+          "school-operations"
+        ]
+      }
+    },
+    "/api/operations/calendar": {
+      "get": {
+        "operationId": "OperationsController_listCalendarEvents",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "fromDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "name": "toDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CalendarEventDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List school calendar events",
+        "tags": [
+          "school-operations"
+        ]
+      },
+      "post": {
+        "operationId": "OperationsController_createCalendarEvent",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCalendarEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarEventDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a school calendar event",
+        "tags": [
+          "school-operations"
+        ]
+      }
+    },
+    "/api/operations/calendar/{id}": {
+      "patch": {
+        "operationId": "OperationsController_updateCalendarEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCalendarEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarEventDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a school calendar event",
+        "tags": [
+          "school-operations"
+        ]
+      },
+      "delete": {
+        "operationId": "OperationsController_deleteCalendarEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a school calendar event",
+        "tags": [
+          "school-operations"
+        ]
+      }
+    },
+    "/api/operations/substitutions": {
+      "get": {
+        "operationId": "OperationsController_listSubstitutions",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search term",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "fromDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "name": "toDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubstitutionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List substitutions (teachers see substitutions involving them)",
+        "tags": [
+          "school-operations"
+        ]
+      },
+      "post": {
+        "operationId": "OperationsController_createSubstitution",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubstitutionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubstitutionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Assign a substitute teacher for a timetable lesson",
+        "tags": [
+          "school-operations"
+        ]
+      }
+    },
+    "/api/operations/substitutions/{id}": {
+      "delete": {
+        "operationId": "OperationsController_deleteSubstitution",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancel a teacher substitution",
+        "tags": [
+          "school-operations"
+        ]
+      }
     }
   },
   "info": {
@@ -4763,7 +6699,9 @@
               "ADMIN",
               "TEACHER",
               "STUDENT",
-              "PARENT"
+              "PARENT",
+              "BURSAR",
+              "LIBRARIAN"
             ],
             "example": "TEACHER"
           }
@@ -4795,7 +6733,9 @@
               "ADMIN",
               "TEACHER",
               "STUDENT",
-              "PARENT"
+              "PARENT",
+              "BURSAR",
+              "LIBRARIAN"
             ],
             "example": "ADMIN"
           },
@@ -4929,7 +6869,9 @@
               "ADMIN",
               "TEACHER",
               "STUDENT",
-              "PARENT"
+              "PARENT",
+              "BURSAR",
+              "LIBRARIAN"
             ]
           }
         },
@@ -5990,7 +7932,9 @@
               "ADMIN",
               "TEACHER",
               "STUDENT",
-              "PARENT"
+              "PARENT",
+              "BURSAR",
+              "LIBRARIAN"
             ]
           },
           "isActive": {
@@ -7788,6 +9732,1430 @@
         "required": [
           "academicYearId",
           "termId"
+        ]
+      },
+      "FinanceRecorderDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "FinanceTransactionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "INCOME",
+              "EXPENSE"
+            ]
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "reference": {
+            "type": "string",
+            "nullable": true
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "recordedByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "recordedBy": {
+            "$ref": "#/components/schemas/FinanceRecorderDto"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "category",
+          "description",
+          "amount",
+          "reference",
+          "occurredAt",
+          "recordedByUserId",
+          "createdAt",
+          "recordedBy"
+        ]
+      },
+      "CreateFinanceTransactionDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "INCOME",
+              "EXPENSE"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "example": "Utilities"
+          },
+          "description": {
+            "type": "string",
+            "example": "Water bill for Term 2"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0.01,
+            "maximum": 999999999,
+            "example": 12500
+          },
+          "reference": {
+            "type": "string",
+            "example": "INV-2026-0042"
+          },
+          "occurredAt": {
+            "type": "string",
+            "example": "2026-05-22",
+            "description": "Calendar date (YYYY-MM-DD)"
+          }
+        },
+        "required": [
+          "type",
+          "category",
+          "description",
+          "amount"
+        ]
+      },
+      "FinanceSummaryDto": {
+        "type": "object",
+        "properties": {
+          "income": {
+            "type": "number"
+          },
+          "expenses": {
+            "type": "number"
+          },
+          "balance": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "example": "KES"
+          }
+        },
+        "required": [
+          "income",
+          "expenses",
+          "balance",
+          "currency"
+        ]
+      },
+      "BookCatalogueDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string",
+            "nullable": true
+          },
+          "publisher": {
+            "type": "string",
+            "nullable": true
+          },
+          "subject": {
+            "type": "string",
+            "nullable": true
+          },
+          "classLevels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PP1",
+                "PP2",
+                "G1",
+                "G2",
+                "G3",
+                "G4",
+                "G5",
+                "G6",
+                "G7",
+                "G8",
+                "G9",
+                "G10",
+                "G11",
+                "G12",
+                "STD1",
+                "STD2",
+                "STD3",
+                "STD4",
+                "STD5",
+                "STD6",
+                "STD7",
+                "STD8",
+                "FORM1",
+                "FORM2",
+                "FORM3",
+                "FORM4"
+              ]
+            }
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TEXTBOOK",
+              "STORY",
+              "OTHER"
+            ]
+          },
+          "isbn": {
+            "type": "string",
+            "nullable": true
+          },
+          "edition": {
+            "type": "string",
+            "nullable": true
+          },
+          "isKicdApproved": {
+            "type": "boolean"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "copyCount": {
+            "type": "number"
+          },
+          "availableCopies": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "author",
+          "publisher",
+          "subject",
+          "classLevels",
+          "type",
+          "isbn",
+          "edition",
+          "isKicdApproved",
+          "sourceUrl",
+          "isActive",
+          "copyCount",
+          "availableCopies",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateBookDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "KLB Visionary Mathematics Learner Book Grade 4"
+          },
+          "author": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "classLevels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PP1",
+                "PP2",
+                "G1",
+                "G2",
+                "G3",
+                "G4",
+                "G5",
+                "G6",
+                "G7",
+                "G8",
+                "G9",
+                "G10",
+                "G11",
+                "G12",
+                "STD1",
+                "STD2",
+                "STD3",
+                "STD4",
+                "STD5",
+                "STD6",
+                "STD7",
+                "STD8",
+                "FORM1",
+                "FORM2",
+                "FORM3",
+                "FORM4"
+              ]
+            }
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TEXTBOOK",
+              "STORY",
+              "OTHER"
+            ]
+          },
+          "isbn": {
+            "type": "string"
+          },
+          "edition": {
+            "type": "string"
+          },
+          "isKicdApproved": {
+            "type": "boolean",
+            "default": false
+          },
+          "sourceUrl": {
+            "type": "string",
+            "description": "Link to the official KICD listing or source"
+          }
+        },
+        "required": [
+          "title",
+          "type"
+        ]
+      },
+      "UpdateBookDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string",
+            "nullable": true
+          },
+          "publisher": {
+            "type": "string",
+            "nullable": true
+          },
+          "subject": {
+            "type": "string",
+            "nullable": true
+          },
+          "classLevels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PP1",
+                "PP2",
+                "G1",
+                "G2",
+                "G3",
+                "G4",
+                "G5",
+                "G6",
+                "G7",
+                "G8",
+                "G9",
+                "G10",
+                "G11",
+                "G12",
+                "STD1",
+                "STD2",
+                "STD3",
+                "STD4",
+                "STD5",
+                "STD6",
+                "STD7",
+                "STD8",
+                "FORM1",
+                "FORM2",
+                "FORM3",
+                "FORM4"
+              ]
+            }
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TEXTBOOK",
+              "STORY",
+              "OTHER"
+            ]
+          },
+          "isbn": {
+            "type": "string",
+            "nullable": true
+          },
+          "edition": {
+            "type": "string",
+            "nullable": true
+          },
+          "isKicdApproved": {
+            "type": "boolean"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BookImportRowDto": {
+        "type": "object",
+        "properties": {
+          "row": {
+            "type": "number"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "row",
+          "success",
+          "message"
+        ]
+      },
+      "BookImportResultDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "imported": {
+            "type": "number"
+          },
+          "failed": {
+            "type": "number"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookImportRowDto"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "imported",
+          "failed",
+          "rows"
+        ]
+      },
+      "CreateBookCopyDto": {
+        "type": "object",
+        "properties": {
+          "accessionNumber": {
+            "type": "string",
+            "example": "LIB-2026-0001"
+          }
+        },
+        "required": [
+          "accessionNumber"
+        ]
+      },
+      "BookCopyCatalogueDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bookId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accessionNumber": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "LOANED",
+              "LOST",
+              "DAMAGED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "bookId",
+          "accessionNumber",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "LoanStudentClassDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "PP1",
+              "PP2",
+              "G1",
+              "G2",
+              "G3",
+              "G4",
+              "G5",
+              "G6",
+              "G7",
+              "G8",
+              "G9",
+              "G10",
+              "G11",
+              "G12",
+              "STD1",
+              "STD2",
+              "STD3",
+              "STD4",
+              "STD5",
+              "STD6",
+              "STD7",
+              "STD8",
+              "FORM1",
+              "FORM2",
+              "FORM3",
+              "FORM4"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "level"
+        ]
+      },
+      "LibraryStudentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "class": {
+            "$ref": "#/components/schemas/LoanStudentClassDto"
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "admissionNumber",
+          "class"
+        ]
+      },
+      "LoanBookDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TEXTBOOK",
+              "STORY",
+              "OTHER"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "author",
+          "type"
+        ]
+      },
+      "LoanCopyDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bookId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accessionNumber": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "LOANED",
+              "LOST",
+              "DAMAGED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "book": {
+            "$ref": "#/components/schemas/LoanBookDto"
+          }
+        },
+        "required": [
+          "id",
+          "bookId",
+          "accessionNumber",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "book"
+        ]
+      },
+      "LoanStudentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "class": {
+            "$ref": "#/components/schemas/LoanStudentClassDto"
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "admissionNumber",
+          "class"
+        ]
+      },
+      "LoanUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "BookLoanDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "copyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "issuedByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "returnedByUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "issuedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dueAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "returnedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "copy": {
+            "$ref": "#/components/schemas/LoanCopyDto"
+          },
+          "student": {
+            "$ref": "#/components/schemas/LoanStudentDto"
+          },
+          "issuedBy": {
+            "$ref": "#/components/schemas/LoanUserDto"
+          },
+          "returnedBy": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LoanUserDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "copyId",
+          "studentId",
+          "issuedByUserId",
+          "returnedByUserId",
+          "issuedAt",
+          "dueAt",
+          "returnedAt",
+          "createdAt",
+          "copy",
+          "student",
+          "issuedBy",
+          "returnedBy"
+        ]
+      },
+      "IssueBookDto": {
+        "type": "object",
+        "properties": {
+          "copyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "copyId",
+          "studentId"
+        ]
+      },
+      "TimetablePeriodDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "periodNumber": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "isBreak": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "academicYearId",
+          "academicYearName",
+          "periodNumber",
+          "name",
+          "startTime",
+          "endTime",
+          "isBreak"
+        ]
+      },
+      "CreatePeriodDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "periodNumber": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "startTime": {
+            "type": "string",
+            "example": "08:00",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+          },
+          "endTime": {
+            "type": "string",
+            "example": "08:40",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+          },
+          "isBreak": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "academicYearId",
+          "periodNumber",
+          "name",
+          "startTime",
+          "endTime"
+        ]
+      },
+      "UpdatePeriodDto": {
+        "type": "object",
+        "properties": {
+          "periodNumber": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "startTime": {
+            "type": "string",
+            "example": "08:00",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+          },
+          "endTime": {
+            "type": "string",
+            "example": "08:40",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+          },
+          "isBreak": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TimetableEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "weekday": {
+            "type": "string",
+            "enum": [
+              "MONDAY",
+              "TUESDAY",
+              "WEDNESDAY",
+              "THURSDAY",
+              "FRIDAY",
+              "SATURDAY",
+              "SUNDAY"
+            ]
+          },
+          "venue": {
+            "type": "string",
+            "nullable": true
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "streamId": {
+            "type": "string",
+            "nullable": true
+          },
+          "streamName": {
+            "type": "string",
+            "nullable": true
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "teacherId": {
+            "type": "string"
+          },
+          "teacherName": {
+            "type": "string"
+          },
+          "period": {
+            "$ref": "#/components/schemas/TimetablePeriodDto"
+          }
+        },
+        "required": [
+          "id",
+          "weekday",
+          "classId",
+          "className",
+          "subjectId",
+          "subjectName",
+          "teacherId",
+          "teacherName",
+          "period"
+        ]
+      },
+      "CreateTimetableEntryDto": {
+        "type": "object",
+        "properties": {
+          "periodId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "streamId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subjectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teacherId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "weekday": {
+            "type": "string",
+            "enum": [
+              "MONDAY",
+              "TUESDAY",
+              "WEDNESDAY",
+              "THURSDAY",
+              "FRIDAY",
+              "SATURDAY",
+              "SUNDAY"
+            ]
+          },
+          "venue": {
+            "type": "string",
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "periodId",
+          "classId",
+          "subjectId",
+          "teacherId",
+          "weekday"
+        ]
+      },
+      "LessonPlanDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "teacherId": {
+            "type": "string"
+          },
+          "teacherName": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "termId": {
+            "type": "string"
+          },
+          "termName": {
+            "type": "string"
+          },
+          "learningOutcomeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "learningOutcomeDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "weekStarting": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "topic": {
+            "type": "string"
+          },
+          "learningObjectives": {
+            "type": "string"
+          },
+          "activities": {
+            "type": "string"
+          },
+          "resources": {
+            "type": "string",
+            "nullable": true
+          },
+          "assessment": {
+            "type": "string",
+            "nullable": true
+          },
+          "reflection": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED",
+              "APPROVED",
+              "REVISION_REQUESTED"
+            ]
+          },
+          "reviewComment": {
+            "type": "string",
+            "nullable": true
+          },
+          "reviewedByEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "reviewedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "teacherId",
+          "teacherName",
+          "classId",
+          "className",
+          "subjectId",
+          "subjectName",
+          "termId",
+          "termName",
+          "weekStarting",
+          "topic",
+          "learningObjectives",
+          "activities",
+          "status"
+        ]
+      },
+      "CreateLessonPlanDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subjectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "termId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "learningOutcomeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "weekStarting": {
+            "type": "string",
+            "format": "date",
+            "description": "Monday of the planned school week"
+          },
+          "topic": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "learningObjectives": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "activities": {
+            "type": "string",
+            "maxLength": 6000
+          },
+          "resources": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "assessment": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "classId",
+          "subjectId",
+          "termId",
+          "weekStarting",
+          "topic",
+          "learningObjectives",
+          "activities"
+        ]
+      },
+      "UpdateLessonPlanDto": {
+        "type": "object",
+        "properties": {
+          "learningOutcomeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "weekStarting": {
+            "type": "string",
+            "format": "date",
+            "description": "Monday of the planned school week"
+          },
+          "topic": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "learningObjectives": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "activities": {
+            "type": "string",
+            "maxLength": 6000
+          },
+          "resources": {
+            "type": "string",
+            "maxLength": 2000,
+            "nullable": true
+          },
+          "assessment": {
+            "type": "string",
+            "maxLength": 2000,
+            "nullable": true
+          },
+          "reflection": {
+            "type": "string",
+            "maxLength": 2000,
+            "nullable": true
+          }
+        }
+      },
+      "ReviewLessonPlanDto": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "REVISION_REQUESTED"
+            ]
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "CalendarEventDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TERM",
+              "HOLIDAY",
+              "EXAM",
+              "MEETING",
+              "SCHOOL_EVENT",
+              "OTHER"
+            ]
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdByEmail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "type",
+          "startDate",
+          "endDate",
+          "createdByEmail"
+        ]
+      },
+      "CreateCalendarEventDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TERM",
+              "HOLIDAY",
+              "EXAM",
+              "MEETING",
+              "SCHOOL_EVENT",
+              "OTHER"
+            ]
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "title",
+          "type",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "UpdateCalendarEventDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TERM",
+              "HOLIDAY",
+              "EXAM",
+              "MEETING",
+              "SCHOOL_EVENT",
+              "OTHER"
+            ]
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "academicYearId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "SubstitutionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "className": {
+            "type": "string"
+          },
+          "streamName": {
+            "type": "string",
+            "nullable": true
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "originalTeacherName": {
+            "type": "string"
+          },
+          "substituteTeacherId": {
+            "type": "string"
+          },
+          "substituteTeacherName": {
+            "type": "string"
+          },
+          "period": {
+            "$ref": "#/components/schemas/TimetablePeriodDto"
+          },
+          "weekday": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "className",
+          "subjectName",
+          "originalTeacherName",
+          "substituteTeacherId",
+          "substituteTeacherName",
+          "period",
+          "weekday"
+        ]
+      },
+      "CreateSubstitutionDto": {
+        "type": "object",
+        "properties": {
+          "timetableEntryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "substituteTeacherId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "timetableEntryId",
+          "substituteTeacherId",
+          "date"
         ]
       }
     }

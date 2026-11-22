@@ -45,7 +45,9 @@ export class ScopingService {
   }
 
   async classScope(user: AuthenticatedUser): Promise<ResourceScope> {
-    if (user.role === 'ADMIN') return { unrestricted: true, ids: [] };
+    if (user.role === 'ADMIN' || user.role === 'BURSAR') {
+      return { unrestricted: true, ids: [] };
+    }
 
     if (user.role === 'TEACHER') {
       const teacherId = await this.scoping.findTeacherIdByUserId(user.id);

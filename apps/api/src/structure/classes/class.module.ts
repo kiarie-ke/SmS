@@ -117,6 +117,7 @@ export class ClassesController {
   constructor(private readonly classes: ClassesService) {}
 
   @Get()
+  @Roles('ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'BURSAR')
   @ApiOkResponse({ type: ClassDto, isArray: true })
   @ApiOperation({
     summary: 'List classes (admin: all; teacher: assigned or class-teacher classes)',
@@ -126,6 +127,7 @@ export class ClassesController {
   }
 
   @Get(':id')
+  @Roles('ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'BURSAR')
   @ApiOkResponse({ type: ClassDto })
   @ApiOperation({ summary: 'Get a class (scoped)' })
   get(@CurrentUser() user: AuthenticatedUser, @Param('id', ParseUUIDPipe) id: string) {

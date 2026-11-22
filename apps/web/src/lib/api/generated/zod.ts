@@ -21,14 +21,14 @@ export const AuthControllerRegisterBody = zod.object({
   "email": zod.string(),
   "phone": zod.string(),
   "password": zod.string().min(authControllerRegisterBodyPasswordMin),
-  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT'])
+  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'BURSAR', 'LIBRARIAN'])
 })
 
 export const AuthControllerRegisterResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
   "phone": zod.string(),
-  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT']),
+  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'BURSAR', 'LIBRARIAN']),
   "isActive": zod.boolean(),
   "lastLoginAt": zod.string().nullable()
 })
@@ -49,7 +49,7 @@ export const AuthControllerLoginResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
   "phone": zod.string(),
-  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT']),
+  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'BURSAR', 'LIBRARIAN']),
   "isActive": zod.boolean(),
   "lastLoginAt": zod.string().nullable()
 })
@@ -66,7 +66,7 @@ export const AuthControllerRefreshResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
   "phone": zod.string(),
-  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT']),
+  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'BURSAR', 'LIBRARIAN']),
   "isActive": zod.boolean(),
   "lastLoginAt": zod.string().nullable()
 })
@@ -118,7 +118,7 @@ export const AuthControllerMeResponse = zod.object({
   "id": zod.string(),
   "email": zod.string(),
   "phone": zod.string(),
-  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT'])
+  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'BURSAR', 'LIBRARIAN'])
 })
 
 
@@ -776,14 +776,14 @@ export const UsersControllerListQueryParams = zod.object({
   "limit": zod.number().min(1).max(usersControllerListQueryLimitMax).default(usersControllerListQueryLimitDefault),
   "search": zod.string().max(usersControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
   "sortOrder": zod.enum(['asc', 'desc']).default(usersControllerListQuerySortOrderDefault),
-  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT']).optional()
+  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'BURSAR', 'LIBRARIAN']).optional()
 })
 
 export const UsersControllerListResponseItem = zod.object({
   "id": zod.string(),
   "email": zod.string(),
   "phone": zod.string(),
-  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT']),
+  "role": zod.enum(['ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'BURSAR', 'LIBRARIAN']),
   "isActive": zod.boolean(),
   "lastLoginAt": zod.string().nullable(),
   "createdAt": zod.string()
@@ -2535,5 +2535,1208 @@ export const SchoolSettingsControllerSetAcademicPeriodBody = zod.object({
 })
 
 export const SchoolSettingsControllerSetAcademicPeriodResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List finance transactions
+ */
+export const financeControllerListQueryPageDefault = 1;
+
+export const financeControllerListQueryLimitDefault = 20;
+export const financeControllerListQueryLimitMax = 100;
+
+export const financeControllerListQuerySearchMax = 100;
+
+export const financeControllerListQuerySortOrderDefault = `asc`;
+
+export const FinanceControllerListQueryParams = zod.object({
+  "page": zod.number().min(1).default(financeControllerListQueryPageDefault),
+  "limit": zod.number().min(1).max(financeControllerListQueryLimitMax).default(financeControllerListQueryLimitDefault),
+  "search": zod.string().max(financeControllerListQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(financeControllerListQuerySortOrderDefault),
+  "type": zod.enum(['INCOME', 'EXPENSE']).optional(),
+  "fromDate": zod.string().optional(),
+  "toDate": zod.string().optional()
+})
+
+export const FinanceControllerListResponseItem = zod.object({
+  "id": zod.uuid(),
+  "type": zod.enum(['INCOME', 'EXPENSE']),
+  "category": zod.string(),
+  "description": zod.string(),
+  "amount": zod.number(),
+  "reference": zod.string().nullable(),
+  "occurredAt": zod.iso.date(),
+  "recordedByUserId": zod.uuid(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "recordedBy": zod.object({
+  "email": zod.string()
+})
+})
+export const FinanceControllerListResponse = zod.array(FinanceControllerListResponseItem)
+
+
+/**
+ * @summary Record a finance transaction
+ */
+export const financeControllerCreateBodyAmountMin = 0.01;
+export const financeControllerCreateBodyAmountMax = 999999999;
+
+
+
+export const FinanceControllerCreateBody = zod.object({
+  "type": zod.enum(['INCOME', 'EXPENSE']),
+  "category": zod.string(),
+  "description": zod.string(),
+  "amount": zod.number().min(financeControllerCreateBodyAmountMin).max(financeControllerCreateBodyAmountMax),
+  "reference": zod.string().optional(),
+  "occurredAt": zod.string().optional().describe('Calendar date (YYYY-MM-DD)')
+})
+
+export const FinanceControllerCreateResponse = zod.object({
+  "id": zod.uuid(),
+  "type": zod.enum(['INCOME', 'EXPENSE']),
+  "category": zod.string(),
+  "description": zod.string(),
+  "amount": zod.number(),
+  "reference": zod.string().nullable(),
+  "occurredAt": zod.iso.date(),
+  "recordedByUserId": zod.uuid(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "recordedBy": zod.object({
+  "email": zod.string()
+})
+})
+
+
+/**
+ * @summary Get finance totals
+ */
+export const FinanceControllerSummaryQueryParams = zod.object({
+  "fromDate": zod.string().optional(),
+  "toDate": zod.string().optional()
+})
+
+export const FinanceControllerSummaryResponse = zod.object({
+  "income": zod.number(),
+  "expenses": zod.number(),
+  "balance": zod.number(),
+  "currency": zod.string()
+})
+
+
+/**
+ * @summary List library books
+ */
+export const libraryControllerListBooksQueryPageDefault = 1;
+
+export const libraryControllerListBooksQueryLimitDefault = 20;
+export const libraryControllerListBooksQueryLimitMax = 100;
+
+export const libraryControllerListBooksQuerySearchMax = 100;
+
+export const libraryControllerListBooksQuerySortOrderDefault = `asc`;
+
+export const LibraryControllerListBooksQueryParams = zod.object({
+  "page": zod.number().min(1).default(libraryControllerListBooksQueryPageDefault),
+  "limit": zod.number().min(1).max(libraryControllerListBooksQueryLimitMax).default(libraryControllerListBooksQueryLimitDefault),
+  "search": zod.string().max(libraryControllerListBooksQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(libraryControllerListBooksQuerySortOrderDefault),
+  "type": zod.enum(['TEXTBOOK', 'STORY', 'OTHER']).optional(),
+  "classLevel": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4']).optional(),
+  "isActive": zod.boolean().optional()
+})
+
+export const LibraryControllerListBooksResponseItem = zod.object({
+  "id": zod.uuid(),
+  "title": zod.string(),
+  "author": zod.string().nullable(),
+  "publisher": zod.string().nullable(),
+  "subject": zod.string().nullable(),
+  "classLevels": zod.array(zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4'])),
+  "type": zod.enum(['TEXTBOOK', 'STORY', 'OTHER']),
+  "isbn": zod.string().nullable(),
+  "edition": zod.string().nullable(),
+  "isKicdApproved": zod.boolean(),
+  "sourceUrl": zod.string().nullable(),
+  "isActive": zod.boolean(),
+  "copyCount": zod.number(),
+  "availableCopies": zod.number(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true})
+})
+export const LibraryControllerListBooksResponse = zod.array(LibraryControllerListBooksResponseItem)
+
+
+/**
+ * @summary Create a book
+ */
+export const libraryControllerCreateBookBodyIsKicdApprovedDefault = false;
+
+export const LibraryControllerCreateBookBody = zod.object({
+  "title": zod.string(),
+  "author": zod.string().optional(),
+  "publisher": zod.string().optional(),
+  "subject": zod.string().optional(),
+  "classLevels": zod.array(zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4'])).optional(),
+  "type": zod.enum(['TEXTBOOK', 'STORY', 'OTHER']),
+  "isbn": zod.string().optional(),
+  "edition": zod.string().optional(),
+  "isKicdApproved": zod.boolean().default(libraryControllerCreateBookBodyIsKicdApprovedDefault),
+  "sourceUrl": zod.string().optional().describe('Link to the official KICD listing or source')
+})
+
+export const LibraryControllerCreateBookResponse = zod.object({
+  "id": zod.uuid(),
+  "title": zod.string(),
+  "author": zod.string().nullable(),
+  "publisher": zod.string().nullable(),
+  "subject": zod.string().nullable(),
+  "classLevels": zod.array(zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4'])),
+  "type": zod.enum(['TEXTBOOK', 'STORY', 'OTHER']),
+  "isbn": zod.string().nullable(),
+  "edition": zod.string().nullable(),
+  "isKicdApproved": zod.boolean(),
+  "sourceUrl": zod.string().nullable(),
+  "isActive": zod.boolean(),
+  "copyCount": zod.number(),
+  "availableCopies": zod.number(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true})
+})
+
+
+/**
+ * @summary Update a book
+ */
+export const LibraryControllerUpdateBookParams = zod.object({
+  "id": zod.string()
+})
+
+export const LibraryControllerUpdateBookBody = zod.object({
+  "title": zod.string().optional(),
+  "author": zod.string().nullish(),
+  "publisher": zod.string().nullish(),
+  "subject": zod.string().nullish(),
+  "classLevels": zod.array(zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4'])).optional(),
+  "type": zod.enum(['TEXTBOOK', 'STORY', 'OTHER']).optional(),
+  "isbn": zod.string().nullish(),
+  "edition": zod.string().nullish(),
+  "isKicdApproved": zod.boolean().optional(),
+  "sourceUrl": zod.string().nullish(),
+  "isActive": zod.boolean().optional()
+})
+
+export const LibraryControllerUpdateBookResponse = zod.object({
+  "id": zod.uuid(),
+  "title": zod.string(),
+  "author": zod.string().nullable(),
+  "publisher": zod.string().nullable(),
+  "subject": zod.string().nullable(),
+  "classLevels": zod.array(zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4'])),
+  "type": zod.enum(['TEXTBOOK', 'STORY', 'OTHER']),
+  "isbn": zod.string().nullable(),
+  "edition": zod.string().nullable(),
+  "isKicdApproved": zod.boolean(),
+  "sourceUrl": zod.string().nullable(),
+  "isActive": zod.boolean(),
+  "copyCount": zod.number(),
+  "availableCopies": zod.number(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true})
+})
+
+
+/**
+ * @summary Import book metadata from CSV (500-row limit)
+ */
+export const LibraryControllerImportCsvBody = zod.object({
+  "file": zod.instanceof(Blob).optional()
+})
+
+export const LibraryControllerImportCsvResponse = zod.object({
+  "total": zod.number(),
+  "imported": zod.number(),
+  "failed": zod.number(),
+  "rows": zod.array(zod.object({
+  "row": zod.number(),
+  "success": zod.boolean(),
+  "message": zod.string()
+}))
+})
+
+
+/**
+ * @summary Add a copy of a book
+ */
+export const LibraryControllerCreateCopyParams = zod.object({
+  "id": zod.string()
+})
+
+export const LibraryControllerCreateCopyBody = zod.object({
+  "accessionNumber": zod.string()
+})
+
+export const LibraryControllerCreateCopyResponse = zod.object({
+  "id": zod.uuid(),
+  "bookId": zod.uuid(),
+  "accessionNumber": zod.string(),
+  "status": zod.enum(['AVAILABLE', 'LOANED', 'LOST', 'DAMAGED']),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true})
+})
+
+
+/**
+ * @summary List inventory copies of a book
+ */
+export const LibraryControllerListCopiesParams = zod.object({
+  "id": zod.string()
+})
+
+export const libraryControllerListCopiesQueryPageDefault = 1;
+
+export const libraryControllerListCopiesQueryLimitDefault = 20;
+export const libraryControllerListCopiesQueryLimitMax = 100;
+
+export const libraryControllerListCopiesQuerySearchMax = 100;
+
+export const libraryControllerListCopiesQuerySortOrderDefault = `asc`;
+
+export const LibraryControllerListCopiesQueryParams = zod.object({
+  "page": zod.number().min(1).default(libraryControllerListCopiesQueryPageDefault),
+  "limit": zod.number().min(1).max(libraryControllerListCopiesQueryLimitMax).default(libraryControllerListCopiesQueryLimitDefault),
+  "search": zod.string().max(libraryControllerListCopiesQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(libraryControllerListCopiesQuerySortOrderDefault),
+  "status": zod.enum(['AVAILABLE', 'LOANED', 'LOST', 'DAMAGED']).optional()
+})
+
+export const LibraryControllerListCopiesResponseItem = zod.object({
+  "id": zod.uuid(),
+  "bookId": zod.uuid(),
+  "accessionNumber": zod.string(),
+  "status": zod.enum(['AVAILABLE', 'LOANED', 'LOST', 'DAMAGED']),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true})
+})
+export const LibraryControllerListCopiesResponse = zod.array(LibraryControllerListCopiesResponseItem)
+
+
+/**
+ * @summary Search student identities needed to issue books
+ */
+export const libraryControllerListStudentsQueryPageDefault = 1;
+
+export const libraryControllerListStudentsQueryLimitDefault = 20;
+export const libraryControllerListStudentsQueryLimitMax = 100;
+
+export const libraryControllerListStudentsQuerySearchMax = 100;
+
+export const libraryControllerListStudentsQuerySortOrderDefault = `asc`;
+
+export const LibraryControllerListStudentsQueryParams = zod.object({
+  "page": zod.number().min(1).default(libraryControllerListStudentsQueryPageDefault),
+  "limit": zod.number().min(1).max(libraryControllerListStudentsQueryLimitMax).default(libraryControllerListStudentsQueryLimitDefault),
+  "search": zod.string().max(libraryControllerListStudentsQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(libraryControllerListStudentsQuerySortOrderDefault)
+})
+
+export const LibraryControllerListStudentsResponseItem = zod.object({
+  "id": zod.uuid(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "admissionNumber": zod.string(),
+  "class": zod.object({
+  "name": zod.string(),
+  "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4'])
+})
+})
+export const LibraryControllerListStudentsResponse = zod.array(LibraryControllerListStudentsResponseItem)
+
+
+/**
+ * @summary List active or returned loans
+ */
+export const libraryControllerListLoansQueryPageDefault = 1;
+
+export const libraryControllerListLoansQueryLimitDefault = 20;
+export const libraryControllerListLoansQueryLimitMax = 100;
+
+export const libraryControllerListLoansQuerySearchMax = 100;
+
+export const libraryControllerListLoansQuerySortOrderDefault = `asc`;
+
+export const LibraryControllerListLoansQueryParams = zod.object({
+  "page": zod.number().min(1).default(libraryControllerListLoansQueryPageDefault),
+  "limit": zod.number().min(1).max(libraryControllerListLoansQueryLimitMax).default(libraryControllerListLoansQueryLimitDefault),
+  "search": zod.string().max(libraryControllerListLoansQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(libraryControllerListLoansQuerySortOrderDefault),
+  "status": zod.enum(['ACTIVE', 'RETURNED']).optional()
+})
+
+export const LibraryControllerListLoansResponseItem = zod.object({
+  "id": zod.uuid(),
+  "copyId": zod.uuid(),
+  "studentId": zod.uuid(),
+  "issuedByUserId": zod.uuid(),
+  "returnedByUserId": zod.string().nullable(),
+  "issuedAt": zod.iso.datetime({"offset":true}),
+  "dueAt": zod.iso.date().nullable(),
+  "returnedAt": zod.iso.datetime({"offset":true}).nullable(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "copy": zod.object({
+  "id": zod.uuid(),
+  "bookId": zod.uuid(),
+  "accessionNumber": zod.string(),
+  "status": zod.enum(['AVAILABLE', 'LOANED', 'LOST', 'DAMAGED']),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true}),
+  "book": zod.object({
+  "id": zod.uuid(),
+  "title": zod.string(),
+  "author": zod.string().nullable(),
+  "type": zod.enum(['TEXTBOOK', 'STORY', 'OTHER'])
+})
+}),
+  "student": zod.object({
+  "id": zod.uuid(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "admissionNumber": zod.string(),
+  "class": zod.object({
+  "name": zod.string(),
+  "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4'])
+})
+}),
+  "issuedBy": zod.object({
+  "email": zod.string()
+}),
+  "returnedBy": zod.object({
+  "email": zod.string()
+}).nullable()
+})
+export const LibraryControllerListLoansResponse = zod.array(LibraryControllerListLoansResponseItem)
+
+
+/**
+ * @summary Issue a book
+ */
+export const LibraryControllerIssueBody = zod.object({
+  "copyId": zod.uuid(),
+  "studentId": zod.uuid()
+})
+
+export const LibraryControllerIssueResponse = zod.object({
+  "id": zod.uuid(),
+  "copyId": zod.uuid(),
+  "studentId": zod.uuid(),
+  "issuedByUserId": zod.uuid(),
+  "returnedByUserId": zod.string().nullable(),
+  "issuedAt": zod.iso.datetime({"offset":true}),
+  "dueAt": zod.iso.date().nullable(),
+  "returnedAt": zod.iso.datetime({"offset":true}).nullable(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "copy": zod.object({
+  "id": zod.uuid(),
+  "bookId": zod.uuid(),
+  "accessionNumber": zod.string(),
+  "status": zod.enum(['AVAILABLE', 'LOANED', 'LOST', 'DAMAGED']),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true}),
+  "book": zod.object({
+  "id": zod.uuid(),
+  "title": zod.string(),
+  "author": zod.string().nullable(),
+  "type": zod.enum(['TEXTBOOK', 'STORY', 'OTHER'])
+})
+}),
+  "student": zod.object({
+  "id": zod.uuid(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "admissionNumber": zod.string(),
+  "class": zod.object({
+  "name": zod.string(),
+  "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4'])
+})
+}),
+  "issuedBy": zod.object({
+  "email": zod.string()
+}),
+  "returnedBy": zod.object({
+  "email": zod.string()
+}).nullable()
+})
+
+
+/**
+ * @summary Return a book
+ */
+export const LibraryControllerReturnParams = zod.object({
+  "id": zod.string()
+})
+
+export const LibraryControllerReturnResponse = zod.object({
+  "id": zod.uuid(),
+  "copyId": zod.uuid(),
+  "studentId": zod.uuid(),
+  "issuedByUserId": zod.uuid(),
+  "returnedByUserId": zod.string().nullable(),
+  "issuedAt": zod.iso.datetime({"offset":true}),
+  "dueAt": zod.iso.date().nullable(),
+  "returnedAt": zod.iso.datetime({"offset":true}).nullable(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "copy": zod.object({
+  "id": zod.uuid(),
+  "bookId": zod.uuid(),
+  "accessionNumber": zod.string(),
+  "status": zod.enum(['AVAILABLE', 'LOANED', 'LOST', 'DAMAGED']),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true}),
+  "book": zod.object({
+  "id": zod.uuid(),
+  "title": zod.string(),
+  "author": zod.string().nullable(),
+  "type": zod.enum(['TEXTBOOK', 'STORY', 'OTHER'])
+})
+}),
+  "student": zod.object({
+  "id": zod.uuid(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "admissionNumber": zod.string(),
+  "class": zod.object({
+  "name": zod.string(),
+  "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4'])
+})
+}),
+  "issuedBy": zod.object({
+  "email": zod.string()
+}),
+  "returnedBy": zod.object({
+  "email": zod.string()
+}).nullable()
+})
+
+
+/**
+ * @summary View my library loans
+ */
+export const libraryControllerMyLoansQueryPageDefault = 1;
+
+export const libraryControllerMyLoansQueryLimitDefault = 20;
+export const libraryControllerMyLoansQueryLimitMax = 100;
+
+export const libraryControllerMyLoansQuerySearchMax = 100;
+
+export const libraryControllerMyLoansQuerySortOrderDefault = `asc`;
+
+export const LibraryControllerMyLoansQueryParams = zod.object({
+  "page": zod.number().min(1).default(libraryControllerMyLoansQueryPageDefault),
+  "limit": zod.number().min(1).max(libraryControllerMyLoansQueryLimitMax).default(libraryControllerMyLoansQueryLimitDefault),
+  "search": zod.string().max(libraryControllerMyLoansQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(libraryControllerMyLoansQuerySortOrderDefault),
+  "status": zod.enum(['ACTIVE', 'RETURNED']).optional()
+})
+
+export const LibraryControllerMyLoansResponseItem = zod.object({
+  "id": zod.uuid(),
+  "copyId": zod.uuid(),
+  "studentId": zod.uuid(),
+  "issuedByUserId": zod.uuid(),
+  "returnedByUserId": zod.string().nullable(),
+  "issuedAt": zod.iso.datetime({"offset":true}),
+  "dueAt": zod.iso.date().nullable(),
+  "returnedAt": zod.iso.datetime({"offset":true}).nullable(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "copy": zod.object({
+  "id": zod.uuid(),
+  "bookId": zod.uuid(),
+  "accessionNumber": zod.string(),
+  "status": zod.enum(['AVAILABLE', 'LOANED', 'LOST', 'DAMAGED']),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true}),
+  "book": zod.object({
+  "id": zod.uuid(),
+  "title": zod.string(),
+  "author": zod.string().nullable(),
+  "type": zod.enum(['TEXTBOOK', 'STORY', 'OTHER'])
+})
+}),
+  "student": zod.object({
+  "id": zod.uuid(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "admissionNumber": zod.string(),
+  "class": zod.object({
+  "name": zod.string(),
+  "level": zod.enum(['PP1', 'PP2', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'STD1', 'STD2', 'STD3', 'STD4', 'STD5', 'STD6', 'STD7', 'STD8', 'FORM1', 'FORM2', 'FORM3', 'FORM4'])
+})
+}),
+  "issuedBy": zod.object({
+  "email": zod.string()
+}),
+  "returnedBy": zod.object({
+  "email": zod.string()
+}).nullable()
+})
+export const LibraryControllerMyLoansResponse = zod.array(LibraryControllerMyLoansResponseItem)
+
+
+/**
+ * @summary List timetable periods
+ */
+export const operationsControllerListPeriodsQueryPageDefault = 1;
+
+export const operationsControllerListPeriodsQueryLimitDefault = 20;
+export const operationsControllerListPeriodsQueryLimitMax = 100;
+
+export const operationsControllerListPeriodsQuerySearchMax = 100;
+
+export const operationsControllerListPeriodsQuerySortOrderDefault = `asc`;
+
+export const OperationsControllerListPeriodsQueryParams = zod.object({
+  "page": zod.number().min(1).default(operationsControllerListPeriodsQueryPageDefault),
+  "limit": zod.number().min(1).max(operationsControllerListPeriodsQueryLimitMax).default(operationsControllerListPeriodsQueryLimitDefault),
+  "search": zod.string().max(operationsControllerListPeriodsQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(operationsControllerListPeriodsQuerySortOrderDefault),
+  "academicYearId": zod.uuid().optional()
+})
+
+export const OperationsControllerListPeriodsResponseItem = zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "periodNumber": zod.number(),
+  "name": zod.string(),
+  "startTime": zod.string(),
+  "endTime": zod.string(),
+  "isBreak": zod.boolean()
+})
+export const OperationsControllerListPeriodsResponse = zod.array(OperationsControllerListPeriodsResponseItem)
+
+
+/**
+ * @summary Create a timetable period or break
+ */
+export const operationsControllerCreatePeriodBodyPeriodNumberMax = 20;
+
+export const operationsControllerCreatePeriodBodyNameMax = 60;
+
+export const operationsControllerCreatePeriodBodyStartTimeRegExp = new RegExp('^([01]\\d|2[0-3]):[0-5]\\d$');
+export const operationsControllerCreatePeriodBodyEndTimeRegExp = new RegExp('^([01]\\d|2[0-3]):[0-5]\\d$');
+export const operationsControllerCreatePeriodBodyIsBreakDefault = false;
+
+export const OperationsControllerCreatePeriodBody = zod.object({
+  "academicYearId": zod.uuid(),
+  "periodNumber": zod.number().min(1).max(operationsControllerCreatePeriodBodyPeriodNumberMax),
+  "name": zod.string().max(operationsControllerCreatePeriodBodyNameMax),
+  "startTime": zod.string().regex(operationsControllerCreatePeriodBodyStartTimeRegExp),
+  "endTime": zod.string().regex(operationsControllerCreatePeriodBodyEndTimeRegExp),
+  "isBreak": zod.boolean().default(operationsControllerCreatePeriodBodyIsBreakDefault)
+})
+
+export const OperationsControllerCreatePeriodResponse = zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "periodNumber": zod.number(),
+  "name": zod.string(),
+  "startTime": zod.string(),
+  "endTime": zod.string(),
+  "isBreak": zod.boolean()
+})
+
+
+/**
+ * @summary Update a timetable period or break
+ */
+export const OperationsControllerUpdatePeriodParams = zod.object({
+  "id": zod.string()
+})
+
+export const operationsControllerUpdatePeriodBodyPeriodNumberMax = 20;
+
+export const operationsControllerUpdatePeriodBodyNameMax = 60;
+
+export const operationsControllerUpdatePeriodBodyStartTimeRegExp = new RegExp('^([01]\\d|2[0-3]):[0-5]\\d$');
+export const operationsControllerUpdatePeriodBodyEndTimeRegExp = new RegExp('^([01]\\d|2[0-3]):[0-5]\\d$');
+
+
+export const OperationsControllerUpdatePeriodBody = zod.object({
+  "periodNumber": zod.number().min(1).max(operationsControllerUpdatePeriodBodyPeriodNumberMax).optional(),
+  "name": zod.string().max(operationsControllerUpdatePeriodBodyNameMax).optional(),
+  "startTime": zod.string().regex(operationsControllerUpdatePeriodBodyStartTimeRegExp).optional(),
+  "endTime": zod.string().regex(operationsControllerUpdatePeriodBodyEndTimeRegExp).optional(),
+  "isBreak": zod.boolean().optional()
+})
+
+export const OperationsControllerUpdatePeriodResponse = zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "periodNumber": zod.number(),
+  "name": zod.string(),
+  "startTime": zod.string(),
+  "endTime": zod.string(),
+  "isBreak": zod.boolean()
+})
+
+
+/**
+ * @summary Delete an unused timetable period
+ */
+export const OperationsControllerDeletePeriodParams = zod.object({
+  "id": zod.string()
+})
+
+export const OperationsControllerDeletePeriodResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List timetable entries (teachers see only their own)
+ */
+export const operationsControllerListTimetableQueryPageDefault = 1;
+
+export const operationsControllerListTimetableQueryLimitDefault = 20;
+export const operationsControllerListTimetableQueryLimitMax = 100;
+
+export const operationsControllerListTimetableQuerySearchMax = 100;
+
+export const operationsControllerListTimetableQuerySortOrderDefault = `asc`;
+
+export const OperationsControllerListTimetableQueryParams = zod.object({
+  "page": zod.number().min(1).default(operationsControllerListTimetableQueryPageDefault),
+  "limit": zod.number().min(1).max(operationsControllerListTimetableQueryLimitMax).default(operationsControllerListTimetableQueryLimitDefault),
+  "search": zod.string().max(operationsControllerListTimetableQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(operationsControllerListTimetableQuerySortOrderDefault),
+  "academicYearId": zod.uuid().optional(),
+  "classId": zod.uuid().optional(),
+  "weekday": zod.enum(['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']).optional()
+})
+
+export const OperationsControllerListTimetableResponseItem = zod.object({
+  "id": zod.string(),
+  "weekday": zod.enum(['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']),
+  "venue": zod.string().nullish(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "streamId": zod.string().nullish(),
+  "streamName": zod.string().nullish(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string(),
+  "teacherId": zod.string(),
+  "teacherName": zod.string(),
+  "period": zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "periodNumber": zod.number(),
+  "name": zod.string(),
+  "startTime": zod.string(),
+  "endTime": zod.string(),
+  "isBreak": zod.boolean()
+})
+})
+export const OperationsControllerListTimetableResponse = zod.array(OperationsControllerListTimetableResponseItem)
+
+
+/**
+ * @summary Schedule a class lesson
+ */
+export const operationsControllerCreateTimetableEntryBodyVenueMax = 100;
+
+
+
+export const OperationsControllerCreateTimetableEntryBody = zod.object({
+  "periodId": zod.uuid(),
+  "classId": zod.uuid(),
+  "streamId": zod.uuid().optional(),
+  "subjectId": zod.uuid(),
+  "teacherId": zod.uuid(),
+  "weekday": zod.enum(['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']),
+  "venue": zod.string().max(operationsControllerCreateTimetableEntryBodyVenueMax).optional()
+})
+
+export const OperationsControllerCreateTimetableEntryResponse = zod.object({
+  "id": zod.string(),
+  "weekday": zod.enum(['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']),
+  "venue": zod.string().nullish(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "streamId": zod.string().nullish(),
+  "streamName": zod.string().nullish(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string(),
+  "teacherId": zod.string(),
+  "teacherName": zod.string(),
+  "period": zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "periodNumber": zod.number(),
+  "name": zod.string(),
+  "startTime": zod.string(),
+  "endTime": zod.string(),
+  "isBreak": zod.boolean()
+})
+})
+
+
+/**
+ * @summary Remove a scheduled lesson
+ */
+export const OperationsControllerDeleteTimetableEntryParams = zod.object({
+  "id": zod.string()
+})
+
+export const OperationsControllerDeleteTimetableEntryResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List lesson plans (teachers see their own)
+ */
+export const operationsControllerListLessonPlansQueryPageDefault = 1;
+
+export const operationsControllerListLessonPlansQueryLimitDefault = 20;
+export const operationsControllerListLessonPlansQueryLimitMax = 100;
+
+export const operationsControllerListLessonPlansQuerySearchMax = 100;
+
+export const operationsControllerListLessonPlansQuerySortOrderDefault = `asc`;
+
+export const OperationsControllerListLessonPlansQueryParams = zod.object({
+  "page": zod.number().min(1).default(operationsControllerListLessonPlansQueryPageDefault),
+  "limit": zod.number().min(1).max(operationsControllerListLessonPlansQueryLimitMax).default(operationsControllerListLessonPlansQueryLimitDefault),
+  "search": zod.string().max(operationsControllerListLessonPlansQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(operationsControllerListLessonPlansQuerySortOrderDefault),
+  "classId": zod.uuid().optional(),
+  "termId": zod.uuid().optional(),
+  "status": zod.enum(['DRAFT', 'SUBMITTED', 'APPROVED', 'REVISION_REQUESTED']).optional()
+})
+
+export const OperationsControllerListLessonPlansResponseItem = zod.object({
+  "id": zod.string(),
+  "teacherId": zod.string(),
+  "teacherName": zod.string(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string(),
+  "termId": zod.string(),
+  "termName": zod.string(),
+  "learningOutcomeId": zod.string().nullish(),
+  "learningOutcomeDescription": zod.string().nullish(),
+  "weekStarting": zod.iso.datetime({"offset":true}),
+  "topic": zod.string(),
+  "learningObjectives": zod.string(),
+  "activities": zod.string(),
+  "resources": zod.string().nullish(),
+  "assessment": zod.string().nullish(),
+  "reflection": zod.string().nullish(),
+  "status": zod.enum(['DRAFT', 'SUBMITTED', 'APPROVED', 'REVISION_REQUESTED']),
+  "reviewComment": zod.string().nullish(),
+  "reviewedByEmail": zod.string().nullish(),
+  "reviewedAt": zod.string().nullish()
+})
+export const OperationsControllerListLessonPlansResponse = zod.array(OperationsControllerListLessonPlansResponseItem)
+
+
+/**
+ * @summary Create a weekly lesson plan
+ */
+export const operationsControllerCreateLessonPlanBodyTopicMax = 200;
+
+export const operationsControllerCreateLessonPlanBodyLearningObjectivesMax = 4000;
+
+export const operationsControllerCreateLessonPlanBodyActivitiesMax = 6000;
+
+export const operationsControllerCreateLessonPlanBodyResourcesMax = 2000;
+
+export const operationsControllerCreateLessonPlanBodyAssessmentMax = 2000;
+
+
+
+export const OperationsControllerCreateLessonPlanBody = zod.object({
+  "classId": zod.uuid(),
+  "subjectId": zod.uuid(),
+  "termId": zod.uuid(),
+  "learningOutcomeId": zod.uuid().optional(),
+  "weekStarting": zod.iso.date().describe('Monday of the planned school week'),
+  "topic": zod.string().max(operationsControllerCreateLessonPlanBodyTopicMax),
+  "learningObjectives": zod.string().max(operationsControllerCreateLessonPlanBodyLearningObjectivesMax),
+  "activities": zod.string().max(operationsControllerCreateLessonPlanBodyActivitiesMax),
+  "resources": zod.string().max(operationsControllerCreateLessonPlanBodyResourcesMax).optional(),
+  "assessment": zod.string().max(operationsControllerCreateLessonPlanBodyAssessmentMax).optional()
+})
+
+export const OperationsControllerCreateLessonPlanResponse = zod.object({
+  "id": zod.string(),
+  "teacherId": zod.string(),
+  "teacherName": zod.string(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string(),
+  "termId": zod.string(),
+  "termName": zod.string(),
+  "learningOutcomeId": zod.string().nullish(),
+  "learningOutcomeDescription": zod.string().nullish(),
+  "weekStarting": zod.iso.datetime({"offset":true}),
+  "topic": zod.string(),
+  "learningObjectives": zod.string(),
+  "activities": zod.string(),
+  "resources": zod.string().nullish(),
+  "assessment": zod.string().nullish(),
+  "reflection": zod.string().nullish(),
+  "status": zod.enum(['DRAFT', 'SUBMITTED', 'APPROVED', 'REVISION_REQUESTED']),
+  "reviewComment": zod.string().nullish(),
+  "reviewedByEmail": zod.string().nullish(),
+  "reviewedAt": zod.string().nullish()
+})
+
+
+/**
+ * @summary Update a draft or returned lesson plan
+ */
+export const OperationsControllerUpdateLessonPlanParams = zod.object({
+  "id": zod.string()
+})
+
+export const operationsControllerUpdateLessonPlanBodyTopicMax = 200;
+
+export const operationsControllerUpdateLessonPlanBodyLearningObjectivesMax = 4000;
+
+export const operationsControllerUpdateLessonPlanBodyActivitiesMax = 6000;
+
+export const operationsControllerUpdateLessonPlanBodyResourcesMax = 2000;
+
+export const operationsControllerUpdateLessonPlanBodyAssessmentMax = 2000;
+
+export const operationsControllerUpdateLessonPlanBodyReflectionMax = 2000;
+
+
+
+export const OperationsControllerUpdateLessonPlanBody = zod.object({
+  "learningOutcomeId": zod.uuid().nullish(),
+  "weekStarting": zod.iso.date().optional().describe('Monday of the planned school week'),
+  "topic": zod.string().max(operationsControllerUpdateLessonPlanBodyTopicMax).optional(),
+  "learningObjectives": zod.string().max(operationsControllerUpdateLessonPlanBodyLearningObjectivesMax).optional(),
+  "activities": zod.string().max(operationsControllerUpdateLessonPlanBodyActivitiesMax).optional(),
+  "resources": zod.string().max(operationsControllerUpdateLessonPlanBodyResourcesMax).nullish(),
+  "assessment": zod.string().max(operationsControllerUpdateLessonPlanBodyAssessmentMax).nullish(),
+  "reflection": zod.string().max(operationsControllerUpdateLessonPlanBodyReflectionMax).nullish()
+})
+
+export const OperationsControllerUpdateLessonPlanResponse = zod.object({
+  "id": zod.string(),
+  "teacherId": zod.string(),
+  "teacherName": zod.string(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string(),
+  "termId": zod.string(),
+  "termName": zod.string(),
+  "learningOutcomeId": zod.string().nullish(),
+  "learningOutcomeDescription": zod.string().nullish(),
+  "weekStarting": zod.iso.datetime({"offset":true}),
+  "topic": zod.string(),
+  "learningObjectives": zod.string(),
+  "activities": zod.string(),
+  "resources": zod.string().nullish(),
+  "assessment": zod.string().nullish(),
+  "reflection": zod.string().nullish(),
+  "status": zod.enum(['DRAFT', 'SUBMITTED', 'APPROVED', 'REVISION_REQUESTED']),
+  "reviewComment": zod.string().nullish(),
+  "reviewedByEmail": zod.string().nullish(),
+  "reviewedAt": zod.string().nullish()
+})
+
+
+/**
+ * @summary Submit a lesson plan for admin review
+ */
+export const OperationsControllerSubmitLessonPlanParams = zod.object({
+  "id": zod.string()
+})
+
+export const OperationsControllerSubmitLessonPlanResponse = zod.object({
+  "id": zod.string(),
+  "teacherId": zod.string(),
+  "teacherName": zod.string(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string(),
+  "termId": zod.string(),
+  "termName": zod.string(),
+  "learningOutcomeId": zod.string().nullish(),
+  "learningOutcomeDescription": zod.string().nullish(),
+  "weekStarting": zod.iso.datetime({"offset":true}),
+  "topic": zod.string(),
+  "learningObjectives": zod.string(),
+  "activities": zod.string(),
+  "resources": zod.string().nullish(),
+  "assessment": zod.string().nullish(),
+  "reflection": zod.string().nullish(),
+  "status": zod.enum(['DRAFT', 'SUBMITTED', 'APPROVED', 'REVISION_REQUESTED']),
+  "reviewComment": zod.string().nullish(),
+  "reviewedByEmail": zod.string().nullish(),
+  "reviewedAt": zod.string().nullish()
+})
+
+
+/**
+ * @summary Approve a lesson plan or request revisions
+ */
+export const OperationsControllerReviewLessonPlanParams = zod.object({
+  "id": zod.string()
+})
+
+export const operationsControllerReviewLessonPlanBodyCommentMax = 2000;
+
+
+
+export const OperationsControllerReviewLessonPlanBody = zod.object({
+  "decision": zod.enum(['APPROVED', 'REVISION_REQUESTED']),
+  "comment": zod.string().max(operationsControllerReviewLessonPlanBodyCommentMax).optional()
+})
+
+export const OperationsControllerReviewLessonPlanResponse = zod.object({
+  "id": zod.string(),
+  "teacherId": zod.string(),
+  "teacherName": zod.string(),
+  "classId": zod.string(),
+  "className": zod.string(),
+  "subjectId": zod.string(),
+  "subjectName": zod.string(),
+  "termId": zod.string(),
+  "termName": zod.string(),
+  "learningOutcomeId": zod.string().nullish(),
+  "learningOutcomeDescription": zod.string().nullish(),
+  "weekStarting": zod.iso.datetime({"offset":true}),
+  "topic": zod.string(),
+  "learningObjectives": zod.string(),
+  "activities": zod.string(),
+  "resources": zod.string().nullish(),
+  "assessment": zod.string().nullish(),
+  "reflection": zod.string().nullish(),
+  "status": zod.enum(['DRAFT', 'SUBMITTED', 'APPROVED', 'REVISION_REQUESTED']),
+  "reviewComment": zod.string().nullish(),
+  "reviewedByEmail": zod.string().nullish(),
+  "reviewedAt": zod.string().nullish()
+})
+
+
+/**
+ * @summary List school calendar events
+ */
+export const operationsControllerListCalendarEventsQueryPageDefault = 1;
+
+export const operationsControllerListCalendarEventsQueryLimitDefault = 20;
+export const operationsControllerListCalendarEventsQueryLimitMax = 100;
+
+export const operationsControllerListCalendarEventsQuerySearchMax = 100;
+
+export const operationsControllerListCalendarEventsQuerySortOrderDefault = `asc`;
+
+export const OperationsControllerListCalendarEventsQueryParams = zod.object({
+  "page": zod.number().min(1).default(operationsControllerListCalendarEventsQueryPageDefault),
+  "limit": zod.number().min(1).max(operationsControllerListCalendarEventsQueryLimitMax).default(operationsControllerListCalendarEventsQueryLimitDefault),
+  "search": zod.string().max(operationsControllerListCalendarEventsQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(operationsControllerListCalendarEventsQuerySortOrderDefault),
+  "fromDate": zod.iso.date().optional(),
+  "toDate": zod.iso.date().optional(),
+  "academicYearId": zod.uuid().optional()
+})
+
+export const OperationsControllerListCalendarEventsResponseItem = zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string().nullish(),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "type": zod.enum(['TERM', 'HOLIDAY', 'EXAM', 'MEETING', 'SCHOOL_EVENT', 'OTHER']),
+  "startDate": zod.iso.datetime({"offset":true}),
+  "endDate": zod.iso.datetime({"offset":true}),
+  "createdByEmail": zod.string()
+})
+export const OperationsControllerListCalendarEventsResponse = zod.array(OperationsControllerListCalendarEventsResponseItem)
+
+
+/**
+ * @summary Create a school calendar event
+ */
+export const operationsControllerCreateCalendarEventBodyTitleMax = 200;
+
+export const operationsControllerCreateCalendarEventBodyDescriptionMax = 2000;
+
+
+
+export const OperationsControllerCreateCalendarEventBody = zod.object({
+  "title": zod.string().max(operationsControllerCreateCalendarEventBodyTitleMax),
+  "description": zod.string().max(operationsControllerCreateCalendarEventBodyDescriptionMax).optional(),
+  "type": zod.enum(['TERM', 'HOLIDAY', 'EXAM', 'MEETING', 'SCHOOL_EVENT', 'OTHER']),
+  "startDate": zod.iso.date(),
+  "endDate": zod.iso.date(),
+  "academicYearId": zod.uuid().optional()
+})
+
+export const OperationsControllerCreateCalendarEventResponse = zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string().nullish(),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "type": zod.enum(['TERM', 'HOLIDAY', 'EXAM', 'MEETING', 'SCHOOL_EVENT', 'OTHER']),
+  "startDate": zod.iso.datetime({"offset":true}),
+  "endDate": zod.iso.datetime({"offset":true}),
+  "createdByEmail": zod.string()
+})
+
+
+/**
+ * @summary Update a school calendar event
+ */
+export const OperationsControllerUpdateCalendarEventParams = zod.object({
+  "id": zod.string()
+})
+
+export const operationsControllerUpdateCalendarEventBodyTitleMax = 200;
+
+export const operationsControllerUpdateCalendarEventBodyDescriptionMax = 2000;
+
+
+
+export const OperationsControllerUpdateCalendarEventBody = zod.object({
+  "title": zod.string().max(operationsControllerUpdateCalendarEventBodyTitleMax).optional(),
+  "description": zod.string().max(operationsControllerUpdateCalendarEventBodyDescriptionMax).nullish(),
+  "type": zod.enum(['TERM', 'HOLIDAY', 'EXAM', 'MEETING', 'SCHOOL_EVENT', 'OTHER']).optional(),
+  "startDate": zod.iso.date().optional(),
+  "endDate": zod.iso.date().optional(),
+  "academicYearId": zod.uuid().nullish()
+})
+
+export const OperationsControllerUpdateCalendarEventResponse = zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string().nullish(),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "type": zod.enum(['TERM', 'HOLIDAY', 'EXAM', 'MEETING', 'SCHOOL_EVENT', 'OTHER']),
+  "startDate": zod.iso.datetime({"offset":true}),
+  "endDate": zod.iso.datetime({"offset":true}),
+  "createdByEmail": zod.string()
+})
+
+
+/**
+ * @summary Delete a school calendar event
+ */
+export const OperationsControllerDeleteCalendarEventParams = zod.object({
+  "id": zod.string()
+})
+
+export const OperationsControllerDeleteCalendarEventResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List substitutions (teachers see substitutions involving them)
+ */
+export const operationsControllerListSubstitutionsQueryPageDefault = 1;
+
+export const operationsControllerListSubstitutionsQueryLimitDefault = 20;
+export const operationsControllerListSubstitutionsQueryLimitMax = 100;
+
+export const operationsControllerListSubstitutionsQuerySearchMax = 100;
+
+export const operationsControllerListSubstitutionsQuerySortOrderDefault = `asc`;
+
+export const OperationsControllerListSubstitutionsQueryParams = zod.object({
+  "page": zod.number().min(1).default(operationsControllerListSubstitutionsQueryPageDefault),
+  "limit": zod.number().min(1).max(operationsControllerListSubstitutionsQueryLimitMax).default(operationsControllerListSubstitutionsQueryLimitDefault),
+  "search": zod.string().max(operationsControllerListSubstitutionsQuerySearchMax).optional().describe('Case-insensitive search term'),
+  "sortOrder": zod.enum(['asc', 'desc']).default(operationsControllerListSubstitutionsQuerySortOrderDefault),
+  "fromDate": zod.iso.date().optional(),
+  "toDate": zod.iso.date().optional()
+})
+
+export const OperationsControllerListSubstitutionsResponseItem = zod.object({
+  "id": zod.string(),
+  "date": zod.iso.datetime({"offset":true}),
+  "note": zod.string().nullish(),
+  "className": zod.string(),
+  "streamName": zod.string().nullish(),
+  "subjectName": zod.string(),
+  "originalTeacherName": zod.string(),
+  "substituteTeacherId": zod.string(),
+  "substituteTeacherName": zod.string(),
+  "period": zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "periodNumber": zod.number(),
+  "name": zod.string(),
+  "startTime": zod.string(),
+  "endTime": zod.string(),
+  "isBreak": zod.boolean()
+}),
+  "weekday": zod.string()
+})
+export const OperationsControllerListSubstitutionsResponse = zod.array(OperationsControllerListSubstitutionsResponseItem)
+
+
+/**
+ * @summary Assign a substitute teacher for a timetable lesson
+ */
+export const operationsControllerCreateSubstitutionBodyNoteMax = 500;
+
+
+
+export const OperationsControllerCreateSubstitutionBody = zod.object({
+  "timetableEntryId": zod.uuid(),
+  "substituteTeacherId": zod.uuid(),
+  "date": zod.iso.date(),
+  "note": zod.string().max(operationsControllerCreateSubstitutionBodyNoteMax).optional()
+})
+
+export const OperationsControllerCreateSubstitutionResponse = zod.object({
+  "id": zod.string(),
+  "date": zod.iso.datetime({"offset":true}),
+  "note": zod.string().nullish(),
+  "className": zod.string(),
+  "streamName": zod.string().nullish(),
+  "subjectName": zod.string(),
+  "originalTeacherName": zod.string(),
+  "substituteTeacherId": zod.string(),
+  "substituteTeacherName": zod.string(),
+  "period": zod.object({
+  "id": zod.string(),
+  "academicYearId": zod.string(),
+  "academicYearName": zod.string(),
+  "periodNumber": zod.number(),
+  "name": zod.string(),
+  "startTime": zod.string(),
+  "endTime": zod.string(),
+  "isBreak": zod.boolean()
+}),
+  "weekday": zod.string()
+})
+
+
+/**
+ * @summary Cancel a teacher substitution
+ */
+export const OperationsControllerDeleteSubstitutionParams = zod.object({
+  "id": zod.string()
+})
+
+export const OperationsControllerDeleteSubstitutionResponse = zod.object({
   "message": zod.string()
 })

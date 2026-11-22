@@ -14,4 +14,6 @@ export const RegisterDtoRole = {
   TEACHER: 'TEACHER',
   STUDENT: 'STUDENT',
   PARENT: 'PARENT',
+  BURSAR: 'BURSAR',
+  LIBRARIAN: 'LIBRARIAN',
 } as const;
